@@ -32,7 +32,6 @@ def main():
     sct = mss.mss()
     dqn = agent.DQN(get_model=partial(model.get_model, in_shape=(260, 260, 3), frames=4, out_shape=10, reduced=True),
                     buffer=replay_buffer.ReplayBuffer(10000),
-                    action_index=(3, 6),
                     discount=.99,
                     optimizer=optimizers.Adam(1.5e-4),
                     target_replace_step=10000)
