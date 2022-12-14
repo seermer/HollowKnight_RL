@@ -1,4 +1,3 @@
-from torch.nn.utils.parametrizations import spectral_norm as sn
 from torch import nn
 import torch
 import torchvision
@@ -6,7 +5,6 @@ import numpy as np
 
 
 def param_init(m):  # code adapted from torchvision VGG class
-    print(m)
     if isinstance(m, nn.Conv2d):
         nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
         if m.bias is not None:
@@ -20,23 +18,26 @@ def param_init(m):  # code adapted from torchvision VGG class
 
 
 class VGGExtractor(nn.Module):
-    def __init__(self, obs_shape: tuple, n_frames: int):
+    def __init__(self, obs_shape: tuple, n_frames: int, device=None):
         super(VGGExtractor, self).__init__()
         self.convs = torchvision.models.vgg11().features[:-1]
         self.convs[0] = nn.Conv2d(n_frames, 64, 5, stride=2, padding=2)
         self.out_shape = np.array((512,) + tuple(obs_shape), dtype=int)
         self.out_shape[1:] //= 32
+        self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
         for m in self.modules():
             param_init(m)
 
-    def forward(self, x, *args, **kwargs):
+        self.to(self.device)
+
+    def forward(self, x):
         x = self.convs(x)
         return x
 
 
 class SimpleExtractor(nn.Module):
-    def __init__(self, obs_shape: tuple, n_frames: int):
+    def __init__(self, obs_shape: tuple, n_frames: int, device=None):
         super(SimpleExtractor, self).__init__()
         act = nn.ReLU(True)
         self.convs = nn.Sequential(
@@ -52,11 +53,14 @@ class SimpleExtractor(nn.Module):
         )
         self.out_shape = np.array((512,) + tuple(obs_shape), dtype=int)
         self.out_shape[1:] //= 32
+        self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
         for m in self.modules():
             param_init(m)
 
-    def forward(self, x, *args, **kwargs):
+        self.to(self.device)
+
+    def forward(self, x):
         x = self.convs(x)
         return x
 
@@ -70,11 +74,20 @@ class SinglePathMLP(nn.Module):
         self.linear2 = nn.Linear(512, 512)
         self.out = nn.Linear(512, n_out)
         self.act = nn.ReLU(True)
+        self.device = extractor.device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
         for m in self.modules():
             param_init(m)
 
-    def forward(self, x, *args, **kwargs):
+        self.to(self.device)
+
+    def forward(self, x, state=None, info={}):
+        print(x.shape)
+        if not isinstance(x, torch.Tensor):
+            x = x.astype(np.float32)
+            x /= 127.5
+            x -= 1.  # to range [-1, 1]
+            x = torch.tensor(x, dtype=torch.float32, device=self.device)
         x = self.extractor(x)
         x = self.pool(x)
         x = torch.flatten(x, 1)
@@ -83,7 +96,7 @@ class SinglePathMLP(nn.Module):
         x = self.linear2(x)
         x = self.act(x)
         x = self.out(x)
-        return x
+        return x, state
 
 
 class DuelingMLP(nn.Module):

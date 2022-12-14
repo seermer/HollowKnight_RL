@@ -1,40 +1,60 @@
 import torch
-import numpy as np
+import tianshou as ts
 from torch.backends import cudnn
 
-import models
-import time
 import hkenv
+import models
 
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 cudnn.benchmark = True
 
 
-@torch.no_grad()
+def get_model(env: hkenv.HKEnv, n_frames: int):
+    m = models.SimpleExtractor(env.observation_space.shape, n_frames, device=DEVICE)
+    m = models.SinglePathMLP(m, env.action_space.n)
+    return m
+
+
+def train(env, policy, collector, episodes):
+    print('training started')
+    collector.collect(n_episode=1, random=True)
+    # b = collector.buffer.sample_indices(1)
+    # print(b)
+    eps = 0.85
+    for i in range(1, episodes + 1):
+        policy.set_eps(max(eps ** i, 0.05))
+        result = collector.collect(n_episode=1)  # TODO: stack for prediction
+        env.close()
+        losses = policy.update(64, collector.buffer)
+        print(f'episode {i}:'
+              f'collected {result["n/st"]}, reward {result["rew"]}, loss {losses["loss"]}')
+
+
 def main():
-    game = hkenv.HKEnv((160, 160))
-    m = models.SimpleExtractor((160, 160), 5)
-    m = models.SinglePathMLP(m, game.total_actions).cuda()
-    m.eval()
-    # warmup
-    m(torch.rand((2, 5, 160, 160), dtype=torch.float32, device='cuda'))
-    m(torch.rand((1, 5, 160, 160), dtype=torch.float32, device='cuda'))
-    buffer = []
-    game.start()
-    while True:
-        # print('iter')
-        t = time.time()
-        if len(buffer) >= 5:
-            frames = np.array([buffer[-5:]], dtype=np.float16)
-            frames = torch.cuda.FloatTensor(frames)
-            pred = m(frames).detach().cpu().view(-1)
-            obs, _, done = game.step_pred(pred)
-            if done:
-                game.cleanup()
-                break
-        else:
-            obs, _, _ = game.observe()
-        buffer.append(obs)
-        print(time.time() - t)
+    n_frames = 16
+    e = hkenv.HKEnv((160, 160))
+    m = get_model(e, n_frames)  # TODO: run warmup
+    e = ts.env.DummyVectorEnv([lambda: e])
+    optimizer = torch.optim.Adam(m.parameters(), lr=1e-3)
+    policy = ts.policy.DQNPolicy(
+        model=m,
+        optim=optimizer,
+        discount_factor=0.98,
+        estimation_step=5,
+        target_update_freq=30000
+    )
+    buffer = ts.data.PrioritizedVectorReplayBuffer(total_size=100000,
+                                                   buffer_num=1,
+                                                   alpha=0.6,
+                                                   beta=0.4,
+                                                   stack_num=n_frames)
+    collector = ts.data.Collector(
+        policy=policy,
+        env=e,
+        buffer=buffer,
+        exploration_noise=True
+    )
+    train(e, policy, collector, 100)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
-import time
+import gym
 import cv2
+import time
 import enum
 import random
 import pyautogui
@@ -12,7 +13,6 @@ pyautogui.PAUSE = 0.
 
 
 class Actions(enum.Enum):
-    # use Int rather than Str because model will output number
     @classmethod
     def random(cls):
         return random.choice(list(cls))
@@ -40,7 +40,7 @@ class Dash(Actions):
     DASH = 1
 
 
-class HKEnv:
+class HKEnv(gym.Env):
     KEYMAPS = {
         Move.HOLD_LEFT: 'a',
         Move.HOLD_RIGHT: 'd',
@@ -57,8 +57,10 @@ class HKEnv:
         self.holding = []
         self.prev_knight_hp = None
         self.prev_enemy_hp = None
-        self.obs_shape = obs_shape
-        self.total_actions = np.prod([len(Act) for Act in self.ACTIONS])
+        total_actions = np.prod([len(Act) for Act in self.ACTIONS])
+        self.observation_space = gym.spaces.Box(low=0, high=255,
+                                                dtype=np.uint8, shape=obs_shape)
+        self.action_space = gym.spaces.Discrete(int(total_actions))
 
         self.w1 = w1
         self.w2 = w2
@@ -97,6 +99,7 @@ class HKEnv:
 
         if self._timer is None or not self._timer.is_alive():
             # timer available, do timed action
+            # ignore if there is already a timed action in progress
             self._timer = threading.Thread(target=timer_thread)
             self._timer.start()
 
@@ -118,32 +121,22 @@ class HKEnv:
                 pyautogui.press(key)
 
     def _to_multi_discrete(self, num):
+        num = int(num)
         chosen = []
         for Act in self.ACTIONS:
             num, mod = divmod(num, len(Act))
             chosen.append(Act(mod))
         return chosen
 
-    def stand(self):
-        assert not self.holding, 'cannot stand when there are holding keys'
-        pyautogui.press('w')
-        time.sleep(2.5)
-
-    def start(self):
-        assert not self.holding, 'cannot start game when there are holding keys'
-        pyautogui.press('w')
-        time.sleep(0.7)
-        pyautogui.press('space')
-        time.sleep(0.01)
-        pyautogui.press('space')  # in case first space did not work
-        ready = False
-        while True:
-            obs, _, _ = self.observe()
-            is_loading = (obs < 20).sum() < 10
-            if ready and not is_loading:
-                break
-            else:
-                ready = is_loading
+    def _find_menu(self):
+        monitor = self.monitor
+        monitor = (monitor['left'] + monitor['width'] // 2,
+                   monitor['top'],
+                   monitor['width'] // 2,
+                   monitor['height'] // 2)
+        return pyautogui.locateOnScreen(f'locator/menu_badge.png',
+                                        region=monitor,
+                                        confidence=0.95)
 
     def observe(self):
         with mss() as sct:
@@ -162,28 +155,20 @@ class HKEnv:
         knight_hp_bar = frame[45, :353, 0]
         knight_hp = (knight_hp_bar[self.HP_CKPT] > 180).sum()
         obs = frame[:608, ...]
-        obs = cv2.resize(obs, dsize=self.obs_shape, interpolation=cv2.INTER_AREA)
+        obs = cv2.resize(obs,
+                         dsize=self.observation_space.shape,
+                         interpolation=cv2.INTER_AREA)
         obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
         return obs, knight_hp, enemy_hp
-
-    def step_pred(self, actions):
-        actions = np.argmax(np.array(actions))
-        print(actions)
-        return self.step(actions)
-
-    def step_random(self):
-        actions = random.randint(0, self.total_actions - 1)
-        return self.step(actions)
 
     def step(self, actions):
         actions = self._to_multi_discrete(actions)
         self._step_actions(actions)
-        time.sleep(0.01)
         obs, knight_hp, enemy_hp = self.observe()
         if self.prev_knight_hp is None:
             self.prev_knight_hp = knight_hp
             self.prev_enemy_hp = enemy_hp
-            return obs, self.w3, False
+            return obs, self.w3, False, False, {}
 
         win = self.prev_enemy_hp < enemy_hp
         lose = knight_hp == 0
@@ -202,15 +187,41 @@ class HKEnv:
                 + self.w2 * (self.prev_enemy_hp - enemy_hp)
                 + self.w3
         )
-        if win:
-            reward += np.log10(knight_hp)
+        if win:  # extra reward for winning based on remaining health
+            reward += np.log10(knight_hp / 2.)
         # print('reward', reward)
         # print()
         # TODO: add special reward for winning with shorter steps/time
 
         self.prev_knight_hp = knight_hp
         self.prev_enemy_hp = enemy_hp
-        return obs, reward, done
+        return obs, np.clip(reward, -1, 1), done, False, {}
+
+    def reset(self, seed=None, options=None):
+        super(HKEnv, self).reset(seed=seed)
+        self.cleanup()
+        while True:
+            menu = self._find_menu()
+            if menu:
+                break
+            pyautogui.press('w')
+            time.sleep(0.1)
+        pyautogui.press('space')
+
+        # wait for loading screen
+        ready = False
+        while True:
+            obs, _, _ = self.observe()
+            is_loading = (obs < 20).sum() < 10
+            if ready and not is_loading:
+                break
+            else:
+                ready = is_loading
+        # print('game started')
+        return self.observe()[0], {}
+
+    def close(self):
+        self.cleanup()
 
     def cleanup(self):
         if self._timer is not None:
