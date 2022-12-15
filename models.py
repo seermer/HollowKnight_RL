@@ -41,17 +41,18 @@ class SimpleExtractor(nn.Module):
         super(SimpleExtractor, self).__init__()
         act = nn.ReLU(True)
         self.convs = nn.Sequential(
-            nn.Conv2d(n_frames, 32, kernel_size=7, stride=4, padding=3),
+            nn.Conv2d(n_frames, 48, kernel_size=7, stride=4, padding=3),
             act,
-            nn.Conv2d(32, 64, kernel_size=5, stride=2, padding=2),
+            nn.Conv2d(48, 80, kernel_size=5, stride=2, padding=2),
             act,
-            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(80, 128, kernel_size=3, stride=2, padding=1),
             act,
             nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(256, 512, kernel_size=1)
+            nn.Conv2d(256, 320, kernel_size=3, stride=1, padding=1),
+            act,
         )
-        self.out_shape = np.array((512,) + tuple(obs_shape), dtype=int)
+        self.out_shape = np.array((320,) + tuple(obs_shape), dtype=int)
         self.out_shape[1:] //= 32
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
 

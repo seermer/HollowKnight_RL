@@ -48,8 +48,10 @@ ___________________________
   - [x] Add instructions to train
   - [ ] Add more docstrings and typehint in code
 - [ ] Train an agent that can defeat Hornet
-- [ ] add code for additional functionalities (like saving buffer, model...)
-- [ ] improve the algorithm
+- [ ] Add code for additional functionalities (like saving buffer, model...)
+  - [x] Saving model periodically
+  - [x] Tensorboard logging
+- [ ] Improve the algorithm
 
 
 Project inspired by https://github.com/ailec0623/DQN_HollowKnight <br>

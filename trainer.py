@@ -1,14 +1,17 @@
+import os
 import copy
+import time
 import torch
 import random
 import numpy as np
 from collections import deque
+from torch.utils.tensorboard import SummaryWriter
 
 
 class Trainer:
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps,
-                 model, optimizer, criterion, device):
+                 model, optimizer, criterion, device, save_loc=None):
         self.env = env
         self.replay_buffer = replay_buffer
 
@@ -34,9 +37,17 @@ class Trainer:
         self.episodes = 0
         self.target_replace_steps = 0
 
+        self.save_loc = ('./saved/' + str(int(time.time()))) if save_loc is None else save_loc
+        if not self.save_loc.endswith('/'):
+            self.save_loc += '/'
+        if not os.path.exists(self.save_loc):
+            os.makedirs(self.save_loc)
+        self.writer = SummaryWriter(self.save_loc + 'log/')
+
     @staticmethod
     def _preprocess(obs):
-        obs = obs / 127.5
+        obs = obs.astype(np.float32)
+        obs /= 127.5
         obs -= 1.
         return obs
 
@@ -78,9 +89,11 @@ class Trainer:
             obs = obs_next
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.episodes, self.steps)
-            if self.steps > 1000:
-                batch = self.replay_buffer.sample(64)
-                self.learn(*batch)
+                if self.steps > 1000:
+                    batch = self.replay_buffer.sample(32)
+                    self.learn(*batch)
+                else:  # when no training, make sure gap between frames are similar
+                    time.sleep(0.1)
             if done:
                 break
         self.env.cleanup()
@@ -120,3 +133,13 @@ class Trainer:
                 self.target_model.load_state_dict(self.model.state_dict())
                 self.target_replace_steps = 0
         return loss
+
+    def save_models(self):
+        torch.save(self.model.state_dict(), self.save_loc + 'model.pt')
+        torch.save(self.target_model.state_dict(), self.save_loc + 'target_model.pt')
+        torch.save(self.optimizer.state_dict(), self.save_loc + 'optimizer.pt')
+
+    def log(self, info):
+        for k, v in info.items():
+            self.writer.add_scalar(k, v, self.episodes)
+

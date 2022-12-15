@@ -23,10 +23,10 @@ class Buffer:
             done.append(d)
 
         # avoid copy if possible (usually have to copy though)
-        return (np.array(obs, copy=False),
+        return (np.array(obs, copy=False, dtype=np.uint8),
                 np.array(act, copy=False, dtype=np.int64),
                 np.array(rew, copy=False, dtype=np.float32),
-                np.array(obs_next, copy=False),
+                np.array(obs_next, copy=False, dtype=np.uint8),
                 np.array(done, copy=False, dtype=bool))
 
     def __len__(self):

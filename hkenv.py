@@ -176,7 +176,7 @@ class HKEnv(gym.Env):
         if enemy_hp < self.prev_enemy_hp:  # enemy gets hit
             self.w3 = self._w3
         else:  # nothing happens
-            self.w3 -= 0.0001
+            self.w3 -= 0.00012
             self.w3 = max(self.w3, -self._w3)
         if knight_hp < self.prev_knight_hp:  # knight gets hit
             self.w3 = min(self.w3, 0.)
@@ -195,7 +195,7 @@ class HKEnv(gym.Env):
 
         self.prev_knight_hp = knight_hp
         self.prev_enemy_hp = enemy_hp
-        return obs, np.clip(reward, -1, 1), done, False, {}
+        return obs, reward, done, False, {}
 
     def reset(self, seed=None, options=None):
         super(HKEnv, self).reset(seed=seed)
