@@ -9,6 +9,20 @@ You need to install the Satchel and EnemyHPBar Mod to correctly run (so it can r
 I have made some modifications (custom HP bar color) 
 for more stable recognition, the mod files can be found in Managed folder.
 
+________________________
+
+## Platform and requirements
+
+Python 3 (tested with Python 3.10) <br>
+Windows 10 or 11 <br>
+Screen with at least (1280, 720) resolution <br>
+CUDA GPU (You can also try CPU, the code will still work, 
+but then you need to install the libraries on your own, 
+because requirements.txt contains CUDA related packages) <br>
+Newest Hollow Knight Game (tested with Steam version) <br>
+packages listed in requirements.txt <br>
+
+
 _________________________
 
 ## Usage
@@ -23,7 +37,8 @@ run the following from terminal with virtual environment and all required packag
 python train.py
 ```
 
-It will take over keyboards to control the game, if you want to force quit in the middle, Ctrl+C in terminal will work
+It will take over keyboards to control the game, if you want to force quit in the middle, Ctrl+C in terminal will work. <br>
+While running, do not click on other windows, stay focused on the Hollow Knight window, unless you want to stop running
 
 ___________________________
 
