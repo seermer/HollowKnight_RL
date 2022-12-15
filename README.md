@@ -4,7 +4,7 @@ The project uses Deep Q-Network to learn how to play boss fight in Hollow Knight
 
 I am currently primarily trying to train the agent with Hornet boss fight, but theoretically, it should be able to run on most Hall of Gods Boss with only one health bar.
 
-You need to install the Satchel and EnemyHPBar Mod to currectly run (so it can recognize boss HP).
+You need to install the Satchel and EnemyHPBar Mod to correctly run (so it can recognize boss HP), I have made some modifications (custom HP bar color) for more stable recognition, I will be updating the files on github soon.
 
 Project Tentative Plan: <br>
 - [ ] Update Project Structure
