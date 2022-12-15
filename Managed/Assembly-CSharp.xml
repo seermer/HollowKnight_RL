@@ -1,0 +1,3750 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Assembly-CSharp.mm</name>
+    </assembly>
+    <members>
+        <member name="T:Modding.CanvasUtil">
+            <summary>
+                Utility with helpful functions for drawing canvas elements on screen.
+            </summary>
+        </member>
+        <member name="P:Modding.CanvasUtil.TrajanBold">
+            <summary>
+                Access to the TrajanBold Font
+            </summary>
+        </member>
+        <member name="P:Modding.CanvasUtil.TrajanNormal">
+            <summary>
+                Access to the TrajanNormal Font
+            </summary>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateFonts">
+            <summary>
+                Fetches the Trajan fonts to be cached and used.
+            </summary>
+        </member>
+        <member name="M:Modding.CanvasUtil.GetFont(System.String)">
+            <summary>
+                Fetches the cached font if it exists.
+            </summary>
+            <param name="fontName"></param>
+            <returns>Font if found, null if not.</returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.NullSprite(System.Byte[])">
+            <summary>
+                Creates a 1px * 1px sprite of a single color.
+            </summary>
+            <param name="data">Optional value to control the single null sprite</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateSprite(System.Byte[],System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+                Creates a sprite from a sub-section of the given texture.
+            </summary>
+            <param name="data">Sprite texture data</param>
+            <param name="x">X location of the sprite within the texture.</param>
+            <param name="y">Y Locaiton of the sprite within the texture.</param>
+            <param name="width">Width of sprite</param>
+            <param name="height">Height of sprite</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateBasePanel(UnityEngine.GameObject,Modding.CanvasUtil.RectData)">
+            <summary>
+                Creates a base panel for other panels to use.
+            </summary>
+            <param name="parent">Parent Game Object under which this panel will be held</param>
+            <param name="rd">Rectangle data for this panel</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.AddRectTransform(UnityEngine.GameObject,Modding.CanvasUtil.RectData)">
+            <summary>
+                Transforms the RectData into a RectTransform for the GameObject.
+            </summary>
+            <param name="go">GameObject to which this rectdata should be put into.</param>
+            <param name="rd">Rectangle Data</param>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateCanvas(UnityEngine.RenderMode,System.Int32)">
+            <summary>
+                Creates a Canvas Element that is scaled to the parent's size.
+            </summary>
+            <param name="renderMode">Render Mode to Use</param>
+            <param name="referencePixelsPerUnit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateCanvas(UnityEngine.RenderMode,UnityEngine.Vector2)">
+            <summary>
+                Creates a Canvas Element.
+            </summary>
+            <param name="renderMode">RenderMode to Use</param>
+            <param name="size">Size of the Canvas</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateTextPanel(UnityEngine.GameObject,System.String,System.Int32,UnityEngine.TextAnchor,Modding.CanvasUtil.RectData,UnityEngine.Font)">
+            <summary>
+                Creates a Text Object
+            </summary>
+            <param name="parent">The GameObject that this text will be put into.</param>
+            <param name="text">The text that will be shown with this object</param>
+            <param name="fontSize">The text's font size.</param>
+            <param name="textAnchor">The location within the rectData where the text anchor should be.</param>
+            <param name="rectData">Rectangle Data to describe the Text Panel.</param>
+            <param name="font">The Font to use</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateTextPanel(UnityEngine.GameObject,System.String,System.Int32,UnityEngine.TextAnchor,Modding.CanvasUtil.RectData,System.Boolean)">
+            <summary>
+                Creates a Text Object
+            </summary>
+            <param name="parent">The GameObject that this text will be put into.</param>
+            <param name="text">The text that will be shown with this object</param>
+            <param name="fontSize">The text's font size.</param>
+            <param name="textAnchor">The location within the rectData where the text anchor should be.</param>
+            <param name="rectData">Rectangle Data to describe the Text Panel.</param>
+            <param name="bold">If True, TrajanBold will be the font used, else TrajanNormal</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateImagePanel(UnityEngine.GameObject,UnityEngine.Sprite,Modding.CanvasUtil.RectData)">
+            <summary>
+                Creates an Image Panel
+            </summary>
+            <param name="parent">The Parent GameObject for this image.</param>
+            <param name="sprite">The Image/Sprite to use</param>
+            <param name="rectData">The rectangle description for this sprite to inhabit</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateButton(UnityEngine.GameObject,System.Action{System.Int32},System.Int32,UnityEngine.Sprite,System.String,System.Int32,UnityEngine.TextAnchor,Modding.CanvasUtil.RectData,System.Boolean,UnityEngine.Sprite[])">
+            <summary>
+                Creates a Button
+            </summary>
+            <param name="parent">The Parent GameObject for this Button</param>
+            <param name="action">Action to take when butotn is clicked</param>
+            <param name="id">Id passed to the action</param>
+            <param name="spr">Sprite to use for the button</param>
+            <param name="text">Text for the button</param>
+            <param name="fontSize">Size of the Text</param>
+            <param name="textAnchor">Where to Anchor the text within the button</param>
+            <param name="rectData">The rectangle description for this button</param>
+            <param name="bold">If Set, uses Trajan-Bold, else Trajan for the font</param>
+            <param name="extraSprites">
+                Size 3 array of other sprite states for the button.  0 = Highlighted Sprite, 1 = Pressed
+                Sprited, 2 = Disabled Sprite
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateToggle(UnityEngine.GameObject,System.Action{System.Boolean},UnityEngine.Sprite,UnityEngine.Sprite,System.String,System.Int32,UnityEngine.TextAnchor,Modding.CanvasUtil.RectData,System.Boolean,System.Boolean)">
+            <summary>
+                Creates a checkbox
+            </summary>
+            <param name="parent">The Parent GameObject for this Checkbox</param>
+            <param name="action">Action to take when butotn is clicked</param>
+            <param name="boxBgSprite">Sprite to use for the background of the box</param>
+            <param name="boxFgSprite">Sprite to use for the foreground of the box</param>
+            <param name="text">Text for the Checkbox</param>
+            <param name="fontSize">Size of the Text</param>
+            <param name="textAnchor">Where to Anchor the text within the checkbox</param>
+            <param name="rectData">The rectangle description for this checkbox</param>
+            <param name="bold">If Set, uses Trajan-Bold, else Trajan for the font</param>
+            <param name="isOn">Determines if the initial state of the checkbox is checked or not</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateToggleGroup">
+            <summary>
+                Allows for a radio button style group of toggles where only 1 can be toggled at once.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.CreateRectMask2DPanel(UnityEngine.GameObject,Modding.CanvasUtil.RectData)">
+            <summary>
+                Hides everything in this object and children objects that goes outside this objects rect
+            </summary>
+            <param name="parent">Parent Object for this Panel</param>
+            <param name="rectData">Describes the panel's rectangle</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.FadeInCanvasGroup(UnityEngine.CanvasGroup)">
+            <summary>
+                Fades the Canvas Group In When it is &lt; 1f
+            </summary>
+            <param name="cg"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.CanvasUtil.FadeOutCanvasGroup(UnityEngine.CanvasGroup)">
+            <summary>
+                Fades the Canvas Group Out When it is &gt; .05f
+            </summary>
+            <param name="cg"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.CanvasUtil.RectData">
+            <summary>
+                Rectangle Helper Class
+            </summary>
+        </member>
+        <member name="F:Modding.CanvasUtil.RectData.AnchorMax">
+            <summary>
+                Describes on of the X,Y Positions of the Element
+            </summary>
+        </member>
+        <member name="F:Modding.CanvasUtil.RectData.AnchorMin">
+            <summary>
+                Describes on of the X,Y Positions of the Element
+            </summary>
+        </member>
+        <member name="F:Modding.CanvasUtil.RectData.AnchorPivot">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:Modding.CanvasUtil.RectData.AnchorPosition">
+            <summary>
+                Relative Offset Postion where Element is anchored as compared to Min / Max
+            </summary>
+        </member>
+        <member name="F:Modding.CanvasUtil.RectData.RectSizeDelta">
+            <summary>
+                Difference in size of the rectangle as compared to it's parent.
+            </summary>
+        </member>
+        <member name="M:Modding.CanvasUtil.RectData.#ctor(UnityEngine.Vector2,UnityEngine.Vector2)">
+            <inheritdoc />
+            <summary>
+                Describes a Rectangle's relative size, shape, and relative position to it's parent.
+            </summary>
+            <param name="sizeDelta">
+                sizeDelta is size of the difference of the anchors multiplied by screen size so
+                the sizeDelta width is actually = ((anchorMax.x-anchorMin.x)*screenWidth) + sizeDelta.x
+                so assuming a streched horizontally rectTransform on a 1920 screen, this would be
+                ((1-0)*1920)+sizeDelta.x
+                1920 + sizeDelta.x
+                so if you wanted a 100pixel wide box in the center of the screen you'd do -1820, height as 1920+-1820 = 100
+                and if you wanted a fullscreen wide box, its just 0 because 1920+0 = 1920
+                the same applies for height
+            </param>
+            <param name="anchorPosition">Relative Offset Postion where Element is anchored as compared to Min / Max</param>
+        </member>
+        <member name="M:Modding.CanvasUtil.RectData.#ctor(UnityEngine.Vector2,UnityEngine.Vector2,UnityEngine.Vector2,UnityEngine.Vector2)">
+            <inheritdoc />
+            <summary>
+                Describes a Rectangle's relative size, shape, and relative position to it's parent.
+            </summary>
+            <param name="sizeDelta">
+                sizeDelta is size of the difference of the anchors multiplied by screen size so
+                the sizeDelta width is actually = ((anchorMax.x-anchorMin.x)*screenWidth) + sizeDelta.x
+                so assuming a streched horizontally rectTransform on a 1920 screen, this would be
+                ((1-0)*1920)+sizeDelta.x
+                1920 + sizeDelta.x
+                so if you wanted a 100pixel wide box in the center of the screen you'd do -1820, height as 1920+-1820 = 100
+                and if you wanted a fullscreen wide box, its just 0 because 1920+0 = 1920
+                the same applies for height
+            </param>
+            <param name="anchorPosition">Relative Offset Postion where Element is anchored as compared to Min / Max</param>
+            <param name="min">
+                Describes 1 corner of the rectangle
+                0,0 = bottom left
+                0,1 = top left
+                1,0 = bottom right
+                1,1 = top right
+            </param>
+            <param name="max">
+                Describes 1 corner of the rectangle
+                0,0 = bottom left
+                0,1 = top left
+                1,0 = bottom right
+                1,1 = top right
+            </param>
+        </member>
+        <member name="M:Modding.CanvasUtil.RectData.#ctor(UnityEngine.Vector2,UnityEngine.Vector2,UnityEngine.Vector2,UnityEngine.Vector2,UnityEngine.Vector2)">
+            <summary>
+                Describes a Rectangle's relative size, shape, and relative position to it's parent.
+            </summary>
+            <param name="sizeDelta">
+                sizeDelta is size of the difference of the anchors multiplied by screen size so
+                the sizeDelta width is actually = ((anchorMax.x-anchorMin.x)*screenWidth) + sizeDelta.x
+                so assuming a streched horizontally rectTransform on a 1920 screen, this would be
+                ((1-0)*1920)+sizeDelta.x
+                1920 + sizeDelta.x
+                so if you wanted a 100pixel wide box in the center of the screen you'd do -1820, height as 1920+-1820 = 100
+                and if you wanted a fullscreen wide box, its just 0 because 1920+0 = 1920
+                the same applies for height
+            </param>
+            <param name="anchorPosition">Relative Offset Postion where Element is anchored as compared to Min / Max</param>
+            <param name="min">
+                Describes 1 corner of the rectangle
+                0,0 = bottom left
+                0,1 = top left
+                1,0 = bottom right
+                1,1 = top right
+            </param>
+            <param name="max">
+                Describes 1 corner of the rectangle
+                0,0 = bottom left
+                0,1 = top left
+                1,0 = bottom right
+                1,1 = top right
+            </param>
+            <param name="pivot">Controls the location to use to rotate the rectangle if necessary.</param>
+        </member>
+        <member name="T:Modding.Converters.JsonConverter`1">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.JsonConverter`1.CanConvert(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.JsonConverter`1.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.JsonConverter`1.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.JsonConverter`1.ReadJson(System.Collections.Generic.Dictionary{System.String,System.Object},System.Object)">
+            <summary>
+            Read from token 
+            </summary>
+            <param name="token">JSON object</param>
+            <param name="existingValue">Existing value</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Converters.JsonConverter`1.WriteJson(Newtonsoft.Json.JsonWriter,`0)">
+            <summary>
+            Write value into token
+            </summary>
+            <param name="writer">JSON Writer</param>
+            <param name="value">Value to be written</param>
+        </member>
+        <member name="T:Modding.Converters.PlayerActionSetConverter">
+            <summary>
+            JsonConverter to serialize and deserialize classes that derive from <c>PlayerActionSet</c>.<br/>
+            The target class needs to have a parameterless constructor
+            that initializes the player actions that get read/written.<br/>
+            All of the added actions will get processed,
+            so if there are unmappable actions, an <c>IMappablePlayerActions</c> interface should be added
+            to filter the mappable keybinds.
+            </summary>
+        </member>
+        <member name="M:Modding.Converters.PlayerActionSetConverter.CanConvert(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.PlayerActionSetConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.PlayerActionSetConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <inheritdoc />
+        </member>
+        <member name="T:Modding.Converters.IMappablePlayerActions">
+            <summary>
+            An interface to signify mappable player actions to be used in conjunction with <c>PlayerActionSetConverter</c>.
+            </summary>
+        </member>
+        <member name="M:Modding.Converters.IMappablePlayerActions.IsMappable(System.String)">
+            <summary>
+            Checks if the passed in string should be read/written from the JSON stream
+            </summary>
+            <param name="name">The name of the player action</param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.Converters.Vector2Converter">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.Vector2Converter.ReadJson(System.Collections.Generic.Dictionary{System.String,System.Object},System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.Vector2Converter.WriteJson(Newtonsoft.Json.JsonWriter,UnityEngine.Vector2)">
+            <inheritdoc />
+        </member>
+        <member name="T:Modding.Converters.Vector3Converter">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.Vector3Converter.ReadJson(System.Collections.Generic.Dictionary{System.String,System.Object},System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Converters.Vector3Converter.WriteJson(Newtonsoft.Json.JsonWriter,UnityEngine.Vector3)">
+            <inheritdoc />
+        </member>
+        <member name="T:Modding.DeconstructUtil">
+            <summary>
+            Used for Deconstruct when not given by .NET 
+            </summary>
+        </member>
+        <member name="M:Modding.DeconstructUtil.Deconstruct``2(System.Collections.Generic.KeyValuePair{``0,``1},``0@,``1@)">
+            <summary>
+            Deconstructs a KeyValuePair into key and value
+            </summary>
+            <param name="self">The KeyValuePair</param>
+            <param name="key">Output key</param>
+            <param name="value">Output value</param>
+            <typeparam name="TKey">Type of KeyValuePair Key</typeparam>
+            <typeparam name="TValue">Type of KeyValuePair Value</typeparam>
+        </member>
+        <member name="T:Modding.Delegates.CharmUpdateHandler">
+            <summary>
+                Called after player values for charms have been set
+            </summary>
+            <param name="data">Current PlayerData</param>
+            <param name="controller">Current HeroController</param>
+        </member>
+        <member name="T:Modding.Delegates.AfterTakeDamageHandler">
+            <summary>
+                Called at the end of the take damage function
+            </summary>
+            <param name="hazardType"></param>
+            <param name="damageAmount"></param>
+        </member>
+        <member name="T:Modding.Delegates.SlashHitHandler">
+            <summary>
+                Called whenever nail strikes something
+            </summary>
+            <param name="otherCollider">What the nail is colliding with</param>
+            <param name="slash">The NailSlash gameObject</param>
+        </member>
+        <member name="T:Modding.Delegates.HitInstanceHandler">
+            <summary>
+                Called when a HitInstance is created in TakeDamage. The hit instance returned defines the hit behavior that will
+                happen. Overrides default behavior
+            </summary>
+        </member>
+        <member name="T:Modding.Delegates.OnEnableEnemyHandler">
+            <summary>
+                Called when an enemy is enabled. Check this isDead flag to see if they're already dead. If you return true, this
+                will mark the enemy as already dead on load. Default behavior is to return the value inside "isAlreadyDead".
+            </summary>
+        </member>
+        <member name="T:Modding.Delegates.OnReceiveDeathEventHandler">
+            <summary>
+                Called when an enemy recieves a death event. It looks like this event may be called multiple times on an enemy, so
+                check "eventAlreadyReceived" to see if the event has been fired more than once.
+            </summary>
+        </member>
+        <member name="T:Modding.Delegates.RecordKillForJournalHandler">
+            <summary>
+                Called when an enemy dies and a journal kill is recorded. You may use the "playerDataName" string or one of the
+                additional pre-formatted player data strings to look up values in playerData.
+            </summary>
+        </member>
+        <member name="T:Modding.Delegates.LanguageGetProxy">
+            <summary>
+                Called whenever localization specific strings are requested
+            </summary>
+            <param name="key">The key within the sheet</param>
+            <param name="sheetTitle">The title of the sheet</param>
+            <param name="orig">The original localized value</param>
+            <returns>The modified localization, return *current* to keep as-is.</returns>
+        </member>
+        <member name="T:Modding.Delegates.GetBoolProxy">
+            <summary>
+                Called when anything in the game tries to get a bool
+            </summary>
+            <param name="name">The field being gotten</param>
+            <param name="orig">The original value of the bool</param>
+            <returns>The bool, if you are overriding it, otherwise orig.</returns>
+        </member>
+        <member name="T:Modding.Delegates.SetBoolProxy">
+            <summary>
+                Called when anything in the game tries to set a bool
+            </summary>
+            <param name="name">The field being set</param>
+            <param name="orig">The original value the bool was being set to</param>
+            <returns>The bool, if overridden, else orig.</returns>
+        </member>
+        <member name="T:Modding.Delegates.GetIntProxy">
+            <summary>
+                Called when anything in the game tries to get an int
+            </summary>
+            <param name="name">The field being gotten</param>
+            <param name="orig">The original value of the field</param>
+            <returns>The int, if overridden, else orig.</returns>
+        </member>
+        <member name="T:Modding.Delegates.SetIntProxy">
+            <summary>
+                Called when anything in the game tries to set an int
+            </summary>
+            <param name="name">The field which is being set</param>
+            <param name="orig">The original value</param>
+            <returns>The int if overrode, else null</returns>
+        </member>
+        <member name="T:Modding.Delegates.GetFloatProxy">
+            <summary>
+                Called when anything in the game tries to get a float
+            </summary>
+            <param name="name">The field being set</param>
+            <param name="orig">The original value</param>
+            <returns>The value, if overrode, else null.</returns>
+        </member>
+        <member name="T:Modding.Delegates.SetFloatProxy">
+            <summary>
+                Called when anything in the game tries to set a float
+            </summary>
+            <param name="name">The field being set</param>
+            <param name="orig">The original value the float was being set to</param>
+            <returns>The modified value of the set</returns>
+        </member>
+        <member name="T:Modding.Delegates.GetStringProxy">
+            <summary>
+                Called when anything in the game tries to get a string
+            </summary>
+            <param name="name">The name of the field</param>
+            <param name="res">The original value of the field</param>
+            <returns>The modified value of the get</returns>
+        </member>
+        <member name="T:Modding.Delegates.SetStringProxy">
+            <summary>
+                Called when anything in the game tries to set a string
+            </summary>
+            <param name="name">The name of the field</param>
+            <param name="res">The original set value of the string</param>
+            <returns>The modified value of the set</returns>
+        </member>
+        <member name="T:Modding.Delegates.GetVector3Proxy">
+            <summary>
+                Called when anything in the game tries to get a Vector3
+            </summary>
+            <param name="name">The name of the Vector3 field</param>
+            <param name="orig">The original value of the field</param>
+            <returns>The value to override the vector to</returns>
+        </member>
+        <member name="T:Modding.Delegates.SetVector3Proxy">
+            <summary>
+                Called when anything in the game tries to set a Vector3
+            </summary>
+            <param name="name">The name of the field</param>
+            <param name="orig">The original value the field was being set to</param>
+            <returns>The value to override the set to</returns>
+        </member>
+        <member name="T:Modding.Delegates.GetVariableProxy">
+            <summary>
+                Called when anything in the game tries to get a generic variable
+            </summary>
+            <param name="type">The type of the variable</param>
+            <param name="name">The field being gotten</param>
+            <param name="value">The original value of the field</param>
+            <returns>The modified value</returns>
+        </member>
+        <member name="T:Modding.Delegates.SetVariableProxy">
+            <summary>
+                Called when anything in the game tries to set a generic variable
+            </summary>
+            <param name="type">The type of the variable</param>
+            <param name="name">The name of the field being set</param>
+            <param name="value">The original value the field was being set to</param>
+            <returns>The new value of the field</returns>
+        </member>
+        <member name="T:Modding.Delegates.TakeDamageProxy">
+            <summary>
+                Called when damage is dealt to the player
+            </summary>
+            <param name="hazardType">The type of hazard that caused the damage.</param>
+            <param name="damage">Amount of Damage</param>
+            <returns>Modified Damage</returns>
+        </member>
+        <member name="T:Modding.Delegates.TakeHealthProxy">
+            <summary>
+                Called when health is taken from the player
+            </summary>
+            <param name="damage">Amount of Damage</param>
+            <returns>Modified Damaged</returns>
+        </member>
+        <member name="T:Modding.ILogger">
+            <summary>
+                Logging Utility
+            </summary>
+        </member>
+        <member name="M:Modding.ILogger.Log(System.String)">
+            <summary>
+                Log at the info level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.ILogger.Log(System.Object)">
+            <summary>
+                Log at the info level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.ILogger.LogDebug(System.String)">
+            <summary>
+                Log at the debug level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.ILogger.LogDebug(System.Object)">
+            <summary>
+                Log at the debug level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.ILogger.LogError(System.String)">
+            <summary>
+                Log at the error level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.ILogger.LogError(System.Object)">
+            <summary>
+                Log at the error level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.ILogger.LogFine(System.String)">
+            <summary>
+                Log at the fine level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.ILogger.LogFine(System.Object)">
+            <summary>
+                Log at the fine level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.ILogger.LogWarn(System.String)">
+            <summary>
+                Log at the warn level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.ILogger.LogWarn(System.Object)">
+            <summary>
+                Log at the warn level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="T:Modding.IMenuMod">
+            <summary>
+            Interface which signifies that this mod will register a menu in the mod list.
+            </summary>
+        </member>
+        <member name="M:Modding.IMenuMod.GetMenuData(System.Nullable{Modding.IMenuMod.MenuEntry})">
+            <summary>
+            Gets the data for the custom menu.
+            </summary>
+            <remarks>
+            The implementor of this method will need to add the `toggleButtonEntry`
+            if they want it to appear in their menu. The mod loader will not add it automatically.
+            </remarks>
+            <param name="toggleButtonEntry">
+            An entry representing the mod toggle button.
+            This will be null if `ToggleButtonInsideMenu` is false or the mod is not an `ITogglableMod`.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="P:Modding.IMenuMod.ToggleButtonInsideMenu">
+            <summary>
+            Will the toggle button (for an ITogglableMod) be inside the returned menu screen.
+            If this is set, an `ITogglableMod` will not create the toggle entry in the main menu.
+            </summary>
+        </member>
+        <member name="T:Modding.IMenuMod.MenuEntry">
+            <summary>
+            A struct representing a menu option.
+            </summary>
+        </member>
+        <member name="F:Modding.IMenuMod.MenuEntry.Name">
+            <summary>
+            The name of the setting.
+            </summary>
+        </member>
+        <member name="F:Modding.IMenuMod.MenuEntry.Description">
+            <summary>
+            The description of the setting. May be null.
+            </summary>
+        </member>
+        <member name="F:Modding.IMenuMod.MenuEntry.Values">
+            <summary>
+            The values to display for the setting.
+            </summary>
+        </member>
+        <member name="F:Modding.IMenuMod.MenuEntry.Saver">
+            <summary>
+            A function to take the current value index and save it.
+            </summary>
+        </member>
+        <member name="F:Modding.IMenuMod.MenuEntry.Loader">
+            <summary>
+            A function to get the saved data and convert it into a value index.
+            </summary>
+        </member>
+        <member name="M:Modding.IMenuMod.MenuEntry.#ctor(System.String,System.String[],System.String,System.Action{System.Int32},System.Func{System.Int32})">
+            <summary>
+            Creates a new menu entry.
+            </summary>
+        </member>
+        <member name="T:Modding.ICustomMenuMod">
+            <summary>
+            Interface which signifies that this mod will register a custom menu in the mod list.
+            </summary>
+        </member>
+        <member name="M:Modding.ICustomMenuMod.GetMenuScreen(MenuScreen,System.Nullable{Modding.ModToggleDelegates})">
+            <summary>
+            Gets the built menu screen.
+            </summary>
+            <param name="modListMenu">The menu screen that is the mod list menu.</param>
+            <param name="toggleDelegates">
+            The delegates used for toggling the mod.
+            This will be null if `ToggleButtonInsideMenu` is false or the mod is not an `ITogglableMod`.
+            </param>
+            <remarks>
+            The implementor of this method will need to add an option using `toggleDelegates`
+            if they want it to appear in their menu. The mod loader will not add it automatically.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="P:Modding.ICustomMenuMod.ToggleButtonInsideMenu">
+            <summary>
+            Will the toggle button (for an ITogglableMod) be inside the returned menu screen.
+            If this is set, an `ITogglableMod` will not create the toggle entry in the main menu.
+            </summary>
+        </member>
+        <member name="T:Modding.ModToggleDelegates">
+            <summary>
+            Delegates to load an unload a mod through the menu.
+            </summary>
+        </member>
+        <member name="F:Modding.ModToggleDelegates.SetModEnabled">
+            <summary>
+            Sets the mod to an enabled or disabled state. This will not be updated until menu is hidden
+            </summary>
+        </member>
+        <member name="F:Modding.ModToggleDelegates.GetModEnabled">
+            <summary>
+            Gets if the mod is enabled or disabled. This will not be updated until menu is hidden
+            </summary>
+        </member>
+        <member name="F:Modding.ModToggleDelegates.ApplyChange">
+            <summary>
+            Left in for backwards compatibility.
+            </summary>
+        </member>
+        <member name="T:Modding.IMod">
+            <inheritdoc />
+            <summary>
+                Base interface for Mods
+            </summary>
+        </member>
+        <member name="M:Modding.IMod.GetName">
+            <summary>
+                Get's the Mod's Name
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.IMod.GetPreloadNames">
+            <summary>
+                Returns the objects to preload in order for the mod to work.
+            </summary>
+            <returns>A List of tuples containing scene name, object name</returns>
+        </member>
+        <member name="M:Modding.IMod.PreloadSceneHooks">
+            <summary>
+            A list of requested scenes to be preloaded and actions to execute on loading of those scenes
+            </summary>
+            <returns>List of tuples containg scene names and the respective actions.</returns>
+        </member>
+        <member name="M:Modding.IMod.Initialize(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.Dictionary{System.String,UnityEngine.GameObject}})">
+            <summary>
+                Called after preloading of all mods.
+            </summary>
+            <param name="preloadedObjects">The preloaded objects relevant to this <see cref="T:Modding.Mod" /></param>
+        </member>
+        <member name="M:Modding.IMod.GetVersion">
+            <summary>
+                Returns version of Mod
+            </summary>
+            <returns>Mod Version</returns>
+        </member>
+        <member name="M:Modding.IMod.LoadPriority">
+            <summary>
+                Controls when this mod should load compared to other mods.  Defaults to ordered by name.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.InGameConsoleSettings">
+            <summary>
+                Settins related to the in-game console
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.UseLogColors">
+            <summary>
+                Wheter to use colors in the log console.
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.FineColor">
+            <summary>
+                The color to use for Fine logging when UseLogColors is enabled
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.InfoColor">
+            <summary>
+                The color to use for Info logging when UseLogColors is enabled
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.DebugColor">
+            <summary>
+                The color to use for Debug logging when UseLogColors is enabled
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.WarningColor">
+            <summary>
+                The color to use for Warning logging when UseLogColors is enabled
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.ErrorColor">
+            <summary>
+                The color to use for Error logging when UseLogColors is enabled
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.DefaultColor">
+            <summary>
+                The color to use when UseLogColors is disabled
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.ToggleHotkey">
+            <summary>
+                Determines the key used for toggling console
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.MaxMessageCount">
+            <summary>
+                Determines the maximum messages to be diaplayed in console
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.Font">
+            <summary>
+                Determines the system font to use for console
+            </summary>
+        </member>
+        <member name="F:Modding.InGameConsoleSettings.FontSize">
+            <summary>
+                Determines the font size to use for console
+            </summary>
+        </member>
+        <member name="T:Modding.JsonConverterTypes">
+            <summary>
+            Wrapper over converters used for Unity types with JSON.NET
+            </summary>
+        </member>
+        <member name="P:Modding.JsonConverterTypes.ConverterTypes">
+            <summary>
+            Converters used for serializing Unity vectors.
+            </summary>
+        </member>
+        <member name="T:Modding.KeybindUtil">
+            <summary>
+            Utils for interacting with InControl keybindings.
+            </summary>
+        </member>
+        <member name="M:Modding.KeybindUtil.GetKeyOrMouseBinding(InControl.PlayerAction)">
+            <summary>
+            Gets a <c>KeyOrMouseBinding</c> from a player action.
+            </summary>
+            <param name="action">The player action</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.KeybindUtil.AddKeyOrMouseBinding(InControl.PlayerAction,InputHandler.KeyOrMouseBinding)">
+            <summary>
+            Adds a binding to the player action based on a <c>KeyOrMouseBinding</c>.
+            </summary>
+            <param name="action">The player action</param>
+            <param name="binding">The binding</param>
+        </member>
+        <member name="M:Modding.KeybindUtil.ParseBinding(System.String)">
+            <summary>
+            Parses a key or mouse binding from a string.
+            </summary>
+            <param name="src">The source string</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.KeybindUtil.GetControllerButtonBinding(InControl.PlayerAction)">
+            <summary>
+            Gets a controller button binding for a player action.
+            </summary>
+            <param name="ac">The player action.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.KeybindUtil.AddInputControlType(InControl.PlayerAction,InControl.InputControlType)">
+            <summary>
+            Adds a controller button binding to the player action based on a <c>InputControlType</c>.
+            </summary>
+            <param name="action">The player action</param>
+            <param name="binding">The binding</param>
+        </member>
+        <member name="M:Modding.KeybindUtil.ParseInputControlTypeBinding(System.String)">
+            <summary>
+            Parses a InputControlType binding from a string.
+            </summary>
+            <param name="src">The source string</param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.Loggable">
+            <inheritdoc />
+            <summary>
+                Base class that allows other classes to have context specific logging
+            </summary>
+        </member>
+        <member name="M:Modding.Loggable.#ctor">
+            <summary>
+                Basic setup for Loggable.
+            </summary>
+        </member>
+        <member name="M:Modding.Loggable.LogFine(System.String)">
+            <inheritdoc />
+            <summary>
+                Log at the fine/detailed level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.LogFine(System.Object)">
+            <inheritdoc />
+            <summary>
+                Log at the fine/detailed level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.LogDebug(System.String)">
+            <inheritdoc />
+            <summary>
+                Log at the debug level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.LogDebug(System.Object)">
+            <inheritdoc />
+            <summary>
+                Log at the debug level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.Log(System.String)">
+            <inheritdoc />
+            <summary>
+                Log at the info level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.Log(System.Object)">
+            <inheritdoc />
+            <summary>
+                Log at the info level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.LogWarn(System.String)">
+            <inheritdoc />
+            <summary>
+                Log at the warn level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.LogWarn(System.Object)">
+            <inheritdoc />
+            <summary>
+                Log at the warn level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.LogError(System.String)">
+            <inheritdoc />
+            <summary>
+                Log at the error level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.LogError(System.Object)">
+            <inheritdoc />
+            <summary>
+                Log at the error level.  Includes the Mod's name in the output.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Loggable.FormatLogMessage(System.String)">
+            <summary>
+                Formats a log message as "[TypeName] - Message"
+            </summary>
+            <param name="message">Message to be formatted.</param>
+            <returns>Formatted Message</returns>
+        </member>
+        <member name="M:Modding.Loggable.FormatLogMessage(System.Object)">
+            <summary>
+                Formats a log message as "[TypeName] - Message"
+            </summary>
+            <param name="message">Message to be formatted.</param>
+            <returns>Formatted Message</returns>
+        </member>
+        <member name="T:Modding.Logger">
+            <summary>
+                Shared logger for mods to use.
+            </summary>
+        </member>
+        <member name="M:Modding.Logger.Log(System.String,Modding.LogLevel)">
+            <summary>
+                Checks to ensure that the logger level is currently high enough for this message, if it is, write it.
+            </summary>
+            <param name="message">Message to log</param>
+            <param name="level">Level of Log</param>
+        </member>
+        <member name="M:Modding.Logger.Log(System.Object,Modding.LogLevel)">
+            <summary>
+                Checks to ensure that the logger level is currently high enough for this message, if it is, write it.
+            </summary>
+            <param name="message">Message to log</param>
+            <param name="level">Level of Log</param>
+        </member>
+        <member name="M:Modding.Logger.LogFine(System.String)">
+            <summary>
+                Finest/Lowest level of logging.  Usually reserved for developmental testing.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.LogFine(System.Object)">
+            <summary>
+                Finest/Lowest level of logging.  Usually reserved for developmental testing.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.LogDebug(System.String)">
+            <summary>
+                Log at the debug level.  Usually reserved for diagnostics.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.LogDebug(System.Object)">
+            <summary>
+                Log at the debug level.  Usually reserved for diagnostics.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.Log(System.String)">
+            <summary>
+                Log at the info level.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.Log(System.Object)">
+            <summary>
+                Log at the info level.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.LogWarn(System.String)">
+            <summary>
+                Log at the warning level.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.LogWarn(System.Object)">
+            <summary>
+                Log at the warning level.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.LogError(System.String)">
+            <summary>
+                Log at the error level.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.LogError(System.Object)">
+            <summary>
+                Log at the error level.
+            </summary>
+            <param name="message">Message to log</param>
+        </member>
+        <member name="M:Modding.Logger.WriteToFile(System.String,Modding.LogLevel)">
+            <summary>
+                Locks file to write, writes to file, releases lock.
+            </summary>
+            <param name="text">Text to write</param>
+            <param name="level">Level of Log</param>
+        </member>
+        <member name="T:Modding.LogLevel">
+            <summary>
+                What level should logs be done at?
+            </summary>
+        </member>
+        <member name="F:Modding.LogLevel.Fine">
+            <summary>
+                Finest Level of Logging - Developers Only
+            </summary>
+        </member>
+        <member name="F:Modding.LogLevel.Debug">
+            <summary>
+                Debug Level of Logging - Mostly Developers Only
+            </summary>
+        </member>
+        <member name="F:Modding.LogLevel.Info">
+            <summary>
+                Normal Logging Level
+            </summary>
+        </member>
+        <member name="F:Modding.LogLevel.Warn">
+            <summary>
+                Only Show Warnings and Above
+            </summary>
+        </member>
+        <member name="F:Modding.LogLevel.Error">
+            <summary>
+                Only Show Full Errors
+            </summary>
+        </member>
+        <member name="F:Modding.LogLevel.Off">
+            <summary>
+                No Logging at all
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Components.AutoSelector">
+            <summary>
+            A component to automatically select a menu item.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.Components.AutoSelector.Start">
+            <summary>
+            The menu item to select.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Components.ScrollPaneSelector">
+            <summary>
+            A component that scrolls a pane on select
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.Components.ScrollPaneSelector.PaneRect">
+            <summary>
+            The pane that gets moved by the scrollbar.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.Components.ScrollPaneSelector.MaskRect">
+            <summary>
+            The mask that is the visual size for the pane.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.Components.ScrollPaneSelector.Scrollbar">
+            <summary>
+            The scrollbar.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.Components.ScrollPaneSelector.SelectionPadding">
+            <summary>
+            A function to get padding for the selection scrolling. The returned tuple is `(bottom, top)`.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.Components.ScrollPaneSelector.OnSelect(UnityEngine.EventSystems.BaseEventData)">
+            <summary>
+            Move the scrollbar to show the selected item.
+            </summary>
+            <param name="eventData">The event data.</param>
+        </member>
+        <member name="T:Modding.Menu.HorizontalOptionContent">
+            <summary>
+            A helper class for creating horizontal menu options.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.HorizontalOptionContent.AddHorizontalOption(Modding.Menu.ContentArea,System.String,Modding.Menu.Config.HorizontalOptionConfig)">
+            <summary>
+            Creates a horizontal option.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the option in.</param>
+            <param name="name">The name of the option game object.</param>
+            <param name="config">The configuration options for the horizontal option.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.HorizontalOptionContent.AddHorizontalOption(Modding.Menu.ContentArea,System.String,Modding.Menu.Config.HorizontalOptionConfig,UnityEngine.UI.MenuOptionHorizontal@)">
+            <summary>
+            Creates a horizontal option.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the option in.</param>
+            <param name="name">The name of the option game object.</param>
+            <param name="config">The configuration options for the horizontal option.</param>
+            <param name="horizontalOption">The <c>MenuOptionHorizontal</c> component on the created horizontal option.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.Menu.Config.HorizontalOptionConfig">
+            <summary>
+            Configuration options for creating a horizontal option.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionConfig.Options">
+            <summary>
+            The list of options to display.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionConfig.Label">
+            <summary>
+            The displayed name of the option.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionConfig.ApplySetting">
+            <summary>
+            The action to run when the menu setting is changed.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionConfig.RefreshSetting">
+            <summary>
+            The action to run when loading the saved setting.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionConfig.CancelAction">
+            <summary>
+            The action to run when pressing the menu cancel key while selecting this item.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionConfig.Style">
+            <summary>
+            The styling of the menu option.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionConfig.Description">
+            <summary>
+            The description of the option that gets displayed underneath.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.HorizontalOptionStyle">
+            <summary>
+            The styling options for a horizontal option.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionStyle.VanillaStyle">
+            <summary>
+            The style preset of a horizontal option in the vanilla game.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionStyle.Size">
+            <summary>
+            The size of the main option.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionStyle.LabelTextSize">
+            <summary>
+            The size of the text on the option label.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.HorizontalOptionStyle.ValueTextSize">
+            <summary>
+            The size of the text on the option value.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.DescriptionInfo">
+            <summary>
+            Configuration options for a horizontal option's description text.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.DescriptionInfo.Text">
+            <summary>
+            The text of the description.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.DescriptionInfo.Style">
+            <summary>
+            The styling of the description text.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.DescriptionStyle">
+            <summary>
+            The styling options of a horizontal option's description text
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.DescriptionStyle.HorizOptionSingleLineVanillaStyle">
+            <summary>
+            The style preset of a single line description in the vanilla game.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.DescriptionStyle.MenuButtonSingleLineVanillaStyle">
+            <summary>
+            The style preset of a single line description in the vanilla game.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.DescriptionStyle.TextSize">
+            <summary>
+            The size of the text on the description.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.DescriptionStyle.TextAnchor">
+            <summary>
+            The position the text should be anchored in.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.DescriptionStyle.Size">
+            <summary>
+            The height of the description text.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.KeybindConfig">
+            <summary>
+            Configuration options for creating a menu keybind option.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.KeybindConfig.Label">
+            <summary>
+            The displayed text for the name of the keybind.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.KeybindConfig.Style">
+            <summary>
+            The style of the keybind.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.KeybindConfig.CancelAction">
+            <summary>
+            The action to run when pressing the menu cancel key while selecting this item.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.ButtonBindConfig">
+            <summary>
+            Configuration options for creating a menu buttonBind option.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.ButtonBindConfig.Label">
+            <summary>
+            The displayed text for the name of the ButtonBind.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.ButtonBindConfig.Style">
+            <summary>
+            The style of the ButtonBind.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.ButtonBindConfig.CancelAction">
+            <summary>
+            The action to run when pressing the menu cancel key while selecting this item.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.KeybindStyle">
+            <summary>
+            The styling options of a keybind menu item.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.KeybindStyle.VanillaStyle">
+            <summary>
+            The style preset of a keybind in the vanilla game.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.KeybindStyle.LabelTextSize">
+            <summary>
+            The text size of the label text.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.MenuButtonConfig">
+            <summary>
+            Configuration options for creating a menu button.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuButtonConfig.Label">
+            <summary>
+            The text to render on the button.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuButtonConfig.SubmitAction">
+            <summary>
+            The action to run when the button is pressed.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuButtonConfig.Proceed">
+            <summary>
+            Whether the button when activated proceeds to a new menu.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuButtonConfig.CancelAction">
+            <summary>
+            The action to run when pressing the menu cancel key while selecting this item.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuButtonConfig.Style">
+            <summary>
+            The styling of the menu button.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuButtonConfig.Description">
+            <summary>
+            The description of the option that gets displayed underneath.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.MenuButtonStyle">
+            <summary>
+            The styling options for a menu button.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuButtonStyle.VanillaStyle">
+            <summary>
+            The style preset of a menu button in the vanilla game.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuButtonStyle.Height">
+            <summary>
+            The size of the menu button.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuButtonStyle.TextSize">
+            <summary>
+            The size of the text on the button.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.ScrollbarConfig">
+            <summary>
+            Configuration options for creating a scrollbar.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.ScrollbarConfig.Navigation">
+            <summary>
+            The menu navigation to apply to the scrollbar.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.ScrollbarConfig.Position">
+            <summary>
+            The anchored poisition to place the scrollbar.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.ScrollbarConfig.CancelAction">
+            <summary>
+            The action to run when pressing the menu cancel key while selecting this item.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.Config.ScrollbarConfig.SelectionPadding">
+            <summary>
+            A function to get padding for the selection scrolling. The returned tuple is `(bottom, top)`.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.TextPanelConfig">
+            <summary>
+            Configuration options for creating a text panel.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.TextPanelConfig.Text">
+            <summary>
+            The text to render.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.TextPanelConfig.Size">
+            <summary>
+            The font size of the text.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.TextPanelConfig.Font">
+            <summary>
+            The font to render.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.TextPanelConfig.Anchor">
+            <summary>
+            The position where the text should be anchored to.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.TextPanelConfig.TextFont">
+            <summary>
+            The four main fonts that Hollow Knight uses in the menus.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.TextPanelConfig.TextFont.TrajanRegular">
+            <summary>
+            The Trajan regular font.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.TextPanelConfig.TextFont.TrajanBold">
+            <summary>
+            The Trajan bold font.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.TextPanelConfig.TextFont.Perpetua">
+            <summary>
+            The perpetua font.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.TextPanelConfig.TextFont.NotoSerifCJKSCRegular">
+            <summary>
+            The Noto Serif CJK SC regular font.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.Config.MenuTitleStyle">
+            <summary>
+            The styling options for the menu title.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuTitleStyle.vanillaStyle">
+            <summary>
+            The style preset of a standard menu title in the vanilla game.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuTitleStyle.Pos">
+            <summary>
+            The position of the title.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.Config.MenuTitleStyle.TextSize">
+            <summary>
+            The text size of the title.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.KeybindContent">
+            <summary>
+            A helper class for creating keybind mapping buttons.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.KeybindContent.AddKeybind(Modding.Menu.ContentArea,System.String,InControl.PlayerAction,Modding.Menu.Config.KeybindConfig)">
+            <summary>
+            Creates a keybind menu item.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the keybind item in.</param>
+            <param name="name">The name of the keybind game object.</param>
+            <param name="action">The <c>PlayerAction</c> to associate with this keybind.</param>
+            <param name="config">The configuration options for the keybind item.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.KeybindContent.AddKeybind(Modding.Menu.ContentArea,System.String,InControl.PlayerAction,Modding.Menu.Config.KeybindConfig,MappableKey@)">
+            <summary>
+            Creates a keybind menu item.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the keybind item in.</param>
+            <param name="name">The name of the keybind game object.</param>
+            <param name="action">The <c>PlayerAction</c> to associate with this keybind.</param>
+            <param name="config">The configuration options for the keybind item.</param>
+            <param name="mappableKey">The <c>MappablKey</c> component on the created keybind item.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.KeybindContent.AddButtonBind(Modding.Menu.ContentArea,System.String,InControl.PlayerAction,Modding.Menu.Config.ButtonBindConfig,MappableControllerButton@)">
+            <summary>
+            Creates a buttonBind menu item.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the buttonBind item in.</param>
+            <param name="name">The name of the buttonBind game object.</param>
+            <param name="action">The <c>PlayerAction</c> to associate with this buttonBind.</param>
+            <param name="config">The configuration options for the buttonBind item.</param>
+            <param name="mappableControllerButton">The <c>MappableControllerButton</c> component on the created buttonBind item.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.Menu.MenuButtonContent">
+            <summary>
+            A helper class for creating menu buttons.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.MenuButtonContent.AddMenuButton(Modding.Menu.ContentArea,System.String,Modding.Menu.Config.MenuButtonConfig)">
+            <summary>
+            Creates a menu button.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the button in.</param>
+            <param name="name">The name of the button game object.</param>
+            <param name="config">The configuration options for the menu button.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.MenuButtonContent.AddMenuButton(Modding.Menu.ContentArea,System.String,Modding.Menu.Config.MenuButtonConfig,UnityEngine.UI.MenuButton@)">
+            <summary>
+            Creates a menu button.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the button in.</param>
+            <param name="name">The name of the button game object.</param>
+            <param name="config">The configuration options for the menu button.</param>
+            <param name="button">The <c>MenuButton</c> component on the created menu button.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.Menu.ScrollPaneContent">
+            <summary>
+            A helper class for creating scrollbars and their associated content panes.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.ScrollPaneContent.AddScrollPaneContent(Modding.Menu.ContentArea,Modding.Menu.Config.ScrollbarConfig,Modding.Menu.RelLength,Modding.Menu.IContentLayout,System.Action{Modding.Menu.ContentArea})">
+            <summary>
+            Creates a scrollable window.<br/>
+            The scrolling content will be the same width as the parent.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the scrollable window in.</param>
+            <param name="config">The configuration options for the scrollbar.</param>
+            <param name="contentHeight">The height of the scroll window.</param>
+            <param name="layout">The layout to apply to the added content.</param>
+            <param name="action">The action that will get called to add the content.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.ScrollPaneContent.AddScrollPaneContent(Modding.Menu.ContentArea,Modding.Menu.Config.ScrollbarConfig,Modding.Menu.RelLength,Modding.Menu.IContentLayout,System.Action{Modding.Menu.ContentArea},UnityEngine.GameObject@,UnityEngine.UI.Scrollbar@)">
+            <summary>
+            Creates a scrollable window.<br/>
+            The scrolling content will be the same width as the parent.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the scrollable window in.</param>
+            <param name="config">The configuration options for the scrollbar.</param>
+            <param name="contentHeight">The height of the scroll window.</param>
+            <param name="layout">The layout to apply to the added content.</param>
+            <param name="action">The action that will get called to add the content.</param>
+            <param name="scrollContent">The created scrollable window game object.</param>
+            <param name="scroll">The <c>Scrollbar</c> component on the created scrollbar.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.ScrollPaneContent.AddScrollbar(Modding.Menu.ContentArea,Modding.Menu.Config.ScrollbarConfig,UnityEngine.UI.Scrollbar@)">
+            <summary>
+            Creates a scrollbar.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the scrollbar in.</param>
+            <param name="config">The configuration options for the scrollbar.</param>
+            <param name="scroll">The <c>Scrollbar</c> component on the created scrollbar.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.Menu.StaticContent">
+            <summary>
+            A helper class for creating static content.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.StaticContent.AddStaticPanel(Modding.Menu.ContentArea,System.String,Modding.Menu.RelVector2,UnityEngine.GameObject@)">
+            <summary>
+            Creates a sized static panel with no other properties.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the panel in.</param>
+            <param name="name">The name of the panel game object.</param>
+            <param name="size">The size of the panel.</param>
+            <param name="obj">The newly created panel.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.StaticContent.AddTextPanel(Modding.Menu.ContentArea,System.String,Modding.Menu.RelVector2,Modding.Menu.Config.TextPanelConfig)">
+            <summary>
+            Creates a text panel.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the text panel in.</param>
+            <param name="name">The name of the text panel game object.</param>
+            <param name="size">The size of the text panel.</param>
+            <param name="config">The configuration options for the text panel.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.StaticContent.AddTextPanel(Modding.Menu.ContentArea,System.String,Modding.Menu.RelVector2,Modding.Menu.Config.TextPanelConfig,UnityEngine.UI.Text@)">
+            <summary>
+            Creates a text panel.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the text panel in.</param>
+            <param name="name">The name of the text panel game object.</param>
+            <param name="size">The size of the text panel.</param>
+            <param name="config">The configuration options for the text panel.</param>
+            <param name="text">The <c>Text</c> component on the created text panel.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.StaticContent.AddImagePanel(Modding.Menu.ContentArea,System.String,Modding.Menu.RelVector2,UnityEngine.Sprite)">
+            <summary>
+            Creates an image panel.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the text panel in.</param>
+            <param name="name">The name of the image panel game object.</param>
+            <param name="size">The size of the image panel.</param>
+            <param name="image">The image to render.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.StaticContent.AddImagePanel(Modding.Menu.ContentArea,System.String,Modding.Menu.RelVector2,UnityEngine.Sprite,UnityEngine.UI.Image@)">
+            <summary>
+            Creates an image panel.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the text panel in.</param>
+            <param name="name">The name of the image panel game object.</param>
+            <param name="size">The size of the image panel.</param>
+            <param name="sprite">The image to render.</param>
+            <param name="image">The <c>Image</c> component on the created image panel.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.StaticContent.AddWrappedItem(Modding.Menu.ContentArea,System.String,System.Action{Modding.Menu.ContentArea})">
+            <summary>
+            Creates a single item wrapper.
+            </summary>
+            <remarks>
+            This wrapper will have no size so all parent relative sizes will break.
+            </remarks>
+            <param name="content">The <c>ContentArea</c> to put the wrapper in.</param>
+            <param name="name">The name of the wrapper game object.</param>
+            <param name="action">The action that will get called to add the inner object.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.StaticContent.AddWrappedItem(Modding.Menu.ContentArea,System.String,System.Action{Modding.Menu.ContentArea},UnityEngine.GameObject@)">
+            <summary>
+            Creates a single item wrapper.
+            </summary>
+            <remarks>
+            This wrapper will have no size so all parent relative sizes will break.
+            </remarks>
+            <param name="content">The <c>ContentArea</c> to put the wrapper in.</param>
+            <param name="name">The name of the wrapper game object.</param>
+            <param name="action">The action that will get called to add the inner object.</param>
+            <param name="wrapper">The newly created wrapper.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.Menu.IContentLayout">
+            <summary>
+            An interface to place successive <c>RectTransform</c>s.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.IContentLayout.ModifyNext(UnityEngine.RectTransform)">
+            <summary>
+            Modifies a <c>RectTransform</c>.
+            </summary>
+            <param name="rt">The <c>RectTransform</c> to modify.</param>
+        </member>
+        <member name="T:Modding.Menu.NullContentLayout">
+            <summary>
+            A layout that does absolutely nothing.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.NullContentLayout.ModifyNext(UnityEngine.RectTransform)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Modding.Menu.RegularGridLayout">
+            <summary>
+            A layout to place items in a grid pattern.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.RegularGridLayout.ItemAdvance">
+            <summary>
+            The "size" of a cell in the grid.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.RegularGridLayout.Start">
+            <summary>
+            The starting position of the first cell.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.RegularGridLayout.Columns">
+            <summary>
+            The maximum number of columns to allow.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.RegularGridLayout.Index">
+            <summary>
+            The "index" of the next item to be placed.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.RegularGridLayout.IndexPos">
+            <summary>
+            The position in grid cells of the next item.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RegularGridLayout.#ctor(Modding.Menu.AnchoredPosition,Modding.Menu.RelVector2,System.Int32)">
+            <summary>
+            Creates a new regular grid layout.
+            </summary>
+            <param name="start">The starting position of the first item in the grid.</param>
+            <param name="itemAdvance">The "size" of a cell in the grid.</param>
+            <param name="columns">The maximum number of columns to allow.</param>
+        </member>
+        <member name="M:Modding.Menu.RegularGridLayout.CreateVerticalLayout(System.Single,UnityEngine.Vector2)">
+            <summary>
+            Creates a single column, top down vertical layout.
+            </summary>
+            <param name="itemHeight">The height of each item.</param>
+            <param name="start">The starting position.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.RegularGridLayout.ModifyNext(UnityEngine.RectTransform)">
+            <summary>
+            Modifies a <c>RectTransform</c> to place it in the next spot in the grid.
+            </summary>
+            <param name="rt">The <c>RectTransform</c> to modify.</param>
+        </member>
+        <member name="M:Modding.Menu.RegularGridLayout.ChangeColumns(System.Int32,System.Single,System.Nullable{Modding.Menu.RelVector2},System.Single)">
+            <summary>
+            Changes the column width of the layout, continuing where the layout left off.<br/>
+            This method should generally only be called at the end of a row,
+            because otherwise it may cause an overlap of the currently placed menu items
+            and the new menu items in the same row.<br/>
+            Internally this method resets the actual index count so a copy of index should be saved before calling
+            this method if needed.
+            </summary>
+            <param name="columns">The new number of columns.</param>
+            <param name="originalAnchor">The normalized anchor on the original "width" to place the new grid.</param>
+            <param name="newSize">The new size of the grid element, or null to not change.</param>
+            <param name="newAnchor">The normalized anchor on the new "width" to place the anchor.</param>
+        </member>
+        <member name="T:Modding.Menu.EnumeratorLayout">
+            <summary>
+            A layout based on an enumerator to get successive <c>RectPosition</c>s.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.EnumeratorLayout.#ctor(System.Collections.Generic.IEnumerable{Modding.Menu.AnchoredPosition})">
+            <summary>
+            Creates a layout from an <c>IEnumerable</c>.
+            </summary>
+            <param name="src">The emumerable object.</param>
+        </member>
+        <member name="M:Modding.Menu.EnumeratorLayout.#ctor(System.Collections.Generic.IEnumerator{Modding.Menu.AnchoredPosition})">
+            <summary>
+            Creates a layout from an <c>IEnumerator</c>.
+            </summary>
+            <param name="generator">The enumerator.</param>
+        </member>
+        <member name="M:Modding.Menu.EnumeratorLayout.ModifyNext(UnityEngine.RectTransform)">
+            <summary>
+            Modifies a <c>RectTransform</c> to place it based on the next item of the enumerator.
+            </summary>
+            <param name="rt">The <c>RectTransform</c> to modify.</param>
+        </member>
+        <member name="T:Modding.Menu.SingleContentLayout">
+            <summary>
+            A layout that places every object in the same position.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.SingleContentLayout.Position">
+            <summary>
+            The position to place the object in.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.SingleContentLayout.#ctor(UnityEngine.Vector2)">
+            <summary>
+            Creates a layout with the position anchoring the same spot on the child and parent together.
+            </summary>
+            <param name="anchor">The point to anchor the child to the parent.</param>
+        </member>
+        <member name="M:Modding.Menu.SingleContentLayout.#ctor(Modding.Menu.AnchoredPosition)">
+            <summary>
+            Creates a layout from a <c>RectPosition</c>.
+            </summary>
+            <param name="pos">The position to place the objects in.</param>
+        </member>
+        <member name="M:Modding.Menu.SingleContentLayout.ModifyNext(UnityEngine.RectTransform)">
+            <summary>
+            Modifies a <c>RectTransform</c> to place it in the specified location.
+            </summary>
+            <param name="rt">The <c>RectTransform</c> to modify.</param>
+        </member>
+        <member name="T:Modding.Menu.AnchoredPosition">
+            <summary>
+            A struct to define anchored positioning relative to a parent.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.AnchoredPosition.ParentAnchor">
+            <summary>
+            The normalized anchoring point on the parent rectangle that will get anchored to the child.
+            </summary>
+            <remarks>
+            The lower left corner is (0, 0) and the upper right corner is (1, 1).
+            </remarks>
+        </member>
+        <member name="F:Modding.Menu.AnchoredPosition.ChildAnchor">
+            <summary>
+            The normalized anchoring point on this rectangle that will get anchored to the parent.
+            </summary>
+            <remarks>
+            The lower left corner is (0, 0) and the upper right corner is (1, 1).
+            </remarks>
+        </member>
+        <member name="F:Modding.Menu.AnchoredPosition.Offset">
+            <summary>
+            The offset in pixels of the <c>childAnchor</c> from the <c>parentAnchor</c>.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.AnchoredPosition.#ctor(UnityEngine.Vector2,UnityEngine.Vector2,UnityEngine.Vector2)">
+            <summary>
+            Creates a new <c>RectPosition</c>.
+            </summary>
+            <param name="parentAnchor">The normalized point on the parent to anchor the child on.</param>
+            <param name="childAnchor">The normalized point on the child to anchor to the parent.</param>
+            <param name="offset">The offset from the parent anchor to the child anchor.</param>
+        </member>
+        <member name="M:Modding.Menu.AnchoredPosition.Reposition(UnityEngine.RectTransform)">
+            <summary>
+            Translate a <c>RectTransform</c> based on the fields in this struct.
+            </summary>
+            <param name="rt">The <c>RectTransform</c> to modify.</param>
+        </member>
+        <member name="M:Modding.Menu.AnchoredPosition.GetRepositioned(Modding.Menu.RectTransformData)">
+            <summary>
+            Get a translated <c>RectTransformData</c> based on the fields in this struct.
+            </summary>
+            <param name="rt">The <c>RectTransformData</c> to translate.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.AnchoredPosition.FromSiblingAnchor(UnityEngine.Vector2,Modding.Menu.RectTransformData,UnityEngine.Vector2,UnityEngine.Vector2)">
+            <summary>
+            Creates a <c>RectPosition</c> from an anchor on a sibling rectangle.
+            </summary>
+            <param name="selfAnchor">The normalized point on a rect to anchor to the sibling.</param>
+            <param name="sibling">The sibling rectangle to anchor to.</param>
+            <param name="siblingAnchor">The normalized point on the sibling to anchor to.</param>
+            <param name="offset">The offset in pixels of the <c>selfAnchor</c> to the sibling anchor point.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.AnchoredPosition.ParentPointFromChild(Modding.Menu.RectTransformData,UnityEngine.Vector2)">
+            <summary>
+            Gets a normalized point on the parent from a normalized point on the child.
+            </summary>
+            <param name="child">The child rectangle.</param>
+            <param name="childPoint">A normalized point on the child.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.AnchoredPosition.op_Addition(Modding.Menu.AnchoredPosition,Modding.Menu.RelVector2)">
+            <summary>
+            Translates an anchored position by a relative vector.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.AnchoredPosition.op_Addition(Modding.Menu.RelVector2,Modding.Menu.AnchoredPosition)">
+            <summary>
+            Translates an anchored position by a relative vector.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.RelVector2">
+            <summary>
+            A struct to define size relative to a parent.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.RelVector2.Delta">
+            <summary>
+            The size in pixels to increase the parent-relative size of the rect.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.RelVector2.Relative">
+            <summary>
+            The normalized parent-relative size of the rect.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.RelVector2.x">
+            <summary>
+            The x component of this vector.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.RelVector2.y">
+            <summary>
+            The y component of this vector.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.#ctor(Modding.Menu.RelLength,Modding.Menu.RelLength)">
+            <summary>
+            Creates a <c>RectSize</c> from two parent-relative lengths.
+            </summary>
+            <param name="x">The length on the <c>x</c> axis.</param>
+            <param name="y">The length on the <c>y</c> axis.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.#ctor(UnityEngine.Vector2,UnityEngine.Vector2)">
+            <summary>
+            Creates a <c>RectSize</c> from a size delta and a normalized parent-relative size.
+            </summary>
+            <param name="sizeDelta">The size delta in pixels.</param>
+            <param name="parentRelSize">The normalized parent-relative size.</param>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.#ctor(UnityEngine.Vector2)">
+            <summary>
+            Creates a <c>RectSize</c> from an absolute size in pixels.
+            </summary>
+            <param name="size">The size in pixels.</param>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.GetBaseTransformData">
+            <summary>
+            Gets a <c>RectTransformData</c> with the correct sizing information.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.op_UnaryNegation(Modding.Menu.RelVector2)">
+            <summary>  
+            Negates each element in a <c>RelVector2</c>.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.op_Addition(Modding.Menu.RelVector2,Modding.Menu.RelVector2)">
+            <summary>
+            Adds two <c>RelVector2</c>s together.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.op_Subtraction(Modding.Menu.RelVector2,Modding.Menu.RelVector2)">
+            <summary>
+            Subtracts one <c>RelVector2</c> from another.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.op_Multiply(Modding.Menu.RelVector2,System.Single)">
+            <summary>
+            Scales both dimensions of a <c>RelVector2</c> up by a constant factor.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.op_Multiply(System.Single,Modding.Menu.RelVector2)">
+            <summary>
+            Scales both dimensions of a <c>RelVector2</c> up by a constant factor.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.op_Multiply(Modding.Menu.RelVector2,UnityEngine.Vector2)">
+            <summary>
+            Scales both dimensions of a <c>RelVector2</c> up by the respective factor in a <c>Vector2</c>.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelVector2.op_Division(Modding.Menu.RelVector2,System.Single)">
+            <summary>
+            Scales both dimensions of a <c>RelVector2</c> down by a constant factor.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.RelLength">
+            <summary>
+            A struct to define a scalar length relative to a parent.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.RelLength.Delta">
+            <summary>
+            The length in pixels to increase the parent-relative length.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.RelLength.Relative">
+            <summary>
+            The normalized parent-relative length.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelLength.#ctor(System.Single,System.Single)">
+            <summary>
+            Creates a new <c>ParentRelLength</c> from a length delta and a normalized parent-relative length.
+            </summary>
+            <param name="lengthDelta">The pixels to be added to the size from the scaled parent-relative length.</param>
+            <param name="parentRelLength">The normalized parent-relative length.</param>
+        </member>
+        <member name="M:Modding.Menu.RelLength.#ctor(System.Single)">
+            <summary>
+            Creates a new absolute <c>ParentRelLength</c> from a length in pixels.
+            </summary>
+            <param name="length">The length in pixels.</param>
+        </member>
+        <member name="M:Modding.Menu.RelLength.op_UnaryNegation(Modding.Menu.RelLength)">
+            <summary>
+            Negates the <c>RelLenght</c>.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelLength.op_Addition(Modding.Menu.RelLength,Modding.Menu.RelLength)">
+            <summary>
+            Adds two <c>RelLength</c>s together.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelLength.op_Subtraction(Modding.Menu.RelLength,Modding.Menu.RelLength)">
+            <summary>
+            Subtracts one <c>RelVector2</c> from another.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelLength.op_Multiply(Modding.Menu.RelLength,System.Single)">
+            <summary>
+            Scales both dimensions of a <c>RelVector2</c> up by a constant factor.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelLength.op_Multiply(System.Single,Modding.Menu.RelLength)">
+            <summary>
+            Scales both dimensions of a <c>RelVector2</c> up by a constant factor.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RelLength.op_Division(Modding.Menu.RelLength,System.Single)">
+            <summary>
+            Scales both dimensions of a <c>RelVector2</c> down by a constant factor.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.RectTransformData">
+            <summary>
+            A struct to represent the data in a <c>RectTransform</c>.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.RectTransformData.sizeDelta">
+            <summary>
+            See <c>RectTransform.sizeDelta</c> in the unity docs.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.RectTransformData.anchorMin">
+            <summary>
+            See <c>RectTransform.anchorMin</c> in the unity docs.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.RectTransformData.anchorMax">
+            <summary>
+            See <c>RectTransform.anchorMax</c> in the unity docs.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.RectTransformData.anchoredPosition">
+            <summary>
+            See <c>RectTransform.anchoredPosition</c> in the unity docs.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.RectTransformData.pivot">
+            <summary>
+            See <c>RectTransform.pivot</c> in the unity docs.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RectTransformData.#ctor(UnityEngine.RectTransform)">
+            <summary>
+            Creates a <c>RectTransformData</c> from an existing <c>RectTransform</c>.
+            </summary>
+            <param name="rt">The source <c>RectTransform</c>.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.RectTransformData.FromSizeAndPos(Modding.Menu.RelVector2,Modding.Menu.AnchoredPosition)">
+            <summary>
+            Create a <c>RectTransformData</c> from a <c>RectSize</c> and <c>RectPosition</c>.
+            </summary>
+            <param name="size">The size parent-relative</param>
+            <param name="pos">The anchored position</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.RectTransformData.Apply(UnityEngine.RectTransform)">
+            <summary>
+            Apply the data to an existing <c>RectTransform</c>.
+            </summary>
+            <param name="rt">The <c>RectTransform</c> to apply the data to.</param>
+        </member>
+        <member name="M:Modding.Menu.RectTransformData.AddRectTransform(UnityEngine.GameObject)">
+            <summary>
+            Add a <c>RectTransform</c> to a game object based on the data in this struct.
+            </summary>
+            <param name="obj">The game object to add the <c>RectTransform</c> to</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.RectTransformData.op_Implicit(UnityEngine.RectTransform)~Modding.Menu.RectTransformData">
+            <summary>
+            Convenience conversion to get the data from a <c>RectTransform</c>.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RectTransformData.op_Implicit(Modding.CanvasUtil.RectData)~Modding.Menu.RectTransformData">
+            <summary>
+            Convert from the <c>RectData</c> struct that CanvasUtil uses.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.RectTransformData.op_Implicit(Modding.Menu.RectTransformData)~Modding.CanvasUtil.RectData">
+            <summary>
+            Convert to the <c>RectData</c> struct that CanvasUtil uses.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.MenuBuilder">
+            <summary>
+            A builder style class for creating in-game menus.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.MenuBuilder.MenuObject">
+            <summary>
+            The root game object of the menu.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.MenuBuilder.Screen">
+            <summary>
+            The <c>MenuScreen</c> component on <c>menuObject</c>.
+            </summary>
+        </member>
+        <member name="E:Modding.Menu.MenuBuilder.OnBuild">
+            <summary>
+            An event that gets called at the start of <c>Build</c>.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.MenuBuilder.DefaultNavGraph">
+            <summary>
+            The current default navigation graph that gets used for <c>AddContent</c> and <c>AddControls</c> calls.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.#ctor(System.String)">
+            <summary>
+            Creates a new <c>MenuBuilder</c> on the UIManager instance canvas.
+            </summary>
+            <param name="name">The name of the root menu.</param>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.#ctor(UnityEngine.GameObject,System.String)">
+            <summary>
+            Creates a new <c>MenuBuilder</c> on a canvas.
+            </summary>
+            <param name="canvas">The canvas to make the root menu on.</param>
+            <param name="name">The name of the root menu.</param>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.Build">
+            <summary>
+            Builds the menu, calling any <c>OnBuild</c> events and returning the screen.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.AddContent(Modding.Menu.IContentLayout,Modding.Menu.INavigationGraph,System.Action{Modding.Menu.ContentArea})">
+            <summary>
+            Adds "content" to the menu in a certain layout. <br/>
+            If <c>CreateContentPane</c> has not been called yet, this method will immeddiately return.
+            </summary>
+            <param name="layout">The layout of the added content</param>
+            <param name="navgraph">The navigation graph to place the selectables in.</param>
+            <param name="action">The action that will get called to add the content</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.AddContent(Modding.Menu.IContentLayout,System.Action{Modding.Menu.ContentArea})">
+            <summary>
+            Adds "content" to the menu in a certain layout with the default navigation graph.<br/>
+            If <c>CreateContentPane</c> has not been called yet, this method will immeddiately return.
+            </summary>
+            <param name="layout">The layout of the added content</param>
+            <param name="action">The action that will get called to add the content</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.AddControls(Modding.Menu.IContentLayout,Modding.Menu.INavigationGraph,System.Action{Modding.Menu.ContentArea})">
+            <summary>
+            Adds "content" to the control pane in a certain layout.<br/>
+            If <c>CreateControlPane</c> has not been called yet, this method will immeddiately return.
+            </summary>
+            <param name="layout">The layout to apply to the added content.</param>
+            <param name="navgraph">The navigation graph to place the selectables in.</param>
+            <param name="action">The action that will get called to add the content.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.AddControls(Modding.Menu.IContentLayout,System.Action{Modding.Menu.ContentArea})">
+            <summary>
+            Adds "content" to the control pane in a certain layout with the default navigation graph.<br/>
+            If <c>CreateControlPane</c> has not been called yet, this method will immeddiately return.
+            </summary>
+            <param name="layout">The layout to apply to the added content.</param>
+            <param name="action">The action that will get called to add the content.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.CreateTitle(System.String,Modding.Menu.Config.MenuTitleStyle)">
+            <summary>
+            Adds a title and top fleur to the menu.
+            </summary>
+            <param name="title">The title to render on the menu.</param>
+            <param name="style">The styling of the title.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.CreateContentPane(Modding.Menu.RectTransformData)">
+            <summary>
+            Creates the content canvas group to hold the majority of items in the menu.
+            </summary>
+            <param name="style">The rect describing the size and position of the content pane.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.CreateControlPane(Modding.Menu.RectTransformData)">
+            <summary>
+            Creates the control canvas group to hold the buttons at the bottom of the menu.
+            </summary>
+            <param name="style">The rect describing the size and position of the control pane.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Menu.MenuBuilder.SetDefaultNavGraph(Modding.Menu.INavigationGraph)">
+            <summary>
+            Sets the default navigation graph to use for <c>AddContent</c> and <c>AddControls</c> calls.
+            </summary>
+            <param name="navGraph">The default navigation graph to set.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.Menu.ContentArea">
+            <summary>
+            A class used for adding menu items to a canvas in a specific layout.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.ContentArea.ContentObject">
+            <summary>
+            The game object to place the new content in.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.ContentArea.Layout">
+            <summary>
+            The layout to apply to the content being added.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.ContentArea.NavGraph">
+            <summary>
+            The navigation graph builder to place selectables in.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.ContentArea.#ctor(UnityEngine.GameObject,Modding.Menu.IContentLayout,Modding.Menu.INavigationGraph)">
+            <summary>
+            Creates a new <c>ContentArea</c>.
+            </summary>
+            <param name="obj">The object to place the added content in.</param>
+            <param name="layout">The layout to apply to the content being added.</param>
+            <param name="navGraph">The navigation graph to place the selectables in.</param>
+        </member>
+        <member name="M:Modding.Menu.ContentArea.#ctor(UnityEngine.GameObject,Modding.Menu.IContentLayout)">
+            <summary>
+            Creates a new <c>ContentArea</c> with no navigation graph.
+            </summary>
+            <param name="obj">The object to place the added content in.</param>
+            <param name="layout">The layout to apply to the content being added.</param>
+        </member>
+        <member name="T:Modding.Menu.INavigationGraph">
+            <summary>
+            An interface that assembles <c>Selectable</c>s into a coherent navigation graph.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.INavigationGraph.AddNavigationNode(UnityEngine.UI.Selectable)">
+            <summary>
+            Registers a <c>Selectable</c> into the current navigation graph.
+            </summary>
+            <param name="selectable">The selectable to add.</param>
+        </member>
+        <member name="M:Modding.Menu.INavigationGraph.BuildNavigation">
+            <summary>
+            Builds the currently registered navigation nodes into a complete graph
+            and returns the selectable to start selected, or null if there are none.<br/>
+            If the navigation graph implementation sets it in place this method may not do anything.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.NullNavigationGraph">
+            <summary>
+            A navigation graph that does nothing.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.NullNavigationGraph.AddNavigationNode(UnityEngine.UI.Selectable)">
+            <summary>
+            Do nothing with the passed in selectable.
+            </summary>
+            <param name="selectable"></param>
+        </member>
+        <member name="M:Modding.Menu.NullNavigationGraph.BuildNavigation">
+            <inheritdoc/>
+        </member>
+        <member name="T:Modding.Menu.ChainedNavGraph">
+            <summary>
+            A navigation graph that chains selectables like a circular linked list.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.ChainedNavGraph.#ctor(Modding.Menu.ChainedNavGraph.ChainDir)">
+            <summary>
+            Creates a new chained navigation graph.
+            </summary>
+            <param name="dir">The direction to place successive selectables.</param>
+        </member>
+        <member name="M:Modding.Menu.ChainedNavGraph.AddNavigationNode(UnityEngine.UI.Selectable)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Modding.Menu.ChainedNavGraph.BuildNavigation">
+            <inheritdoc/>
+        </member>
+        <member name="T:Modding.Menu.ChainedNavGraph.ChainDir">
+            <summary>
+            The direction to chain selectables.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.ChainedNavGraph.ChainDir.Down">
+            <summary>
+            Place successive selectables downwards.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.ChainedNavGraph.ChainDir.Up">
+            <summary>
+            Place successive selectables upwards.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.ChainedNavGraph.ChainDir.Right">
+            <summary>
+            Place successive selectables rightwards.
+            </summary>
+        </member>
+        <member name="F:Modding.Menu.ChainedNavGraph.ChainDir.Left">
+            <summary>
+            Place successive selectables leftwards.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.GridNavGraph">
+            <summary>
+            A navigation graph that connects selectables in a grid.
+            </summary>
+        </member>
+        <member name="P:Modding.Menu.GridNavGraph.Columns">
+            <summary>
+            The number of columns in the current row.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.GridNavGraph.#ctor(System.Int32)">
+            <summary>
+            Creates a new grid navigation graph.
+            </summary>
+            <param name="columns">The number of columns in the grid.</param>
+        </member>
+        <member name="M:Modding.Menu.GridNavGraph.ChangeColumns(System.Int32)">
+            <summary>
+            Starts a new row and changes the number of columns in the subsequent grid rows.
+            </summary>
+            <param name="columns">The new number of columns.</param>
+        </member>
+        <member name="M:Modding.Menu.GridNavGraph.AddNavigationNode(UnityEngine.UI.Selectable)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Modding.Menu.GridNavGraph.BuildNavigation">
+            <inheritdoc/>
+        </member>
+        <member name="T:Modding.Menu.MenuResources">
+            <summary>
+            Cached resources for the menu api to use
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.MenuResources.ReloadResources">
+            <summary>
+            Reloads all resources, searching to find each one again.
+            </summary>
+        </member>
+        <member name="T:Modding.Menu.MenuUtils">
+            <summary>
+            Class containing some utilities for creating Menu Screens in the default style.
+            </summary>
+        </member>
+        <member name="M:Modding.Menu.MenuUtils.CreateMenuBuilder(System.String)">
+            <summary>
+            Create a MenuBuilder with the default size and position data, but no content or controls.
+            </summary>
+            <param name="title">The title to give the menu screen.</param>
+            <returns>The MenuBuilder object.</returns>
+        </member>
+        <member name="M:Modding.Menu.MenuUtils.CreateMenuBuilderWithBackButton(System.String,MenuScreen,UnityEngine.UI.MenuButton@)">
+            <summary>
+            Create a MenuBuilder with the default size and position data and a back button, but no content.
+            </summary>
+            <param name="title">The title to give the menu screen.</param>
+            <param name="returnScreen">The screen to return to when the user hits back.</param>
+            <param name="backButton">The back button.</param>
+            <returns>The MenuBuilder object.</returns>
+        </member>
+        <member name="M:Modding.Menu.MenuUtils.AddModMenuContent(System.Collections.Generic.List{Modding.IMenuMod.MenuEntry},Modding.Menu.ContentArea,MenuScreen)">
+            <summary>
+            Add Horizontal Options to the content area.
+            </summary>
+            <param name="entries">The menu data.</param>
+            <param name="c">The content area to add the entries to.</param>
+            <param name="returnScreen">The screen to return to when the user hits cancel.</param>
+        </member>
+        <member name="M:Modding.Menu.MenuUtils.CreateMenuScreen(System.String,System.Collections.Generic.List{Modding.IMenuMod.MenuEntry},MenuScreen)">
+            <summary>
+            Create a menu screen in the default style.
+            </summary>
+            <param name="title">The title to give the menu screen.</param>
+            <param name="menuData">The data for the horizontal options.</param>
+            <param name="returnScreen">The screen to return to when the user hits back.</param>
+            <returns>A built menu screen in the default style.</returns>
+        </member>
+        <member name="T:Modding.Mod">
+            <inheritdoc cref="T:Modding.Loggable" />
+            <inheritdoc cref="T:Modding.IMod" />
+            <summary>
+                Base mod class.
+            </summary>
+        </member>
+        <member name="F:Modding.Mod.Name">
+            <summary>
+                The Mods Name
+            </summary>
+        </member>
+        <member name="M:Modding.Mod.#ctor(System.String)">
+            <inheritdoc />
+            <summary>
+                Constructs the mod, assigns the instance and sets the name.
+            </summary>
+        </member>
+        <member name="M:Modding.Mod.GetName">
+            <inheritdoc />
+            <summary>
+                Get's the Mod's Name
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Mod.GetPreloadNames">
+            <inheritdoc />
+            <summary>
+                Returns the objects to preload in order for the mod to work.
+            </summary>
+            <returns>A List of tuples containing scene name, object name</returns>
+        </member>
+        <member name="M:Modding.Mod.PreloadSceneHooks">
+            <summary>
+            A list of requested scenes to be preloaded and actions to execute on loading of those scenes
+            </summary>
+            <returns>List of tuples containg scene names and the respective actions.</returns>
+        </member>
+        <member name="M:Modding.Mod.Initialize(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.Dictionary{System.String,UnityEngine.GameObject}})">
+            <inheritdoc />
+            <summary>
+                Called after preloading of all mods.
+            </summary>
+            <param name="preloadedObjects">The preloaded objects relevant to this <see cref="T:Modding.Mod" /></param>
+        </member>
+        <member name="M:Modding.Mod.GetVersion">
+            <inheritdoc />
+            <summary>
+                Returns version of Mod
+            </summary>
+            <returns>Mod Version</returns>
+        </member>
+        <member name="M:Modding.Mod.LoadPriority">
+            <summary>
+                Controls when this mod should load compared to other mods.  Defaults to ordered by name.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Mod.Initialize">
+            <summary>
+                Called after preloading of all mods.
+            </summary>
+        </member>
+        <member name="M:Modding.Mod.TryLoadGlobalSettings(System.String,System.Type)">
+            <summary>
+            Try to load the global settings from the given path. Returns true if the global settings were successfully loaded.
+            </summary>
+        </member>
+        <member name="M:Modding.Mod.SaveGlobalSettings">
+            <summary>
+            Save global settings to saves folder.
+            </summary>
+        </member>
+        <member name="T:Modding.ModHooks">
+            <summary>
+                Class to hook into various events for the game.
+            </summary>
+        </member>
+        <member name="P:Modding.ModHooks.BuiltModMenuScreens">
+            <summary>
+                A map of mods to their built menu screens.
+            </summary>
+        </member>
+        <member name="F:Modding.ModHooks.LoadedModsWithVersions">
+            <summary>
+                Dictionary of mods and their version #s
+            </summary>
+        </member>
+        <member name="F:Modding.ModHooks.ModVersion">
+            <summary>
+                The Version of the Modding API
+            </summary>
+        </member>
+        <member name="F:Modding.ModHooks.version">
+            <summary>
+                Version of the Game
+            </summary>
+        </member>
+        <member name="P:Modding.ModHooks.GlobalSettings">
+            <summary>
+            The global ModHooks settings.
+            </summary>
+        </member>
+        <member name="P:Modding.ModHooks.Instance">
+            <summary>
+                Current instance of Modhooks.
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.LanguageGetHook">
+            <summary>
+                Called whenever localization specific strings are requested
+            </summary>
+            <see cref="T:Modding.Delegates.LanguageGetProxy"/>
+            <remarks>N/A</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.LanguageGet(System.String,System.String)">
+            <summary>
+                Called whenever localization specific strings are requested
+            </summary>
+            <remarks>N/A</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.CursorHook">
+            <summary>
+                Called whenever game tries to show cursor
+            </summary>
+        </member>
+        <member name="M:Modding.ModHooks.OnCursor(GameManager)">
+            <summary>
+                Called whenever game tries to show cursor
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.ColliderCreateHook">
+            <summary>
+                Called whenever a new gameobject is created with a collider and playmaker2d
+            </summary>
+            <remarks>PlayMakerUnity2DProxy.Start</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnColliderCreate(UnityEngine.GameObject)">
+            <summary>
+                Called whenever a new gameobject is created with a collider and playmaker2d
+            </summary>
+            <remarks>PlayMakerUnity2DProxy.Start</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.ObjectPoolSpawnHook">
+            <summary>
+                Called whenever game tries to create a new gameobject.  This happens often, care should be taken.
+            </summary>
+        </member>
+        <member name="M:Modding.ModHooks.OnObjectPoolSpawn(UnityEngine.GameObject)">
+            <summary>
+                Called whenever game tries to show cursor
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.ApplicationQuitHook">
+            <summary>
+                Called when the game is fully closed
+            </summary>
+            <remarks>GameManager.OnApplicationQuit</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnApplicationQuit">
+            <summary>
+                Called when the game is fully closed
+            </summary>
+            <remarks>GameManager.OnApplicationQuit</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.HitInstanceHook">
+            <summary>
+            Called whenever a HitInstance is created. Overrides hit.
+            </summary>
+            <see cref="T:Modding.Delegates.HitInstanceHandler"/>
+        </member>
+        <member name="M:Modding.ModHooks.OnHitInstanceBeforeHit(HutongGames.PlayMaker.Fsm,HitInstance)">
+            <summary>
+                Called whenever a HitInstance is created. Overrides normal functionality
+            </summary>
+            <remarks>HutongGames.PlayMaker.Actions.TakeDamage</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.DrawBlackBordersHook">
+            <summary>
+                Called when a SceneManager calls DrawBlackBorders and creates boarders for a scene. You may use or modify the
+                bounds of an area of the scene with these.
+            </summary>
+            <remarks>SceneManager.DrawBlackBorders</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.OnEnableEnemyHook">
+            <summary>
+                Called when an enemy is enabled. Check this isDead flag to see if they're already dead. If you return true, this
+                will mark the enemy as already dead on load. Default behavior is to return the value inside "isAlreadyDead".
+            </summary>
+            <see cref="T:Modding.Delegates.OnEnableEnemyHandler"/>
+            <remarks>HealthManager.CheckPersistence</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.OnReceiveDeathEventHook">
+            <summary>
+                Called when an enemy recieves a death event. It looks like this event may be called multiple times on an enemy, so
+                check "eventAlreadyRecieved" to see if the event has been fired more than once.
+            </summary>
+            <see cref="T:Modding.Delegates.OnReceiveDeathEventHandler"/>
+            <remarks>EnemyDeathEffects.RecieveDeathEvent</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.RecordKillForJournalHook">
+            <summary>
+                Called when an enemy dies and a journal kill is recorded. You may use the "playerDataName" string or one of the
+                additional pre-formatted player data strings to look up values in playerData.
+            </summary>
+            <see cref="T:Modding.Delegates.RecordKillForJournalHandler"/>
+            <remarks>EnemyDeathEffects.OnRecordKillForJournal</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.SetPlayerBoolHook">
+             <summary>
+                 Called when anything in the game tries to set a bool in player data
+             </summary>
+             <example>
+             <code>
+             public int KillCount { get; set; }
+             
+             ModHooks.Instance.SetPlayerBoolHook += SetBool;
+            
+             /*
+              * This uses the bool set to trigger a death, killing the player
+              * as well as preventing them from picking up dash, which could be used
+              * in something like a dashless mod.
+              *
+              * We are also able to use SetBool for counting things, as it is often
+              * called every time sometthing happens, regardless of the value
+              * this can be seen in our check for "killedMageLord", which counts the
+              * number of times the player kills Soul Master with the mod on.
+              */
+             bool SetBool(string name, bool orig) {
+                 switch (name) {
+                     case "hasDash":
+                         var hc = HeroController.instance;
+            
+                         // Kill the player
+                         hc.StartCoroutine(hc.Die());
+            
+                         // Prevent dash from being picked up
+                         return false;
+                     case "killedMageLord":
+                         // Just increment the counter.
+                         KillCount++;
+            
+                         // We could also do something like award them geo for each kill
+                         // And despite being a set, this would trigger on *every* kill
+                         HeroController.instance.AddGeo(300);
+             
+                         // Not changing the value.
+                         return orig;
+                     default:
+                         return orig;
+                 }
+             }
+             </code>
+             </example>
+             <see cref="T:Modding.Delegates.SetBoolProxy" />
+             <remarks>PlayerData.SetBool</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.SetPlayerBool(System.String,System.Boolean,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.SetBool
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="orig">Value to set</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.GetPlayerBoolHook">
+             <summary>
+                 Called when anything in the game tries to get a bool from player data
+             </summary>
+             <example>
+             <code>
+             ModHooks.GetPlayerBoolHook += GetBool;
+            
+             // In this example, we always give the player dash, and
+             // leave other bools as-is.
+             bool? GetBool(string name, bool orig) {
+                 return name == "canDash" ? true : orig;
+             }
+             </code>
+             </example>
+             <see cref="T:Modding.Delegates.GetBoolProxy"/>
+             <remarks>PlayerData.GetBool</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.GetPlayerBool(System.String,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.GetBool
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.SetPlayerIntHook">
+             <summary>
+                 Called when anything in the game tries to set an int in player data
+             </summary>
+             <example>
+             <code>
+             ModHooks.Instance.SetPlayerIntHook += SetInt;
+            
+             int? SetInt(string name, int orig) {
+                  // We could do something every time the player 
+                  // receives or loses geo.
+                 if (name == "geo") {
+                     // Let's give the player soul if they *gain* geo
+                     if (PlayerData.instance.geo &lt; orig) {
+                         PlayerData.instance.AddMPChargeSpa(10);
+                     }
+                 }
+            
+                 // In this case, we aren't changing the value being set
+                 // at all, so we just leave the value as the original for everything.
+                 return orig;
+             }
+             </code>
+             </example>
+             <see cref="T:Modding.Delegates.SetIntProxy"/>
+             <remarks>PlayerData.SetInt</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.SetPlayerInt(System.String,System.Int32,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.SetInt
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="orig">Value to set</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.GetPlayerIntHook">
+             <summary>
+                 Called when anything in the game tries to get an int from player data
+             </summary>
+             <see cref="T:Modding.Delegates.GetIntProxy"/>
+             <example>
+             <code>
+             ModHooks.GetPlayerIntHook += GetInt;
+            
+             // This overrides the number of charm slots we have to 999,
+             // effectively giving us infinite charm notches.
+             // We ignore any other GetInt calls.
+             int? GetInt(string name, int orig) {
+                 return name == "charmSlots" ? 999 : orig;
+             }
+             </code>
+             </example>
+             <see cref="T:Modding.Delegates.GetIntProxy"/>
+             <remarks>PlayerData.GetInt</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.GetPlayerInt(System.String,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.GetInt
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.SetPlayerFloatHook">
+            <summary>
+                Called when anything in the game tries to set a float in player data
+            </summary>
+            <see cref="T:Modding.Delegates.SetFloatProxy"/>
+            <remarks>PlayerData.SetFloat</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.SetPlayerFloat(System.String,System.Single,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.SetFloat
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="orig">Value to set</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.GetPlayerFloatHook">
+            <summary>
+                Called when anything in the game tries to get a float from player data
+            </summary>
+            <see cref="T:Modding.Delegates.GetFloatProxy"/>
+            <remarks>PlayerData.GetFloat</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.GetPlayerFloat(System.String,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.GetFloat
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.SetPlayerStringHook">
+            <summary>
+                Called when anything in the game tries to set a string in player data
+            </summary>
+            <see cref="T:Modding.Delegates.SetStringProxy"/>
+            <remarks>PlayerData.SetString</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.SetPlayerString(System.String,System.String,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.SetString
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="orig">Value to set</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.GetPlayerStringHook">
+            <summary>
+                Called when anything in the game tries to get a string from player data
+            </summary>
+            <see cref="T:Modding.Delegates.GetStringProxy"/>
+            <remarks>PlayerData.GetString</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.GetPlayerString(System.String,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.GetString
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.SetPlayerVector3Hook">
+            <summary>
+                Called when anything in the game tries to set a Vector3 in player data
+            </summary>
+            <see cref="T:Modding.Delegates.SetVector3Proxy"/>
+            <remarks>PlayerData.SetVector3</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.SetPlayerVector3(System.String,UnityEngine.Vector3,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.SetVector3
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="orig">Value to set</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.GetPlayerVector3Hook">
+            <summary>
+                Called when anything in the game tries to get a Vector3 from player data
+            </summary>
+            <see cref="T:Modding.Delegates.GetVector3Proxy"/>
+            <remarks>PlayerData.GetVector3</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.GetPlayerVector3(System.String,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.GetVector3
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.SetPlayerVariableHook">
+            <summary>
+                Called when anything in the game tries to set a generic variable in player data
+            </summary>
+            <see cref="T:Modding.Delegates.SetVariableProxy"/>
+            <remarks>PlayerData.SetVariable</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.SetPlayerVariable``1(System.String,``0,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.SetVariable
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="orig">Value to set</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.GetPlayerVariableHook">
+            <summary>
+                Called when anything in the game tries to get a generic variable from player data
+            </summary>
+            <see cref="T:Modding.Delegates.GetVariableProxy"/>
+            <remarks>PlayerData.GetVariable</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.GetPlayerVariable``1(System.String,Modding.Patches.PlayerData)">
+            <summary>
+                Called by the game in PlayerData.GetVariable
+            </summary>
+            <param name="target">Target Field Name</param>
+            <param name="pd">The PlayerData object</param>
+        </member>
+        <member name="E:Modding.ModHooks.BlueHealthHook">
+            <summary>
+                Called whenever blue health is updated
+            </summary>
+        </member>
+        <member name="M:Modding.ModHooks.OnBlueHealth">
+            <summary>
+                Called whenever blue health is updated
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.TakeHealthHook">
+            <summary>
+                Called when health is taken from the player
+            </summary>
+            <remarks>HeroController.TakeHealth</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnTakeHealth(System.Int32)">
+            <summary>
+                Called when health is taken from the player
+            </summary>
+            <remarks>HeroController.TakeHealth</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.TakeDamageHook">
+            <summary>
+                Called when damage is dealt to the player, at the start of the take damage function.
+            </summary>
+            <see cref="T:Modding.Delegates.TakeDamageProxy"/>
+            <remarks>HeroController.TakeDamage</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnTakeDamage(System.Int32@,System.Int32)">
+            <summary>
+                Called when damage is dealt to the player, at the start of the take damage function.
+            </summary>
+            <remarks>HeroController.TakeDamage</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.AfterTakeDamageHook">
+            <summary>
+                Called in the take damage function, immediately before applying damage (just before checking overcharm)
+            </summary>
+            <see cref="T:Modding.Delegates.AfterTakeDamageHandler"/>
+        </member>
+        <member name="M:Modding.ModHooks.AfterTakeDamage(System.Int32,System.Int32)">
+            <summary>
+                Called in the take damage function, immediately before applying damage (just before checking overcharm)
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.BeforePlayerDeadHook">
+            <summary>
+                Called when the player dies
+            </summary>
+            <remarks>GameManager.PlayerDead</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnBeforePlayerDead">
+            <summary>
+                Called when the player dies (at the beginning of the method)
+            </summary>
+            <remarks>GameManager.PlayerDead</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.AfterPlayerDeadHook">
+            <summary>
+                Called after the player dies
+            </summary>
+            <remarks>GameManager.PlayerDead</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnAfterPlayerDead">
+            <summary>
+                Called after the player dies (at the end of the method)
+            </summary>
+            <remarks>GameManager.PlayerDead</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.AttackHook">
+            <summary>
+                Called whenever the player attacks
+            </summary>
+            <remarks>HeroController.Attack</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnAttack(GlobalEnums.AttackDirection)">
+            <summary>
+                Called whenever the player attacks
+            </summary>
+            <remarks>HeroController.Attack</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.DoAttackHook">
+            <summary>
+                Called at the start of the DoAttack function
+            </summary>
+        </member>
+        <member name="M:Modding.ModHooks.OnDoAttack">
+            <summary>
+                Called at the start of the DoAttack function
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.AfterAttackHook">
+            <summary>
+                Called at the end of the attack function
+            </summary>
+            <remarks>HeroController.Attack</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.AfterAttack(GlobalEnums.AttackDirection)">
+            <summary>
+                Called at the end of the attack function
+            </summary>
+            <remarks>HeroController.Attack</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.SlashHitHook">
+            <summary>
+                Called whenever nail strikes something
+            </summary>
+            <see cref="T:Modding.Delegates.SlashHitHandler"/>
+        </member>
+        <member name="M:Modding.ModHooks.OnSlashHit(UnityEngine.Collider2D,UnityEngine.GameObject)">
+            <summary>
+                Called whenever nail strikes something
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.CharmUpdateHook">
+            <summary>
+                Called after player values for charms have been set
+            </summary>
+            <see cref="T:Modding.Delegates.CharmUpdateHandler"/>
+            <remarks>HeroController.CharmUpdate</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnCharmUpdate(PlayerData,Modding.Patches.HeroController)">
+            <summary>
+                Called after player values for charms have been set
+            </summary>
+            <remarks>HeroController.CharmUpdate</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.HeroUpdateHook">
+            <summary>
+                Called whenever the hero updates
+            </summary>
+            <remarks>HeroController.Update</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnHeroUpdate">
+            <summary>
+                Called whenever the hero updates
+            </summary>
+            <remarks>HeroController.Update</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.BeforeAddHealthHook">
+            <summary>
+                Called whenever the player heals, overrides health added.
+            </summary>
+            <remarks>PlayerData.health</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.BeforeAddHealth(System.Int32)">
+            <summary>
+                Called whenever the player heals
+            </summary>
+            <remarks>PlayerData.health</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.FocusCostHook">
+            <summary>
+                Called whenever focus cost is calculated, allows a focus cost multiplier.
+            </summary>
+        </member>
+        <member name="M:Modding.ModHooks.OnFocusCost">
+            <summary>
+                Called whenever focus cost is calculated
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.SoulGainHook">
+            <summary>
+                Called when Hero recovers Soul from hitting enemies
+            </summary>
+            <returns>The amount of soul to recover</returns>
+        </member>
+        <member name="M:Modding.ModHooks.OnSoulGain(System.Int32)">
+            <summary>
+                Called when Hero recovers Soul from hitting enemies
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.DashVectorHook">
+            <summary>
+                Called during dash function to change velocity
+            </summary>
+            <returns>A changed vector.</returns>
+            <remarks>HeroController.Dash</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.DashVelocityChange(UnityEngine.Vector2)">
+            <summary>
+                Called during dash function to change velocity
+            </summary>
+            <remarks>HeroController.Dash</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.DashPressedHook">
+            <summary>
+                Called whenever the dash key is pressed.
+                Returns whether or not to override normal dash functionality - if true, preventing a normal dash
+            </summary>
+            <remarks>HeroController.LookForQueueInput</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnDashPressed">
+            <summary>
+                Called whenever the dash key is pressed. Returns whether or not to override normal dash functionality
+            </summary>
+            <remarks>HeroController.LookForQueueInput</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.SavegameLoadHook">
+            <summary>
+                Called directly after a save has been loaded
+            </summary>
+            <remarks>GameManager.LoadGame</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnSavegameLoad(System.Int32)">
+            <summary>
+                Called directly after a save has been loaded
+            </summary>
+            <remarks>GameManager.LoadGame</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.SavegameSaveHook">
+            <summary>
+                Called directly after a save has been saved
+            </summary>
+            <remarks>GameManager.SaveGame</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnSavegameSave(System.Int32)">
+            <summary>
+                Called directly after a save has been saved
+            </summary>
+            <remarks>GameManager.SaveGame</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.NewGameHook">
+            <summary>
+                Called whenever a new game is started
+            </summary>
+            <remarks>GameManager.LoadFirstScene</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnNewGame">
+            <summary>
+                Called whenever a new game is started
+            </summary>
+            <remarks>GameManager.LoadFirstScene</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.SavegameClearHook">
+            <summary>
+                Called before a save file is deleted
+            </summary>
+            <remarks>GameManager.ClearSaveFile</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnSavegameClear(System.Int32)">
+            <summary>
+                Called before a save file is deleted
+            </summary>
+            <remarks>GameManager.ClearSaveFile</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.AfterSavegameLoadHook">
+            <summary>
+                Called directly after a save has been loaded.  Allows for accessing SaveGame instance.
+            </summary>
+            <remarks>GameManager.LoadGame</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnAfterSaveGameLoad(SaveGameData)">
+            <summary>
+                Called directly after a save has been loaded.  Allows for accessing SaveGame instance.
+            </summary>
+            <remarks>GameManager.LoadGame</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.BeforeSavegameSaveHook">
+            <summary>
+                Called directly before save has been saved to allow for changes to the data before persisted.
+            </summary>
+            <remarks>GameManager.SaveGame</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnBeforeSaveGameSave(SaveGameData)">
+            <summary>
+                Called directly before save has been saved to allow for changes to the data before persisted.
+            </summary>
+            <remarks>GameManager.SaveGame</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.GetSaveFileNameHook">
+            <summary>
+                Overrides the filename to load for a given slot.  Return null to use vanilla names.
+            </summary>
+        </member>
+        <member name="M:Modding.ModHooks.GetSaveFileName(System.Int32)">
+            <summary>
+                Overrides the filename to load for a given slot.  Return null to use vanilla names.
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.AfterSaveGameClearHook">
+            <summary>
+                Called after a game has been cleared from a slot.
+            </summary>
+        </member>
+        <member name="M:Modding.ModHooks.OnAfterSaveGameClear(System.Int32)">
+            <summary>
+                Called after a game has been cleared from a slot.
+            </summary>
+        </member>
+        <member name="E:Modding.ModHooks.SceneChanged">
+            <summary>
+                Called after a new Scene has been loaded
+            </summary>
+            <remarks>N/A</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.OnSceneChanged(System.String)">
+            <summary>
+                Called after a new Scene has been loaded
+            </summary>
+            <remarks>N/A</remarks>
+        </member>
+        <member name="E:Modding.ModHooks.BeforeSceneLoadHook">
+            <summary>
+                Called right before a scene gets loaded, can change which scene gets loaded
+            </summary>
+            <remarks>N/A</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.BeforeSceneLoad(System.String)">
+            <summary>
+                Called right before a scene gets loaded, can change which scene gets loaded
+            </summary>
+            <remarks>N/A</remarks>
+        </member>
+        <member name="M:Modding.ModHooks.GetMod(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Gets a mod instance by name.
+            </summary>
+            <param name="name">The name of the mod.</param>
+            <param name="onlyEnabled">Should the method only return the mod if it is enabled.</param>
+            <param name="allowLoadError">Should the method return the mod even if it had load errors.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.ModHooks.GetMod(System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            Gets a mod instance by type.
+            </summary>
+            <param name="type">The type of the mod.</param>
+            <param name="onlyEnabled">Should the method only return the mod if it is enabled.</param>
+            <param name="allowLoadError">Should the method return the mod even if it had load errors.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.ModHooks.ModEnabled(Modding.ITogglableMod)">
+            <summary>
+            Gets if the mod is currently enabled.
+            </summary>
+            <param name="mod">The togglable mod to check.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.ModHooks.ModEnabled(System.String)">
+            <summary>
+            Gets if a mod is currently enabled.
+            </summary>
+            <param name="name">The name of the mod to check.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.ModHooks.ModEnabled(System.Type)">
+            <summary>
+            Gets if a mod is currently enabled.
+            </summary>
+            <param name="type">The type of the mod to check.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.ModHooks.GetAllMods(System.Boolean,System.Boolean)">
+            <summary>
+            Returns an iterator over all mods.
+            </summary>
+            <param name="onlyEnabled">Should the iterator only contain enabled mods.</param>
+            <param name="allowLoadError">Should the iterator contain mods which have load errors.</param>
+            <returns></returns>
+        </member>
+        <member name="E:Modding.ModHooks.FinishedLoadingModsHook">
+            <summary>
+            Event invoked when mods have finished loading. If modloading has already finished, subscribers will be invoked immediately.
+            </summary>
+        </member>
+        <member name="T:Modding.ModHooksGlobalSettings">
+            <summary>
+                Class to hold GlobalSettings for the Modding API
+            </summary>
+        </member>
+        <member name="F:Modding.ModHooksGlobalSettings.LoggingLevel">
+            <summary>
+                Logging Level to use.
+            </summary>
+        </member>
+        <member name="F:Modding.ModHooksGlobalSettings.ConsoleSettings">
+            <summary>
+                All settings related to the the in game console
+            </summary>
+        </member>
+        <member name="F:Modding.ModHooksGlobalSettings.ShowDebugLogInGame">
+            <summary>
+                Determines if Debug Console (Which displays Messages from Logger) should be shown.
+            </summary>
+        </member>
+        <member name="F:Modding.ModHooksGlobalSettings.PreloadBatchSize">
+            <summary>
+                Determines for the preloading how many different scenes should be loaded at once.
+            </summary>
+        </member>
+        <member name="F:Modding.ModHooksGlobalSettings.ModlogMaxAge">
+            <summary>
+                Maximum number of days to preserve modlogs for.
+            </summary>
+        </member>
+        <member name="T:Modding.ModLoader">
+            <summary>
+                Handles loading of mods.
+            </summary>
+        </member>
+        <member name="M:Modding.ModLoader.TryAddModInstance(System.Type,Modding.ModLoader.ModInstance)">
+            <summary>
+            Try to add a ModInstance to the internal dictionaries.
+            </summary>
+            <param name="ty">The type of the mod.</param>
+            <param name="mod">The ModInstance.</param>
+            <returns>True if the ModInstance was successfully added; false otherwise.</returns>
+        </member>
+        <member name="M:Modding.ModLoader.LoadModsInit(UnityEngine.GameObject)">
+            <summary>
+            Starts the main loading of all mods.
+            This loads assemblies, constructs and initializes mods, and creates the mod list menu.<br/>
+            This method should only be called once in the lifetime of the game.
+            </summary>
+            <param name="coroutineHolder"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Modding.ILocalSettings`1">
+            <summary>
+            An interface that signifies that the mod will save data into a save file.
+            </summary>
+            <typeparam name="S">The type representing the settings.</typeparam>
+        </member>
+        <member name="M:Modding.ILocalSettings`1.OnLoadLocal(`0)">
+            <summary>
+            Called when the mod just loaded the save data.
+            </summary>
+            <param name="s">The settings the mod loaded.</param>
+        </member>
+        <member name="M:Modding.ILocalSettings`1.OnSaveLocal">
+            <summary>
+            Called when the mod needs to save data.
+            </summary>
+            <returns>The settings to be stored.</returns>
+        </member>
+        <member name="T:Modding.IGlobalSettings`1">
+            <summary>
+            An interface that signifies that the mod will save global data.
+            </summary>
+            <typeparam name="S">The type representing the settings.</typeparam>
+        </member>
+        <member name="M:Modding.IGlobalSettings`1.OnLoadGlobal(`0)">
+            <summary>
+            Called when the mod just loaded the global settings.
+            </summary>
+            <param name="s">The settings the mod loaded.</param>
+        </member>
+        <member name="M:Modding.IGlobalSettings`1.OnSaveGlobal">
+            <summary>
+            Called when the mod needs to save the global settings.
+            </summary>
+            <returns>The settings to be stored.</returns>
+        </member>
+        <member name="T:Modding.ModVersionDraw">
+            <inheritdoc />
+            <summary>
+                Class to draw the version information for the mods on the main menu.
+            </summary>
+        </member>
+        <member name="F:Modding.ModVersionDraw.drawString">
+            <summary>
+                String to Draw
+            </summary>
+        </member>
+        <member name="M:Modding.ModVersionDraw.Start">
+            <summary>
+                Run When GameObject is first active.
+            </summary>
+        </member>
+        <member name="M:Modding.ModVersionDraw.OnGUI">
+            <summary>
+                Run When Gui is shown.
+            </summary>
+        </member>
+        <member name="M:Modding.Patches.HealthManager.CheckPersistence">
+            This may be used by mods to find new enemies. Check this isDead flag to see if they're already dead
+        </member>
+        <member name="T:Modding.Patches.RemoveMethodCall">
+            <inheritdoc />
+            <summary>
+            MonoMod attribute for removing method call
+            </summary>
+        </member>
+        <member name="M:Modding.Patches.RemoveMethodCall.#ctor(System.String,System.String)">
+            <inheritdoc />
+            <summary>
+            Remove call to method
+            </summary>
+            <param name="type">Type full name</param>
+            <param name="method">Method name</param>
+        </member>
+        <member name="T:Modding.Patches.ReplaceMethodAttribute">
+            <inheritdoc />
+            <summary>
+            MonoMod attribute for replacing a method call
+            </summary>
+        </member>
+        <member name="M:Modding.Patches.ReplaceMethodAttribute.#ctor(System.String,System.String,System.String[],System.String,System.String,System.String[])">
+            <inheritdoc />
+            <summary>
+            Replace method call with alternate method call
+            </summary>
+        </member>
+        <member name="T:Modding.Patches.ShouldSerializeContractResolver">
+            <inheritdoc />
+        </member>
+        <member name="F:Modding.Patches.ShouldSerializeContractResolver.Instance">
+            <summary>
+            Instance to cache reflection calls.
+            </summary>
+        </member>
+        <member name="M:Modding.Patches.ShouldSerializeContractResolver.CreateProperty(System.Reflection.MemberInfo,Newtonsoft.Json.MemberSerialization)">
+            <inheritdoc />
+        </member>
+        <member name="M:Modding.Preloader.MuteAllAudio">
+            <summary>
+                Mutes all audio from AudioListeners.
+            </summary>
+        </member>
+        <member name="M:Modding.Preloader.CreateBlanker">
+            <summary>
+                Creates the canvas used to show the loading progress.
+                It is centered on the screen.
+            </summary>
+        </member>
+        <member name="M:Modding.Preloader.CreateLoadingBarBackground">
+            <summary>
+                Creates the background of the loading bar.
+                It is centered in the canvas.
+            </summary>
+        </member>
+        <member name="M:Modding.Preloader.CreateLoadingBar">
+            <summary>
+                Creates the loading bar with an initial width of 0.
+                It is centered in the canvas.
+            </summary>
+        </member>
+        <member name="M:Modding.Preloader.UpdateLoadingBarProgress(System.Single)">
+            <summary>
+                Updates the progress of the loading bar to the given progress.
+            </summary>
+            <param name="progress">The progress that should be displayed. 0.0f - 1.0f</param>
+        </member>
+        <member name="M:Modding.Preloader.DoPreload(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.ValueTuple{Modding.ModLoader.ModInstance,System.Collections.Generic.List{System.String}}}},System.Collections.Generic.IDictionary{Modding.ModLoader.ModInstance,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.Dictionary{System.String,UnityEngine.GameObject}}},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.Func{System.Collections.IEnumerator}}})">
+            <summary>
+                This is the actual preloading process.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Preloader.CleanUpPreloading">
+            <summary>
+                Clean up everything from preloading.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Modding.Preloader.UnmuteAllAudio">
+            <summary>
+                Unmutes all audio from AudioListeners.
+            </summary>
+        </member>
+        <member name="T:Modding.ReflectionHelper">
+            <summary>
+                A class to aid in reflection while caching it.
+            </summary>
+        </member>
+        <member name="M:Modding.ReflectionHelper.CacheFields``1">
+            <summary>
+                Caches all fields on a type to frontload cost of reflection
+            </summary>
+            <typeparam name="T">The type to cache</typeparam>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetFieldInfo(System.Type,System.String,System.Boolean)">
+            <summary>
+                Gets a field on a type
+            </summary>
+            <param name="t">Type</param>
+            <param name="field">Field name</param>
+            <param name="instance"></param>
+            <returns>FieldInfo for field or null if field does not exist.</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetInstanceFieldGetter``2(System.Reflection.FieldInfo)">
+            <summary>
+                Gets delegate getting field on type
+            </summary>
+            <param name="fi">FieldInfo for field.</param>
+            <returns>Function which gets value of field</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetInstanceFieldSetter``2(System.Reflection.FieldInfo)">
+            <summary>
+                Gets delegate setting field on type
+            </summary>
+            <param name="fi">FieldInfo for field.</param>
+            <returns>Function which sets field passed as FieldInfo</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetField``3(``0,System.String,``2)">
+            <summary>
+                Get a field on an object using a string. Cast to TCast before returning and if field doesn't exist return default.
+            </summary>
+            <param name="obj">Object/Object of type which the field is on</param>
+            <param name="name">Name of the field</param>
+            <param name="default">Default return</param>
+            <typeparam name="TField">Type of field</typeparam>
+            <typeparam name="TObject">Type of object being passed in</typeparam>
+            <typeparam name="TCast">Type of return.</typeparam>
+            <returns>The value of a field on an object/type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetField``2(``0,System.String)">
+            <summary>
+                Get a field on an object using a string.
+            </summary>
+            <param name="obj">Object/Object of type which the field is on</param>
+            <param name="name">Name of the field</param>
+            <typeparam name="TField">Type of field</typeparam>
+            <typeparam name="TObject">Type of object being passed in</typeparam>
+            <returns>The value of a field on an object/type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetField``2(System.String)">
+            <summary>
+                Get a static field on an type using a string.
+            </summary>
+            <param name="name">Name of the field</param>
+            <typeparam name="TType">Type which static field resides upon</typeparam>
+            <typeparam name="TField">Type of field</typeparam>
+            <returns>The value of a field on an object/type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetField``1(System.Type,System.String)">
+            <summary>
+                Get a static field on an type using a string. (for static classes)
+            </summary>
+            <param name="type">Static Type which static field resides upon</param>
+            <param name="name">Name of the field</param>
+            <typeparam name="TField">Type of field</typeparam>
+            <returns>The value of a field on an object/type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.SetFieldSafe``2(``0,System.String,``1)">
+            <summary>
+                Set a field on an object using a string.
+            </summary>
+            <param name="obj">Object/Object of type which the field is on</param>
+            <param name="name">Name of the field</param>
+            <param name="value">Value to set the field to</param>
+            <typeparam name="TField">Type of field</typeparam>
+            <typeparam name="TObject">Type of object being passed in</typeparam>
+        </member>
+        <member name="M:Modding.ReflectionHelper.SetField``2(``0,System.String,``1)">
+            <summary>
+                Set a field on an object using a string.
+            </summary>
+            <param name="obj">Object/Object of type which the field is on</param>
+            <param name="name">Name of the field</param>
+            <param name="value">Value to set the field to</param>
+            <typeparam name="TField">Type of field</typeparam>
+            <typeparam name="TObject">Type of object being passed in</typeparam>
+        </member>
+        <member name="M:Modding.ReflectionHelper.SetField``2(System.String,``1)">
+            <summary>
+                Set a static field on an type using a string.
+            </summary>
+            <param name="name">Name of the field</param>
+            <param name="value">Value to set the field to</param>
+            <typeparam name="TType">Type which static field resides upon</typeparam>
+            <typeparam name="TField">Type of field</typeparam>
+        </member>
+        <member name="M:Modding.ReflectionHelper.SetField``1(System.Type,System.String,``0)">
+            <summary>
+                Set a static field on an type using a string. (for static classes)
+            </summary>
+            <param name="type">Static Type which static field resides upon</param>
+            <param name="name">Name of the field</param>
+            <param name="value">Value to set the field to</param>
+            <typeparam name="TField">Type of field</typeparam>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetPropertyInfo(System.Type,System.String,System.Boolean)">
+            <summary>
+                Gets a property on a type
+            </summary>
+            <param name="t">Type</param>
+            <param name="property">Property name</param>
+            <param name="instance"></param>
+            <returns>PropertyInfo for property or null if property does not exist.</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetProperty``2(``0,System.String)">
+            <summary>
+                Get a property on an object using a string.
+            </summary>
+            <param name="obj">Object/Object of type which the property is on</param>
+            <param name="name">Name of the property</param>
+            <typeparam name="TProperty">Type of property</typeparam>
+            <typeparam name="TObject">Type of object being passed in</typeparam>
+            <returns>The value of a property on an object/type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetProperty``2(System.String)">
+            <summary>
+                Get a static property on an type using a string.
+            </summary>
+            <param name="name">Name of the property</param>
+            <typeparam name="TType">Type which static property resides upon</typeparam>
+            <typeparam name="TProperty">Type of property</typeparam>
+            <returns>The value of a property on an object/type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetProperty``1(System.Type,System.String)">
+            <summary>
+                Get a static property on an type using a string. (for static classes)
+            </summary>
+            <param name="type">Static Type which static property resides upon</param>
+            <param name="name">Name of the property</param>
+            <typeparam name="TProperty">Type of property</typeparam>
+            <returns>The value of a property on an object/type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.SetProperty``2(``0,System.String,``1)">
+            <summary>
+                Set a property on an object using a string.
+            </summary>
+            <param name="obj">Object/Object of type which the property is on</param>
+            <param name="name">Name of the property</param>
+            <param name="value">Value to set the property to</param>
+            <typeparam name="TProperty">Type of property</typeparam>
+            <typeparam name="TObject">Type of object being passed in</typeparam>
+        </member>
+        <member name="M:Modding.ReflectionHelper.SetProperty``2(System.String,``1)">
+            <summary>
+                Set a static property on an type using a string.
+            </summary>
+            <param name="name">Name of the property</param>
+            <param name="value">Value to set the property to</param>
+            <typeparam name="TType">Type which static property resides upon</typeparam>
+            <typeparam name="TProperty">Type of property</typeparam>
+        </member>
+        <member name="M:Modding.ReflectionHelper.SetProperty``1(System.Type,System.String,``0)">
+            <summary>
+                Set a static property on an type using a string. (for static classes)
+            </summary>
+            <param name="type">Static Type which static property resides upon</param>
+            <param name="name">Name of the property</param>
+            <param name="value">Value to set the property to</param>
+            <typeparam name="TProperty">Type of property</typeparam>
+        </member>
+        <member name="M:Modding.ReflectionHelper.GetMethodInfo(System.Type,System.String,System.Boolean)">
+            <summary>
+                Gets a method on a type 
+            </summary>
+            <param name="t">Type</param>
+            <param name="method">Method name</param>
+            <param name="instance"></param>
+            <returns>MethodInfo for method or null if method does not exist.</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.CallMethod``2(``0,System.String,System.Object[])">
+            <summary>
+                Call an instance method with a return type
+            </summary>
+            <param name="obj">Object of type which the method is on</param>
+            <param name="name">Name of the method</param>
+            <param name="param">The paramters that need to be passed into the method.</param>
+            <typeparam name="TObject">Type of object being passed in</typeparam>
+            <typeparam name="TReturn">The return type of the method</typeparam>
+            <returns>The specified return type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.CallMethod``1(``0,System.String,System.Object[])">
+            <summary>
+                Call an instance method without a return type
+            </summary>
+            <param name="obj">Object of type which the method is on</param>
+            <param name="name">Name of the method</param>
+            <param name="param">The paramters that need to be passed into the method.</param>
+            <typeparam name="TObject">Type of object being passed in</typeparam>
+            <returns>None</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.CallMethod``2(System.String,System.Object[])">
+            <summary>
+                Call a static method with a return type
+            </summary>
+            <param name="name">Name of the method</param>
+            <param name="param">The paramters that need to be passed into the method.</param>
+            <typeparam name="TType">The Type which static method resides upon</typeparam>
+            <typeparam name="TReturn">The return type of the method</typeparam>
+            <returns>The specified return type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.CallMethod``1(System.String,System.Object[])">
+            <summary>
+                Call a static method without a return type
+            </summary>
+            <param name="name">Name of the method</param>
+            <param name="param">The paramters that need to be passed into the method.</param>
+            <typeparam name="TType">The Type which static method resides upon</typeparam>
+            <returns>None</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.CallMethod``1(System.Type,System.String,System.Object[])">
+            <summary>
+                Call a static method with a return type (for static classes)
+            </summary>
+            <param name="type">Static Type which static method resides upon</param>
+            <param name="name">Name of the method</param>
+            <param name="param">The paramters that need to be passed into the method.</param>
+            <typeparam name="TReturn">The return type of the method</typeparam>
+            <returns>The specified return type</returns>
+        </member>
+        <member name="M:Modding.ReflectionHelper.CallMethod(System.Type,System.String,System.Object[])">
+            <summary>
+                Call a static method without a return type (for static classes)
+            </summary>
+            <param name="type">Static Type which static method resides upon</param>
+            <param name="name">Name of the method</param>
+            <param name="param">The paramters that need to be passed into the method.</param>
+            <returns>None</returns>
+        </member>
+        <member name="T:Modding.SimpleLogger">
+            <inheritdoc />
+            <summary>
+                Provides access to the logging system with a formatted prefix of a given name "[Name] - Message".  This
+                is useful when you have a class that can't inherit from Loggable where you want easy logging.
+            </summary>
+        </member>
+        <member name="M:Modding.SimpleLogger.#ctor(System.String)">
+            <inheritdoc />
+            <summary>
+                Constructs a Loggable Class with a given Name
+            </summary>
+            <param name="name"></param>
+        </member>
+        <member name="T:Modding.ITogglableMod">
+            <inheritdoc />
+            <summary>
+                Interface which signifies that this mod can be loaded _and_ unloaded while in game. When re-initialized the mod
+                will be passed null rather than preloading again.
+            </summary>
+        </member>
+        <member name="M:Modding.ITogglableMod.Unload">
+            <summary>
+                Called when the Mod is disabled or unloaded.  Ensure you unhook any events that you hooked up in the Initialize
+                method.
+            </summary>
+        </member>
+        <member name="T:Modding.Utils.AssemblyExtensions">
+            <summary>
+            Class containing extensions used by the Modding API for interacting with assemblies.
+            </summary>
+        </member>
+        <member name="M:Modding.Utils.AssemblyExtensions.GetTypesSafely(System.Reflection.Assembly)">
+            <summary>
+            Returns a collection containing the types in the provided assembly.
+            If some types cannot be loaded (e.g. they derive from a type in an uninstalled mod),
+            then only the successfully loaded types are returned.
+            </summary>
+        </member>
+        <member name="M:Modding.Utils.AssemblyExtensions.LoadEmbeddedSprite(System.Reflection.Assembly,System.String,System.Single)">
+            <summary>
+            Load an image from the assembly's embedded resources, and return a Sprite.
+            </summary>
+            <param name="asm">The assembly to load from.</param>
+            <param name="path">The path to the image.</param>
+            <param name="pixelsPerUnit">The pixels per unit. Changing this value will scale the size of the sprite accordingly.</param>
+            <returns>A Sprite object.</returns>
+        </member>
+        <member name="T:Modding.Utils.UnityExtensions">
+            <summary>
+            Class containing extensions used by the Modding API for interacting with Unity types.
+            </summary>
+        </member>
+        <member name="M:Modding.Utils.UnityExtensions.GetOrAddComponent``1(UnityEngine.GameObject)">
+            <summary>
+            Get the component of type T attached to GameObject go. If go does not have such a component, add
+            that component (and return it).
+            </summary>
+        </member>
+        <member name="M:Modding.Utils.UnityExtensions.FindGameObject(UnityEngine.SceneManagement.Scene,System.String)">
+            <summary>
+            Find a game object by name in the scene. The object's name must be given in the hierarchy.
+            </summary>
+            <param name="scene">The scene to search.</param>
+            <param name="objName">The name of the object in the hierarchy, with '/' separating parent GameObjects from child GameObjects.</param>
+            <returns>The GameObject if found; null if not.</returns>
+            <exception cref="T:System.ArgumentException">Thrown if the path to the game object is invalid.</exception>
+        </member>
+        <member name="T:MonoMod.MonoModRules">
+            <summary>
+            Class for controlling some of the adjustments needed for monomod transformations
+            </summary>
+        </member>
+        <member name="M:MonoMod.MonoModRules.IsUselessAttrib(Mono.Cecil.ICustomAttributeProvider,Mono.Cecil.TypeReference)">
+            <summary>
+            Supresses MonoMod attributes based on varying rules.  At the very least, we are supressing the "Modding" namespace from getting MonoMod Attributes.
+            </summary>
+            <param name="holder"></param>
+            <param name="attribType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MonoMod.MonoModRules.RemoveMethodCall(Mono.Cecil.MethodDefinition,Mono.Cecil.CustomAttribute)">
+            <summary>
+            Remove op 
+            </summary>
+            <param name="method">Method to be patched</param>
+            <param name="attrib">Attribute</param>
+        </member>
+        <member name="M:MonoMod.MonoModRules.ReplaceMethod(Mono.Cecil.MethodDefinition,Mono.Cecil.CustomAttribute)">
+            <summary>
+            Replace method call with alternate method call
+            </summary>
+            <param name="method">Method to be patched</param>
+            <param name="attrib">Attribute ReplaceWithNop</param>
+        </member>
+    </members>
+</doc>

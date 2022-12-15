@@ -1,0 +1,2181 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Satchel</name>
+    </assembly>
+    <members>
+        <member name="T:Satchel.Satchel">
+            <summary>
+            The Mod class, you probably don't need this.
+            </summary>
+        </member>
+        <member name="T:Satchel.Core">
+            <summary>
+            The class that gives access to custom In-game UI and game elements
+            </summary>
+        </member>
+        <member name="M:Satchel.Core.LoadShaders">
+            <summary>
+            Method to load the shaders required for Certain satchel features, runs automatically when constructing a Core instance
+            </summary>
+        </member>
+        <member name="M:Satchel.Core.GetCustomSaveSlotsManager">
+            <summary>
+            Gets the instance of CustomSaveSlotManager or creates if null
+            </summary>
+            <returns>Instance of CustomSaveSlotManager</returns>
+        </member>
+        <member name="M:Satchel.Core.GetCustomDialogueManager(UnityEngine.GameObject)">
+            <summary>
+            Gets the instance of CustomDialogueManager or creates if null
+            </summary>
+            <param name="CardPrefab">A preload of Cornifer's Card</param>
+            <returns>Instance of CustomDialogueManager</returns>
+        </member>
+        <member name="M:Satchel.Core.GetCustomMapManager">
+            <summary>
+            Gets the instance of CustomMapManager or creates if null
+            </summary>
+            <returns>Instance of CustomMapManager</returns>
+        </member>
+        <member name="M:Satchel.Core.GetCustomEnemyManager">
+            <summary>
+            Gets the instance of CustomEnemyManager or creates if null
+            </summary>
+            <returns>Instance of CustomEnemyManager</returns>
+        </member>
+        <member name="M:Satchel.Core.GetCustomDreamNailManager">
+            <summary>
+            Gets the instance of CustomDreamNailManager or creates if null
+            </summary>
+            <returns>Instance of CustomDreamNailManager</returns>
+        </member>
+        <member name="M:Satchel.Core.GetCustomShinyManager">
+            <summary>
+            Gets the instance of CustomShinyManager or creates if null
+            </summary>
+            <returns>Instance of CustomShinyManager</returns>
+        </member>
+        <member name="M:Satchel.Core.GetCustomBigItemGetManager">
+            <summary>
+            Gets the instance of CustomBigItemGetManager or creates if null
+            </summary>
+            <returns>Instance of CustomBigItemGetManager</returns>
+        </member>
+        <member name="F:Satchel.Core.customScenes">
+            <summary>
+            All custom scenes being managed by Satchel for this mod
+            </summary>
+        </member>
+        <member name="M:Satchel.Core.GetCustomScene(System.String)">
+            <summary>
+            Get custom Scene by sceneName
+            </summary>
+            <param name="sceneName">Name of the scene</param>
+            <returns>The customScene or null</returns>
+        </member>
+        <member name="M:Satchel.Core.GetCustomScene(System.String,UnityEngine.GameObject,UnityEngine.GameObject)">
+            <summary>
+            Gets or Creates a new CustomScene
+            </summary>
+            <param name="sceneName">Name of the scene</param>
+            <param name="TileMap">A preload of a TileMap from an existing scene</param>
+            <param name="SceneManager">A preload of a SceneManager from an existin scene</param>
+            <returns>The customScene or null</returns>
+        </member>
+        <member name="T:Satchel.Reflected.GameManagerR">
+            <summary>
+            A class that contains all (public and private) fields and methods of GameManager allowing you to
+            easily get/set fields and call methods without dealing with reflection.
+            </summary>
+        </member>
+        <member name="T:Satchel.Reflected.GameManagerILIEnumerators">
+            <summary>
+            A class that contains events to properly ILHook onto IEnumerators.
+            Unlike the MAPI hooks, it uses GetStateMachineTarget which is required for the IL code to run after every "yield return"
+            </summary>
+        </member>
+        <member name="T:Satchel.Reflected.HeroControllerR">
+            <summary>
+            A class that contains all (public and private) fields and methods of HeroController allowing you to
+            easily get/set fields and call methods without dealing with reflection. 
+            </summary>
+        </member>
+        <member name="T:Satchel.Reflected.HeroControllerILIEnumerators">
+            <summary>
+            A class that contains events to properly ILHook onto IEnumerators.
+            Unlike the MAPI hooks, it uses GetStateMachineTarget which is required for the IL code to run after every "yield return"
+            </summary>
+        </member>
+        <member name="T:Satchel.AnimationUtils">
+            <summary>
+            Utilities to work with Animations
+            </summary>
+        </member>
+        <member name="M:Satchel.AnimationUtils.IsPlaying(UnityEngine.Animator)">
+            <summary>
+            Checks if an animation clip is playing.
+            </summary>
+            <param name="anim"></param>
+            <returns>
+            true if animation is playing
+            false if animation is not playing
+            </returns>
+        </member>
+        <member name="M:Satchel.AnimationUtils.IsPlaying(UnityEngine.Animator,System.String)">
+            <summary>
+            Checks if a specific animation clip is playing.
+            </summary>
+            <param name="anim"></param>
+            <param name="s"></param>
+            <returns>
+            true if animation is playing
+            false if animation is not playing
+            </returns>
+        </member>
+        <member name="M:Satchel.AnimationUtils.GetClipName(UnityEngine.Animator)">
+            <summary>
+            Returns the name of the animation clip
+            </summary>
+            <param name="anim"></param>
+            <returns>
+            returns an string clip name
+            </returns>
+        </member>
+        <member name="M:Satchel.AnimationUtils.GetCurrentFrame(UnityEngine.Animator)">
+            <summary>
+            Returns the frame the animation clip is at.
+            </summary>
+            <param name="anim"></param>
+            <returns>
+            returns an integer frame number
+            </returns>
+        </member>
+        <member name="M:Satchel.AnimationUtils.PlayAt(UnityEngine.Animator,System.String,System.Int32)">
+            <summary>
+            Plays the clip named [name] at frame [frame].
+            </summary>
+            <param name="anim"></param>
+            <param name="name"></param>
+            <param name="frame"></param>
+        </member>
+        <member name="M:Satchel.AnimationUtils.logTk2dAnimationClips(UnityEngine.GameObject)">
+            <summary>
+            Logs All tk2d animation clips.
+            </summary>
+        </member>
+        <member name="M:Satchel.AnimationUtils.playAllAnim(UnityEngine.GameObject,System.Int32)">
+            <summary>
+            Plays All tk2d animation clips.
+            </summary>
+        </member>
+        <member name="T:Satchel.AssemblyUtils">
+            <summary>
+            Utilities for working with Assemblies
+            </summary>
+        </member>
+        <member name="F:Satchel.AssemblyUtils.name">
+            <summary>
+            Name of this Assembly
+            </summary>
+        </member>
+        <member name="F:Satchel.AssemblyUtils.ver">
+            <summary>
+            Version of this Assembly
+            </summary>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.Version">
+            <summary>
+            Gets Version string
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetAssemblyHash(System.Reflection.Assembly)">
+            <summary>
+            Get Assembly SHA1 Hash 
+            </summary>
+            <param name="asm"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetAssemblyVersionHash">
+            <summary>
+            Get AssemblyVersion with Hash for the calling Assembly
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetAssemblyVersionHash(System.String)">
+            <summary>
+            Get AssemblyVersion with Hash for the calling Assembly
+            </summary>
+            <param name="version"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetAssemblyVersionHash(System.Reflection.Assembly,System.String)">
+            <summary>
+            Get AssemblyVersion with Hash for an Assembly
+            </summary>
+            <param name="asm"></param>
+            <param name="version"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.getCurrentDirectory">
+            <summary>
+            Get the directory path of the Calling Assembly
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetBytesFromResources(System.Reflection.Assembly,System.String)">
+            <summary>
+            Get Bytes[] from the Embedded resources in an Assembly
+            </summary>
+            <param name="asm"></param>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetBytesFromResources(System.String)">
+            <summary>
+            Get Bytes[] from the Embedded resources in calling Assembly
+            </summary>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetSpriteFromResources(System.String)">
+            <summary>
+            Get Sprite from Embedded Resources by FileName
+            </summary>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetSpriteFromResources(System.String,System.Single)">
+            <summary>
+             Get Sprite from Embedded Resources by FileName at a certain PixelsPerUnit
+            </summary>
+            <param name="fileName"></param>
+            <param name="pixelsPerUnit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetTextureFromResources(System.String)">
+            <summary>
+            Get Texture2D from Embedded Resources by FileName
+            </summary>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetAssetBundleFromResources(System.String)">
+            <summary>
+            Get AssetBundle from Embedded Resources by FileName
+            </summary>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.GetShader(UnityEngine.AssetBundle,System.String)">
+            <summary>
+            Get Shader from an AssetBundle by name
+            </summary>
+            <param name="bundle"></param>
+            <param name="shader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.ExtractFiles(System.Reflection.Assembly,System.String,System.Func{System.String,System.String})">
+            <summary>
+            Extract all files in Embedded Resources of an assembly based on a predicate that returns file name or empty string (empty string means the resource is skipped)
+            </summary>
+            <param name="asm"></param>
+            <param name="outpath">path to write the files into</param>
+            <param name="shouldExtractAs">Predicate that returns file name or empty string</param>
+        </member>
+        <member name="M:Satchel.AssemblyUtils.ExtractFiles(System.String,System.Func{System.String,System.String})">
+            <summary>
+            Extract all files in Embedded Resources of the calling assembly based on a predicate that returns file name or empty string (empty string means the resource is skipped)
+            </summary>
+            <param name="outpath">path to write the files into</param>
+            <param name="shouldExtractAs">Predicate that returns file name or empty string</param>
+        </member>
+        <member name="T:Satchel.Convo">
+            <summary>
+            Class representing a conversation for CustomDreamNail Dialogues
+            </summary>
+        </member>
+        <member name="T:Satchel.EnemyUtils">
+            <summary>
+            Utilities to work with enemies
+            </summary>
+        </member>
+        <member name="M:Satchel.EnemyUtils.createCompanionFromPrefab(UnityEngine.GameObject)">
+            <summary>
+            Create a stripped down version of a Prefab (perfect for controlling using a script)
+            </summary>
+            <param name="CompanionPrefab">A preload of the original GameObject</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.EnemyUtils.createCompanionFromPrefab(UnityEngine.GameObject,System.Boolean)">
+            <summary>
+            Create a stripped down version of a Prefab (perfect for controlling using a script)
+            </summary>
+            <param name="CompanionPrefab">A preload of the original GameObject</param>
+            <param name="DestroyOnLoad">if prefab should be destroyed on load</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.EnemyUtils.createCustomDialogFromPrefab(UnityEngine.GameObject)">
+            <summary>
+            Create custom dialog from a Cornifer's card prefab
+            </summary>
+            <param name="prefab">A preload of Cornifer's card</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.EnemyUtils.activateAlertRanges(UnityEngine.GameObject)">
+            <summary>
+            Activate the AlertRangeMarkers on this GameObject
+            </summary>
+            <param name="enemy">GameObject</param>
+        </member>
+        <member name="M:Satchel.EnemyUtils.moveTowards(UnityEngine.Rigidbody2D,UnityEngine.Vector2,System.Single,System.Single)">
+            <summary>
+            Move a Rigidbody2D in a direction for a certain distance in a certain amount of time
+            </summary>
+            <param name="rb"></param>
+            <param name="direction"></param>
+            <param name="distance"></param>
+            <param name="time"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.EnemyUtils.copyHealthManagerFields(HealthManager,HealthManager)">
+            <summary>
+            Copy all HealthManagerFields
+            </summary>
+            <param name="from"></param>
+            <param name="to"></param>
+        </member>
+        <member name="M:Satchel.EnemyUtils.copyInfectedEnemyEffectsFields(InfectedEnemyEffects,InfectedEnemyEffects)">
+            <summary>
+            Copy all Infected Enemy Effects Fields
+            </summary>
+            <param name="from"></param>
+            <param name="to"></param>
+        </member>
+        <member name="M:Satchel.EnemyUtils.copyEnemyHitEffectsUninfectedFields(EnemyHitEffectsUninfected,EnemyHitEffectsUninfected)">
+            <summary>
+            Copy all Enemy HitEffects Uninfected
+            </summary>
+            <param name="from"></param>
+            <param name="to"></param>
+        </member>
+        <member name="M:Satchel.EnemyUtils.copyEnemyDeathEffectsUninfectedFields(EnemyDeathEffectsUninfected,EnemyDeathEffectsUninfected)">
+            <summary>
+            Copy all Enemy DeathEffects Uninfected
+            </summary>
+            <param name="from"></param>
+            <param name="to"></param>
+        </member>
+        <member name="M:Satchel.EnemyUtils.copyEnemyPrefabFields(UnityEngine.GameObject,UnityEngine.GameObject,System.Boolean,System.Boolean)">
+            <summary>
+            Copy all Enemy prefab fields
+            </summary>
+            <param name="from"></param>
+            <param name="to"></param>
+            <param name="isHealthManaged">if enemy has a HealthManager</param>
+            <param name="isInfected">if enemy is infected</param>
+        </member>
+        <member name="M:Satchel.EnemyUtils.addRecoil(UnityEngine.GameObject,System.Boolean,System.Boolean,System.Boolean,System.Single,System.Single)">
+            <summary>
+            Add Hit recoil to an enemy
+            </summary>
+            <param name="enemy"></param>
+            <param name="freezeInPlace"></param>
+            <param name="stopVelocityXWhenRecoilingUp"></param>
+            <param name="preventRecoilUp"></param>
+            <param name="recoilSpeedBase"></param>
+            <param name="recoilDuration"></param>
+        </member>
+        <member name="M:Satchel.EnemyUtils.manageHealth(UnityEngine.GameObject,System.Int32)">
+            <summary>
+            Get or Add a HealthManager with given health to the enemy
+            </summary>
+            <param name="enemy"></param>
+            <param name="health"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.EnemyUtils.addDreamNailDialogue(UnityEngine.GameObject,System.String,System.Int32)">
+            <summary>
+            Add a DreamNail Dialogue to a CustomEnemy
+            </summary>
+            <param name="enemy"></param>
+            <param name="key"></param>
+            <param name="Amount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.EnemyUtils.disableDreamNailDialogue(UnityEngine.GameObject)">
+            <summary>
+            Disable DreamNail Dialogue for an enemy
+            </summary>
+            <param name="enemy"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Satchel.GameObjectUtils">
+            <summary>
+            Utilities to work with GameObjects
+            </summary>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetAddComponent``1(UnityEngine.GameObject)">
+            <summary>
+            Get a component of type T if it exists on the GameObject or add a new one
+            </summary>
+            <typeparam name="T">Component Type</typeparam>
+            <param name="go">GameObject</param>
+            <returns>A component of type T</returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.RemoveComponent``1(UnityEngine.GameObject)">
+            <summary>
+            Remove a Component from the GameObject
+            </summary>
+            <typeparam name="T">Component Type</typeparam>
+            <param name="go">GameObject</param>
+            <returns>boolean indicating if the component was removed</returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.copyComponent``1(UnityEngine.GameObject,UnityEngine.GameObject)">
+            <summary>
+            Copy a component from one GameObject to another
+            </summary>
+            <typeparam name="T">Component Type</typeparam>
+            <param name="to">GameObject to copy to</param>
+            <param name="from">GameObject to copy from</param>
+            <returns>the copied component</returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.SetScale(UnityEngine.GameObject,System.Single,System.Single)">
+            <summary>
+            Set the scale of a GameObject
+            </summary>
+            <param name="gameObject">GameObject</param>
+            <param name="scaleX">X scale</param>
+            <param name="scaleY">Y scale</param>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.FindGameObjectInChildren(UnityEngine.GameObject,System.String,System.Boolean)">
+            <summary>
+            Find a gameobject in children of another by name
+            </summary>
+            <param name="gameObject">GameObject parent</param>
+            <param name="name">Name of GameObject to find</param>
+            <param name="useBaseName">boolean indicaing if baseName should be used</param>
+            <returns>The GameObject if found or null</returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.FindGameObjectsInChildren(UnityEngine.GameObject,System.String,System.Boolean)">
+            <summary>
+            Find all gameobjects in children of another by name
+            </summary>
+            <param name="gameObject">GameObject parent</param>
+            <param name="name">Name of GameObjects to find</param>
+            <param name="useBaseName">boolean indicaing if baseName should be used</param>
+            <returns>The List of GameObjects</returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.Log(UnityEngine.GameObject)">
+            <summary>
+            Log a game object for debugging
+            </summary>
+            <param name="gameObject">GameObject</param>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.LogWithChildren(UnityEngine.GameObject)">
+            <summary>
+            Log a game object and all it's children for debugging
+            </summary>
+            <param name="gameObject"></param>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.PrintAllActiveGameObjectsInScene">
+            <summary>
+            Logs all active gameObjects 
+            </summary>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.Find(UnityEngine.GameObject,System.String)">
+            <summary>
+            Find a GameObject that is a descendent of the current GameObject by name
+            </summary>
+            <param name="go">Ancestor GameObject</param>
+            <param name="name">Name of GameObject to find</param>
+            <returns>GameObject or null</returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.FindAllChildren(UnityEngine.GameObject,System.Collections.Generic.List{UnityEngine.GameObject})">
+            <summary>
+            Find all GameObjects that are a descendent of the current GameObject by name
+            </summary>
+            <param name="go">Ancestor GameObject</param>
+            <param name="allGoList">List to add the results to</param>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.DisableChildren(UnityEngine.GameObject)">
+            <summary>
+            Disable all children of a GameObject
+            </summary>
+            <param name="go">GameObject</param>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetAllGameObjects(UnityEngine.SceneManagement.Scene)">
+            <summary>
+            Get All gameobjects in scene (even inactive ones)
+            </summary>
+            <param name="scene">The scene</param>
+            <returns>A List of All GameObjects in the scene</returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetGameObjectByName(UnityEngine.SceneManagement.Scene,System.String,System.Boolean)">
+            <summary>
+            Get a gameobject by name in a scene (even inactive ones)
+            </summary>
+            <param name="scene">The scene</param>
+            <param name="name">Name of the GameObject</param>
+            <param name="useBaseName">boolean indicating if BaseName should be used</param>
+            <returns>GameObject or null</returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetRootGameObjects">
+            <summary>
+            Get Root GameObjects in currently Active scene
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetGameObjectInScene(System.String,System.Boolean)">
+            <summary>
+            Find  a gameobject by name in the active scene(even inactive ones)
+            </summary>
+            <param name="name">Name of GameObject</param>
+            <param name="useBaseName">boolean indicating if BaseName should be used</param>
+            <returns>GameObject or null</returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetAllGameObjectsInScene">
+            <summary>
+             Get All GameObjects in the active scene (even inactive ones)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetName(UnityEngine.Transform,System.Boolean)">
+            <summary>
+            Get the Name of a GameObject by Transform
+            </summary>
+            <param name="transform"> the Transform</param>
+            <param name="useBaseName">boolean indicating if BaseName should be used</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetName(UnityEngine.GameObject,System.Boolean)">
+            <summary>
+            Get the Name of a GameObject
+            </summary>
+            <param name="go">GameObject</param>
+            <param name="useBaseName">boolean indicating if BaseName should be used</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetPath(UnityEngine.GameObject,System.Boolean)">
+            <summary>
+            Get the Scene path of a GameObject
+            </summary>
+            <param name="go">GameObject</param>
+            <param name="useBaseName">boolean indicating if BaseName should be used</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.GameObjectUtils.GetAddCustomData(UnityEngine.GameObject)">
+            <summary>
+            Get or Add a custom data component to a GameObject
+            </summary>
+            <param name="go">GameObject</param>
+            <returns>CustomData component on the GameObject</returns>
+        </member>
+        <member name="T:Satchel.IoUtils">
+            <summary>
+            Utilities to work with disk IO
+            </summary>
+        </member>
+        <member name="M:Satchel.IoUtils.OpenDefault(System.String)">
+            <summary>
+            Open the file or directory at path in default program for that file
+            </summary>
+            <param name="path">path to the file or directory</param>
+        </member>
+        <member name="M:Satchel.IoUtils.EnsureDirectory(System.String)">
+            <summary>
+            Ensure a directory exists and create if it does not
+            </summary>
+            <param name="directory">path of a directory</param>
+        </member>
+        <member name="M:Satchel.IoUtils.DirectoryExists(System.String,System.Boolean)">
+            <summary>
+            Ensure a directory exists
+            </summary>
+            <param name="directory">Path of a directory</param>
+            <param name="create">Create if directory does not exist</param>
+            <returns>boolean indicating if directory exists</returns>
+        </member>
+        <member name="M:Satchel.IoUtils.DirectoryHas(System.String,System.String,System.IO.SearchOption)">
+            <summary>
+            Check if directory has a file that matches a given pattern
+            </summary>
+            <param name="sourceDirectory">Path of a directory</param>
+            <param name="match">A pattern to match</param>
+            <param name="op">A SearchOption to use</param>
+            <returns>boolean indicating if a file matching the pattern exist in the directory</returns>
+        </member>
+        <member name="M:Satchel.IoUtils.DirectoryCopyAllFiles(System.String,System.String,System.Boolean)">
+            <summary>
+            Copy all files frm source into destination
+            </summary>
+            <param name="source"></param>
+            <param name="destination"></param>
+            <param name="create">Create destination directory if it does not exist</param>
+        </member>
+        <member name="T:Satchel.PlayerDataUtils">
+            <summary>
+            Utilities to work with PlayerData
+            </summary>
+        </member>
+        <member name="M:Satchel.PlayerDataUtils.ConvertSlotToNumber(UnityEngine.UI.SaveSlotButton.SaveSlot)">
+            <summary>
+            Convert a SaveSlot to index 
+            </summary>
+            <param name="saveSlot">SaveSlot enum</param>
+            <returns>index of the save slot</returns>
+        </member>
+        <member name="M:Satchel.PlayerDataUtils.GetPlayerDataForSlot(System.Int32,System.Action{PlayerData})">
+            <summary>
+            Gets PlayerData for a saveSlot index
+            </summary>
+            <param name="saveSlot">Index of the saveSlot</param>
+            <param name="callback">Method to be called after data is loaded</param>
+        </member>
+        <member name="T:Satchel.SceneUtils">
+            <summary>
+            Utilities to work with scenes
+            </summary>
+        </member>
+        <member name="M:Satchel.SceneUtils.GetDontDestroyOnLoadScene">
+            <summary>
+            Get access to DontDestroyOnLoad scene
+            </summary>
+            <returns>DontDestroyOnLoad scene</returns>
+        </member>
+        <member name="T:Satchel.SceneUtils.CustomSaveSlotParams">
+            <summary>
+            Parameters for creating a CustomSaveSlot
+            </summary>
+        </member>
+        <member name="T:Satchel.SceneUtils.CustomSceneManagerSettings">
+            <summary>
+            Settings for SceneManager used by CustomScene
+            </summary>
+        </member>
+        <member name="T:Satchel.SceneUtils.BenchParams">
+            <summary>
+            Parameters for creating a CustomBench in a CustomScene
+            </summary>
+        </member>
+        <member name="T:Satchel.SceneUtils.GatewayParams">
+            <summary>
+            Parameters for creatng custom gateways between scenes
+            </summary>
+        </member>
+        <member name="M:Satchel.SceneUtils.getCurrentScene">
+            <summary>
+            Gets the current scene
+            </summary>
+            <returns>current scene</returns>
+        </member>
+        <member name="M:Satchel.SceneUtils.GetAllLoadedScenes(System.Boolean)">
+            <summary>
+            Gets all the loaded scenes
+            </summary>
+            <param name="includeDontDestroyScene">boolean indicating if DontDestroyOnLoadScene should be included</param>
+            <returns>The loaded scenes</returns>
+        </member>
+        <member name="M:Satchel.SceneUtils.CreateGateway(Satchel.SceneUtils.GatewayParams)">
+            <summary>
+            Creat a Gateway using GatewayParams
+            </summary>
+            <param name="gateway">parameters for this gate</param>
+        </member>
+        <member name="M:Satchel.SceneUtils.CreateGateway(System.String,UnityEngine.Vector2,UnityEngine.Vector2,System.String,System.String,UnityEngine.Vector2,System.Boolean,GameManager.SceneLoadVisualizations)">
+            <summary>
+            Creat a Gateway
+            </summary>
+            <param name="gateName">Name of the gate (if name contains left or right, alwaysEnterLeft or alwaysEnterRight is automatically set)</param>
+            <param name="pos">Position of the gate</param>
+            <param name="size">Size of the gate</param>
+            <param name="toScene">Scene to transition to</param>
+            <param name="entryGate">Name of the gate that can transition to this one</param>
+            <param name="respawnPoint">Relative position of the respawn point</param>
+            <param name="onlyOut">Boolean indicating if this gate can only be used as an entrance to current scene</param>
+            <param name="vis">The type of loading visualisation to use</param>
+        </member>
+        <member name="M:Satchel.SceneUtils.CreateBenchFromPrefab(Satchel.SceneUtils.BenchParams)">
+            <summary>
+            Create a bench using BenchParams
+            </summary>
+            <param name="bench">Parameters for this bench</param>
+            <returns>The Bench GameObject</returns>
+        </member>
+        <member name="M:Satchel.SceneUtils.CreateBenchFromPrefab(UnityEngine.GameObject,System.String,UnityEngine.Vector3,System.String)">
+            <summary>
+            Create a bench from the supplied bench prefab
+            </summary>
+            <param name="benchPrefab">A Preload of a bench from the game</param>
+            <param name="benchName">Name of the new bench</param>
+            <param name="pos">Position of the new bench</param>
+            <param name="sceneName">Scene in which the bench is placed (used for saves)</param>
+            <returns>The Bench GameObject</returns>
+        </member>
+        <member name="M:Satchel.SceneUtils.FakeTileMapFromPrefab(UnityEngine.GameObject)">
+            <summary>
+            Create a Fake TileMap from prefab
+            </summary>
+            <param name="TileMapPrefab">A Preload of the tilemap of any existing scene</param>
+            <returns>A tk2dTileMap with dummy data</returns>
+        </member>
+        <member name="M:Satchel.SceneUtils.getSceneManagerFromPrefab(UnityEngine.GameObject)">
+            <summary>
+            get a SceneManager component from SceneManager GameObject Prefab
+            </summary>
+            <param name="SceneManagerPrefab">A preload of a SceneManager GameObject</param>
+            <returns>A shallow copy of SceneManager component</returns>
+        </member>
+        <member name="M:Satchel.SceneUtils.PlayBackgroundMusicForScene(UnityEngine.AudioClip)">
+            <summary>
+            Play an AudioClip as the background music
+            </summary>
+            <param name="clip">The AudioClip to play</param>
+        </member>
+        <member name="T:Satchel.SpriteUtils">
+            <summary>
+            Utilities to work with Sprites
+            </summary>
+        </member>
+        <member name="M:Satchel.SpriteUtils.CreateSpriteFromTexture(UnityEngine.Texture2D)">
+            <summary>
+            Creates a sprite from a Texture2D
+            </summary>
+            <param name="texture">The Texture2D</param>
+            <returns>A Sprite that contains the texture</returns>
+        </member>
+        <member name="M:Satchel.SpriteUtils.CreateSpriteFromTexture(UnityEngine.Texture2D,System.Single)">
+            <summary>
+            Creates a sprite from a Texture2D at the desired PixelsPerUnit
+            </summary>
+            <param name="texture">The Texture2D</param>
+            <param name="ppu">Desired PixelsPerUnit</param>
+            <returns>A Sprite that contains the texture</returns>
+        </member>
+        <member name="M:Satchel.SpriteUtils.ExtractTextureFromSpriteExperimental(UnityEngine.Sprite,System.Boolean)">
+            <summary>
+            An Experimental implementation of ExtractTextureFromSprite that uses a shader to do the extracting ( faster but buggy )
+            </summary>
+            <param name="originalSprite"> The Sprite to Extract</param>
+            <param name="saveTriangles">A debug boolean to save the triangles used to extract the sprite.</param>
+            <returns>The extracted sprite as a Texture2D</returns>
+        </member>
+        <member name="M:Satchel.SpriteUtils.ExtractTextureFromSpriteLegacy(UnityEngine.Sprite,System.Boolean)">
+            <summary>
+            The Original implementation of ExtractTextureFromSprite ( slower but stable )
+            </summary>
+            <param name="originalSprite"> The Sprite to Extract</param>
+            <param name="saveTriangles">A debug boolean to save the triangles used to extract the sprite.</param>
+            <returns>The extracted sprite as a Texture2D</returns>
+        </member>
+        <member name="M:Satchel.SpriteUtils.ExtractTextureFromSprite(UnityEngine.Sprite,System.Boolean)">
+            <summary>
+            Extract a packed Sprite as a Texture2D from it's Atlas
+            </summary>
+            <param name="originalSprite">The Sprite to Extract</param>
+            <param name="saveTriangles">A debug boolean to save the triangles used to extract the sprite.</param>
+            <returns>The extracted sprite as a Texture2D</returns>
+        </member>
+        <member name="T:Satchel.TextureUtils">
+            <summary>
+            Utilities to work with Textures
+            </summary>
+        </member>
+        <member name="M:Satchel.TextureUtils.createTextureOfColor(System.Int32,System.Int32,UnityEngine.Color)">
+            <summary>
+            Create a Texture2D of a single Color
+            </summary>
+            <param name="width">width of the texture</param>
+            <param name="height">height of the texture</param>
+            <param name="color">Color of the texture</param>
+            <returns>The Texture2D</returns>
+        </member>
+        <member name="M:Satchel.TextureUtils.LoadTextureFromFile(System.String)">
+            <summary>
+            Loads an Image from a file path 
+            </summary>
+            <param name="path">Path of the image file</param>
+            <returns>A Texture2D of the image</returns>
+        </member>
+        <member name="M:Satchel.TextureUtils.WriteTextureToFile(UnityEngine.Texture,System.String)">
+            <summary>
+            Write a Texture to the given file path
+            </summary>
+            <param name="texture">The Texture to write</param>
+            <param name="path">The Path of the file to write to</param>
+        </member>
+        <member name="M:Satchel.TextureUtils.duplicateTexture(UnityEngine.Texture2D)">
+            <summary>
+            Duplicates a Texture2D so that it is Readable
+            </summary>
+            <param name="source">Source Texture2D</param>
+            <returns>A duplicate Texture2D</returns>
+        </member>
+        <member name="M:Satchel.TextureUtils.Flip(UnityEngine.Texture2D,System.Boolean,System.Boolean)">
+            <summary>
+            Flips a Texture2D
+            </summary>
+            <param name="original">The Texture2D to flip</param>
+            <param name="horizontal">Should texture be flipped horizontally</param>
+            <param name="vertical">Should texture be flipped vertically</param>
+            <returns>The flipped Texture2D</returns>
+        </member>
+        <member name="M:Satchel.TextureUtils.GetRegion(UnityEngine.Texture2D,UnityEngine.Rect)">
+            <summary>
+            Get a region from a Texture2D
+            </summary>
+            <param name="original">original Texture2D</param>
+            <param name="region">The region to get</param>
+            <returns>The region from original as a Texture2D</returns>
+        </member>
+        <member name="M:Satchel.TextureUtils.getHash(UnityEngine.Texture2D)">
+            <summary>
+            Get the SHA1 hash of the texture when encoded to a png
+            </summary>
+            <param name="tex">The Texture2D</param>
+            <returns>The hash as a string</returns>
+        </member>
+        <member name="T:Satchel.WavUtils">
+             <summary>
+             WAV utility for recording and audio playback functions in Unity.
+             Version: 1.0 alpha 1
+            
+             - Use "ToAudioClip" method for loading wav file / bytes.
+             Loads .wav (PCM uncompressed) files at 8,16,24 and 32 bits and converts data to Unity's AudioClip.
+            
+             - Use "FromAudioClip" method for saving wav file / bytes.
+             Converts an AudioClip's float data into wav byte array at 16 bit.
+             </summary>
+             <remarks>
+             For documentation and usage examples: https://github.com/deadlyfingers/UnityWav
+             </remarks>
+        </member>
+        <member name="M:Satchel.WavUtils.ToAudioClip(System.String)">
+            <summary>
+            Load PCM format *.wav audio file (using Unity's Application data path) and convert to AudioClip.
+            </summary>
+            <returns>The AudioClip.</returns>
+            <param name="filePath">Local file path to .wav file</param>
+        </member>
+        <member name="M:Satchel.WavUtils.BitDepth(UnityEngine.AudioClip)">
+            <summary>
+            Calculates the bit depth of an AudioClip
+            </summary>
+            <returns>The bit depth. Should be 8 or 16 or 32 bit.</returns>
+            <param name="audioClip">Audio clip.</param>
+        </member>
+        <member name="T:Satchel.CoroutineRunner">
+            <summary>
+            dummy MonoBehaviour
+            </summary>
+        </member>
+        <member name="T:Satchel.CoroutineHelper">
+            <summary>
+            Coroutine Helper to make sure coroutines have a GameObject to run on
+            </summary>
+        </member>
+        <member name="M:Satchel.CoroutineHelper.GetRunner">
+            <summary>
+            Get the current runner singleton
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Satchel.ObjectPoolManager`1">
+            <summary>
+            Allows Pooling Objects of type T
+            </summary>
+            <typeparam name="T">The type of objects to pool</typeparam>
+        </member>
+        <member name="M:Satchel.ObjectPoolManager`1.#ctor(System.Int32,System.Func{`0})">
+            <summary>
+            
+            </summary>
+            <param name="poolSize">The Initial size of the pool</param>
+            <param name="Generator">Generator func that generates a new instance</param>
+        </member>
+        <member name="M:Satchel.ObjectPoolManager`1.PickFromPool">
+            <summary>
+            Pick one object from pool, instantiates a new one if unavailable
+            </summary>
+            <returns>Object of type T</returns>
+        </member>
+        <member name="M:Satchel.ObjectPoolManager`1.RecycleToPool(`0)">
+            <summary>
+            Recycle the object to the pool, throws if object was not part of the pool
+            </summary>
+            <param name="obj">Object to recycle</param>
+        </member>
+        <member name="T:Satchel.AlertRangeMarker">
+            <summary>
+            Mark the gameObject to have an alert range added to it after being loaded from an asset bundle
+            </summary>
+        </member>
+        <member name="T:Satchel.ChangeMeshColor">
+            <summary>
+            Change the color of the mesh after loading it from an asset bundle
+            </summary>
+        </member>
+        <member name="T:Satchel.CustomEnemyMarker">
+            <summary>
+            Mark this gameObject to be an Enemy after loading from an asset bundle
+            </summary>
+        </member>
+        <member name="T:Satchel.SpriteRendererMaterial">
+            <summary>
+            Fix the shader on the sprite renderers that have been loaded after asset bundling
+            </summary>
+        </member>
+        <member name="T:Satchel.Animation">
+            <summary>
+            Holds the serializable parameters for an Animation
+            </summary>
+        </member>
+        <member name="F:Satchel.Animation.frames">
+            <summary>
+            Names of the files that will make up each of the frames of the animation
+            </summary>
+        </member>
+        <member name="F:Satchel.Animation.fps">
+            <summary>
+            The Rate of animation playback
+            </summary>
+        </member>
+        <member name="F:Satchel.Animation.loop">
+            <summary>
+            if the animation must loop after ending
+            </summary>
+        </member>
+        <member name="T:Satchel.CustomAnimationController">
+            <summary>
+            The MonoBehaviour that controls the animation once loaded
+            </summary>
+        </member>
+        <member name="T:Satchel.CustomAnimation">
+            <summary>
+            Loads and manages CustomAnimations
+            </summary>
+        </member>
+        <member name="F:Satchel.CustomAnimation.loadedSprites">
+            <summary>
+            All currently loaded Sprites
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomAnimation.LoadAnimation(System.String)">
+            <summary>
+            Load an animation using a serialised JSON
+            </summary>
+            <param name="animationJsonPath">path to the json file</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.CustomAnimation.LoadAnimation(Satchel.Animation,UnityEngine.Sprite[])">
+            <summary>
+            Load an animation using an Animation Object
+            </summary>
+            <param name="anim">Animation Object to load</param>
+            <param name="sprites">An arroy of sprites corresponding to the frames</param>
+            <returns></returns>
+        </member>
+        <member name="T:Satchel.CustomArrowPromptBehaviour">
+            <summary>
+            Handles the CustomArrowPrompt behaviours
+            </summary>
+        </member>
+        <member name="T:Satchel.CustomEnemy">
+            <summary>
+            Handles basic functionality of a CustomEnemy
+            </summary>
+        </member>
+        <member name="T:Satchel.CustomBigItemGetBehaviour">
+            <summary>
+            Handles the CustomBigItemGet popups
+            </summary>
+        </member>
+        <member name="T:Satchel.CustomData">
+            <summary>
+            Allows storing data tagged to a GameObject
+            </summary>
+        </member>
+        <member name="T:Satchel.CustomArrowPrompt">
+            <summary>
+            Creates a CustomArrowPrompt
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomArrowPrompt.Prepare(UnityEngine.GameObject)">
+            <summary>
+            Collect the arrow prompt prefab by loading a Cornifer's card prefab
+            </summary>
+            <param name="CardPrefab">A preload of Cornifer's card</param>
+        </member>
+        <member name="M:Satchel.CustomArrowPrompt.GetNewPrompt">
+            <summary>
+            Get a new CustomArrowPrompt
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.CustomArrowPrompt.GetAddCustomArrowPrompt(UnityEngine.GameObject,System.Action)">
+            <summary>
+            Get or Add a CustomArrowPrompt on a GameObject with a collder with text "Listen"
+            </summary>
+            <param name="go"></param>
+            <param name="OnPromptTrigger">Action to trigger when the prompt is interacted with</param>
+        </member>
+        <member name="M:Satchel.CustomArrowPrompt.GetAddCustomArrowPrompt(UnityEngine.GameObject,System.String,System.Action)">
+            <summary>
+            Get or Add a CustomArrowPrompt on a GameObject with a collder with text
+            </summary>
+            <param name="go"></param>
+            <param name="PromptText"></param>
+            <param name="OnPromptTrigger">Action to trigger when the prompt is interacted with</param>
+        </member>
+        <member name="T:Satchel.CustomDialogueManager">
+            <summary>
+            Handles custom dialogue popup
+            </summary>
+        </member>
+        <member name="F:Satchel.CustomDialogueManager.prefix">
+            <summary>
+            Prefix for the current conversations in language keys
+            </summary>
+        </member>
+        <member name="F:Satchel.CustomDialogueManager.Conversations">
+            <summary>
+            All Conversations key to string map
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomDialogueManager.OnEndPage(System.Action{System.String,System.Int32})">
+            <summary>
+            Add callback on page end
+            </summary>
+            <param name="callback"></param>
+        </member>
+        <member name="M:Satchel.CustomDialogueManager.OnEndConversation(System.Action{System.String})">
+            <summary>
+            Add callback on conversation end
+            </summary>
+            <param name="callback"></param>
+        </member>
+        <member name="M:Satchel.CustomDialogueManager.AddConversation(System.String,System.String)">
+            <summary>
+            Add a coversation
+            </summary>
+            <param name="name">name of conversation</param>
+            <param name="conversation">text to display</param>
+        </member>
+        <member name="M:Satchel.CustomDialogueManager.ShowDialogue(System.String,System.Boolean)">
+            <summary>
+            show dialogue
+            </summary>
+            <param name="name">name of conversation</param>
+            <param name="takeControl">if player can move during conversation</param>
+        </member>
+        <member name="T:Satchel.CustomDreamNailManager">
+            <summary>
+            Handles custom DreamNail Dialogue 
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomDreamNailManager.SetText(Satchel.Convo,System.String)">
+            <summary>
+            will add or update DreamNail text for a given Convo
+            </summary>
+            <param name="conv"></param>
+            <param name="text"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Satchel.CustomEnemyManager">
+            <summary>
+            Handles Custom Enemies
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomEnemyManager.Setup(UnityEngine.GameObject,UnityEngine.GameObject)">
+            <summary>
+            load Prefabs of InfectedEnemy and UnInfectedEnemy to act as base to use
+            </summary>
+            <param name="InfectedEnemyPrefab"></param>
+            <param name="UnInfectedEnemyPrefab"></param>
+        </member>
+        <member name="M:Satchel.CustomEnemyManager.AddCallbackForNewEnemies(System.Action{System.Collections.Generic.List{UnityEngine.GameObject}})">
+            <summary>
+            Add callback for new enemies (called when new enemies are loaded)
+            </summary>
+            <param name="callback"></param>
+        </member>
+        <member name="T:Satchel.customMapZone">
+            <summary>
+            defines a custom mapZone
+            </summary>
+        </member>
+        <member name="T:Satchel.customMap">
+            <summary>
+            defines a single custom map n a zone
+            </summary>
+        </member>
+        <member name="T:Satchel.CustomMapManager">
+            <summary>
+            Handles custom maps
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomMapManager.AddZone(Satchel.customMapZone)">
+            <summary>
+            Add a new customMapZone
+            </summary>
+            <param name="newZone"></param>
+        </member>
+        <member name="M:Satchel.CustomMapManager.AddScene(Satchel.customMap)">
+            <summary>
+            Add a new customMap scene
+            </summary>
+            <param name="map"></param>
+        </member>
+        <member name="T:Satchel.CustomSaveSlotsManager">
+            <summary>
+            Handles Custom Save Slots (save slot art and name based on scene)
+            </summary>
+        </member>
+        <member name="F:Satchel.CustomSaveSlotsManager.RespawnScene">
+            <summary>
+            SaveSlot Index to scene name map
+            </summary>
+        </member>
+        <member name="F:Satchel.CustomSaveSlotsManager.CustomSaveSlots">
+            <summary>
+            sceneName to CustomSaveSlotParams map
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomSaveSlotsManager.Add(Satchel.SceneUtils.CustomSaveSlotParams)">
+            <summary>
+            Add a CustomSaveSlot by CustomSaveSlotParams
+            </summary>
+            <param name="saveSlot"></param>
+        </member>
+        <member name="T:Satchel.CustomScene">
+            <summary>
+            Handles custom scenes
+            </summary>
+        </member>
+        <member name="E:Satchel.CustomScene.OnLoaded">
+            <summary>
+            Event that is triggered when the scene has loaded
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomScene.Config(System.Single,System.Single,Satchel.SceneUtils.CustomSceneManagerSettings)">
+            <summary>
+            Load the scene configuration
+            </summary>
+            <param name="width"></param>
+            <param name="height"></param>
+            <param name="settings"></param>
+        </member>
+        <member name="M:Satchel.CustomScene.AddGateway(Satchel.SceneUtils.GatewayParams)">
+            <summary>
+            Add gateways to the scene
+            </summary>
+            <param name="gateway"></param>
+        </member>
+        <member name="M:Satchel.CustomScene.AddBenchFromPrefab(UnityEngine.GameObject,System.String,UnityEngine.Vector3)">
+            <summary>
+            Add a bench using prefab
+            </summary>
+            <param name="prefab">A preload of a bench</param>
+            <param name="benchName"></param>
+            <param name="pos"></param>
+        </member>
+        <member name="T:Satchel.CustomBigItemGetManager">
+            <summary>
+            Handles the CustomBigItemGet Popup
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomBigItemGetManager.Prepare(UnityEngine.GameObject)">
+            <summary>
+            Prepare a Prefab of the Message UI by loading a shiny Prefab
+            </summary>
+            <param name="ShinyPrefab">A preload of a shiny</param>
+        </member>
+        <member name="M:Satchel.CustomBigItemGetManager.ShowDialog(System.String,System.String,System.String,System.String,System.String,UnityEngine.Sprite,System.Func{InControl.PlayerAction},System.Action)">
+            <summary>
+            Show a CustomBigItemGet Popup
+            </summary>
+            <param name="ItemName"></param>
+            <param name="Intro1"></param>
+            <param name="ButtonPress"></param>
+            <param name="Prompt1"></param>
+            <param name="Prompt2"></param>
+            <param name="sprite"></param>
+            <param name="actionGet"></param>
+            <param name="Callback"></param>
+        </member>
+        <member name="T:Satchel.CustomShinyManager">
+            <summary>
+            Handles custom shinies
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomShinyManager.AddShiny(System.String,System.String,UnityEngine.Vector3,System.Boolean,System.Boolean,System.Action,System.Func{System.Boolean},UnityEngine.Sprite)">
+            <summary>
+            Add a Shiny to the game
+            </summary>
+            <param name="ItemName">Name of the item</param>
+            <param name="sceneName">Scene in which the item is loaded</param>
+            <param name="position">Position of the item</param>
+            <param name="isStand">if it is meant to be picked standing</param>
+            <param name="isTrinket">if it is going to show trinket UI</param>
+            <param name="Callback">Action for when it is picked up</param>
+            <param name="ShouldSpawn">if the item should be spawned</param>
+            <param name="sprite">sprite of the item for triket UI</param>
+            <returns></returns>
+        </member>
+        <member name="T:Satchel.CustomShiny">
+            <summary>
+            Handles a single Custom Shiny
+            </summary>
+        </member>
+        <member name="M:Satchel.CustomShiny.preparePrefab(UnityEngine.GameObject)">
+            <summary>
+            Prepare shinies using a prefab of a shiny
+            </summary>
+            <param name="prefab">A preload of a Shiny</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.CustomShiny.#ctor(System.String,System.String,UnityEngine.Vector3,System.Boolean,System.Boolean,System.Action,System.Func{System.Boolean},UnityEngine.Sprite)">
+            <summary>
+            Create a custom shiny
+            </summary>
+            <param name="ItemName"></param>
+            <param name="sceneName"></param>
+            <param name="position"></param>
+            <param name="isStand"></param>
+            <param name="isTrinket"></param>
+            <param name="Callback"></param>
+            <param name="ShouldSpawn"></param>
+            <param name="sprite"></param>
+        </member>
+        <member name="M:Satchel.CustomShiny.Spawn(UnityEngine.GameObject)">
+            <summary>
+            Spawn a shiny using a prefab of a shiny
+            </summary>
+            <param name="prefab">A preload of a Shiny</param>
+        </member>
+        <member name="T:Satchel.BetterMenus.Config.KeybindConfig">
+            <summary>
+            Configuration options for creating a menu keybind option.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Config.KeybindConfig.Label">
+            <summary>
+            The displayed text for the name of the keybind.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Config.KeybindConfig.Style">
+            <summary>
+            The style of the keybind.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Config.KeybindConfig.CancelAction">
+            <summary>
+            The action to run when pressing the menu cancel key while selecting this item.
+            </summary>
+        </member>
+        <member name="T:Satchel.BetterMenus.Config.ButtonBindConfig">
+            <summary>
+            Configuration options for creating a menu buttonBind option.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Config.ButtonBindConfig.Label">
+            <summary>
+            The displayed text for the name of the ButtonBind.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Config.ButtonBindConfig.Style">
+            <summary>
+            The style of the ButtonBind.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Config.ButtonBindConfig.CancelAction">
+            <summary>
+            The action to run when pressing the menu cancel key while selecting this item.
+            </summary>
+        </member>
+        <member name="T:Satchel.BetterMenus.Config.KeybindStyle">
+            <summary>
+            The styling options of a keybind menu item.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Config.KeybindStyle.VanillaStyle">
+            <summary>
+            The style preset of a keybind in the vanilla game.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Config.KeybindStyle.LabelTextSize">
+            <summary>
+            The text size of the label text.
+            </summary>
+        </member>
+        <member name="T:Satchel.BetterMenus.BaseElement">
+            <summary>
+            The abstract class that Element is based on 
+            </summary>
+        </member>
+        <member name="P:Satchel.BetterMenus.BaseElement.Id">
+            <summary>
+            The Identifier used to refer to this element.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.BaseElement.Name">
+            <summary>
+            The name to be displayed.
+            </summary>
+        </member>
+        <member name="P:Satchel.BetterMenus.BaseElement.gameObject">
+            <summary>
+            the Unity GameObject of the element in the MenuScreen. Can be used to Get/Remove components to add/remove functionality
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.BaseElement.Parent">
+            <summary>
+            reference to the parent (menu may also be an Element)
+            </summary>
+        </member>
+        <member name="E:Satchel.BetterMenus.BaseElement.OnUpdate">
+            <summary>
+            Event that happens on update of the element
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.BaseElement.Update">
+            <summary>
+            The function to call to update the element
+            </summary>
+        </member>
+        <member name="P:Satchel.BetterMenus.BaseElement.isVisible">
+            <summary>
+            a bool that stores whether the element is hidden or visible. Initialize this in an Elements constructor to set the default visibility on menu creation
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.BaseElement.Show">
+            <summary>
+            Makes isVisible true and updates and reflows the menu to reflect that
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.BaseElement.Hide">
+            <summary>
+            Makes isVisible false and updates and reflows the menu to reflect that
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.BaseElement.updateAfter(System.Action{Satchel.BetterMenus.BaseElement})">
+            <summary>
+            a function that gives you access to the element and can be used to update it
+            </summary>
+            <param name="callback">an function that takes in BaseElement as a parameter which can be used to update it</param>
+        </member>
+        <member name="T:Satchel.BetterMenus.Element">
+            <summary>
+            The abstract class that is the base for all Elements in the Menu
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.Element.#ctor(System.String)">
+             <summary>
+             constructor that takes in id
+             </summary>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.Element.#ctor(System.String,System.String)">
+             <summary>
+             Create an element with id and name
+             </summary>
+            <param name="Id">the id of the element that can be used to search for it</param>
+             <param name="Name">the name of the element</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.Element.Create(Modding.Menu.ContentArea,Satchel.BetterMenus.Menu,System.Boolean)">
+            <summary>
+            Creates a GameObjectRow based on the current variables.
+            </summary>
+            <param name="c">The ContentArea on which the ButtonBind is created.</param>
+            <param name="Instance">The current Menu instance.</param>
+            <param name="AddToList">Should this element be added to the MenuOrder (All non IShadowElements).</param>
+            <returns>The created GameObjectRow which can be used to add to the corresponding Lists.</returns>
+        </member>
+        <member name="E:Satchel.BetterMenus.Element.OnBuilt">
+            <summary>Event to be invoked when element is built</summary> 
+        </member>
+        <member name="T:Satchel.BetterMenus.MenuElement">
+            <summary>
+            abstract class for a MenuElement
+            </summary>
+        </member>
+        <member name="T:Satchel.BetterMenus.GameObjectRow">
+            <summary>
+            Represents a row of GameObjects.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.GameObjectRow.Row">
+            <summary>
+            The list of GameObjects that make up a Row.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.GameObjectRow.Parent">
+            <summary>
+            The Parent Element (only not null for MenuRow)
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.GameObjectRow.#ctor(System.Collections.Generic.List{UnityEngine.GameObject})">
+            <summary>
+            Generates a GameObjectRow from a list of GameObjects.
+            </summary>
+            <param name="row">The list of GameObjects.</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.GameObjectRow.#ctor(UnityEngine.GameObject)">
+            <summary>
+            Generates a GameObjectRow when there is only 1 GameObject
+            </summary>
+            <param name="FirstGo">The first GameObject to add.</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.GameObjectRow.#ctor(Satchel.BetterMenus.GameObjectRow)">
+            <summary>
+            Generates a new GameObjectRow from the provided GameObjectRow.
+            </summary>
+            <param name="menuOptionGos">The GameObjectRow to build on.</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.GameObjectRow.#ctor(Satchel.BetterMenus.GameObjectRow,Satchel.BetterMenus.GameObjectRow)">
+            <summary>
+            Generates a new GameObjectRow from 2 GameObjectRows that contain a few GameObjects each
+            </summary>
+            <param name="firstRow">The first GameObjectRow.</param>
+            <param name="secondRow">The second GameObjectRow.</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.GameObjectRow.#ctor">
+            <summary>
+            Generates an empty GameObjectRow. To be used as instead of null
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.GameObjectRow.ActiveCount">
+            <summary>
+            a function to give the number of active elements in the GameObject row
+            </summary>
+            <returns>the number of active elements</returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.IContainer">
+            <summary>
+            An interface for classes that contain elements. 
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.IContainer.Find(System.String)">
+            <summary>
+            Find an Element that is in the Container.
+            </summary>
+            <param name="Id">The Id of the element that is to be found.</param>
+            <returns>The Element if found. else logs errors and returns null.</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.IContainer.Reflow(System.Boolean)">
+            <summary>
+            Updates visibility of all elements, and updates container
+            </summary>
+            <param name="silent">Whether or not to call subscribers to OnReflow.</param>
+            <returns></returns>
+        </member>
+        <member name="E:Satchel.BetterMenus.IContainer.OnReflow">
+            <summary>
+            Event for when reflow of the container happens
+            </summary>
+        </member>
+        <member name="E:Satchel.BetterMenus.IContainer.OnBuilt">
+            <summary>
+            Event for when the container is built
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.IContainer.TriggerBuiltEvent">
+            <summary>
+            Calls all subscribers to OnBuilt
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.IShadowElement">
+            <summary>
+            An interface for elements that can contain other elements
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.IShadowElement.GetElements">
+            <summary>
+            Gets an array of all elements in the ShadowElement.
+            </summary>
+            <returns>The array of elements under the IShadowElement.</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.IShadowElement.Find(System.String)">
+            <summary>
+            Find an Element that is under the IShadowElement.
+            </summary>
+            <param name="Id">The Id of the element that is to be found.</param>
+            <returns>The Element if found. else logs errors and returns null.</returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.KeybindContent">
+            <summary>
+            A helper class for creating keybind mapping buttons.
+            </summary>
+            <summary>
+            A helper class for creating keybind mapping buttons.
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.KeybindContent.AddCustomButtonBind(Modding.Menu.ContentArea,System.String,InControl.PlayerAction,Satchel.BetterMenus.Config.ButtonBindConfig,MappableControllerButton@)">
+            <summary>
+            Creates a buttonBind menu item.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the buttonBind item in.</param>
+            <param name="name">The name of the buttonBind game object.</param>
+            <param name="action">The <c>PlayerAction</c> to associate with this buttonBind.</param>
+            <param name="config">The configuration options for the buttonBind item.</param>
+            <param name="mappableControllerButton">The <c>MappableControllerButton</c> component on the created buttonBind item.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.KeybindContent.AddCustomKeybind(Modding.Menu.ContentArea,System.String,InControl.PlayerAction,Satchel.BetterMenus.Config.KeybindConfig)">
+            <summary>
+            Creates a keybind menu item.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the keybind item in.</param>
+            <param name="name">The name of the keybind game object.</param>
+            <param name="action">The <c>PlayerAction</c> to associate with this keybind.</param>
+            <param name="config">The configuration options for the keybind item.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.KeybindContent.AddCustomKeybind(Modding.Menu.ContentArea,System.String,InControl.PlayerAction,Satchel.BetterMenus.Config.KeybindConfig,MappableKey@)">
+            <summary>
+            Creates a keybind menu item.
+            </summary>
+            <param name="content">The <c>ContentArea</c> to put the keybind item in.</param>
+            <param name="name">The name of the keybind game object.</param>
+            <param name="action">The <c>PlayerAction</c> to associate with this keybind.</param>
+            <param name="config">The configuration options for the keybind item.</param>
+            <param name="mappableKey">The <c>MappablKey</c> component on the created keybind item.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.ButtonBind">
+            <summary>
+            a class to create a button bind in the menu
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.ButtonBind.PlayerAction">
+            <summary>
+            The PlayerAction connected to this ButtonBind.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.ButtonBind.SelectableArea">
+            <summary>
+            decides whether the full element is selectable or only the button part is selectable
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.ButtonBind.#ctor(System.String,InControl.PlayerAction,System.String)">
+            <summary>
+            Creates a new ButtonBind.
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="playerAction">The PlayerAction connected to this ButtonBind.</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.ButtonBind.Create(Modding.Menu.ContentArea,Satchel.BetterMenus.Menu,System.Boolean)">
+            <summary>
+            Creates a GameObjectRow based on the current variables.
+            </summary>
+            <param name="c">The ContentArea on which the ButtonBind is created.</param>
+            <param name="Instance">The current Menu instance.</param>
+            <param name="AddToList">Should this element be added to the MenuOrder (All non IShadowElements).</param>
+            <returns>The created GameObjectRow which can be used to add to the corresponding Lists.</returns>
+        </member>
+        <member name="F:Satchel.BetterMenus.CustomSlider.StoreValue">
+            <summary>
+            The Action that will be invoked when the slider is moved. Use the float paramter to save the value to use in mod.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.CustomSlider.LoadValue">
+            <summary>
+            The initial value that you need the volume slider to be, probably from previous session or a default
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.CustomSlider.#ctor(System.String,System.Action{System.Single},System.Func{System.Single},System.String)">
+            <summary>
+            Creates a new CustomSlider instance.
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="storeValue">The Action that will be invoked when the slider is moved. Use the float paramter to save the value to use in mod.</param>
+            <param name="loadValue">The initial value that you need the volume slider to be, probably from previous session or a default</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.CustomSlider.#ctor(System.String,System.Action{System.Single},System.Func{System.Single},System.Single,System.Single,System.Boolean,System.String)">
+            <summary>
+            Creates a new CustomSlider instance.
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="storeValue">The Action that will be invoked when the slider is moved. Use the float paramter to save the value to use in mod.</param>
+            <param name="loadValue">The initial value that you need the volume slider to be, probably from previous session or a default</param>
+            <param name="minValue">the lowest value the slider will go to</param>
+            <param name="maxValue">the highest value the slider will go to</param>
+            <param name="wholeNumbers">Should the slider only allow whole numbers (i.e. ints)</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="T:Satchel.BetterMenus.HorizontalOption">
+            <summary>
+            A horizontal option.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.HorizontalOption.Description">
+            <summary>
+            The description to be displayed.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.HorizontalOption.Values">
+            <summary>
+            The values the HorizontalOption can have.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.HorizontalOption.ApplySetting">
+            <summary>
+            Triggered when a setting is applied.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.HorizontalOption.LoadSetting">
+            <summary>
+            The Func(int) to Invoke to load the current setting.
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.HorizontalOption.#ctor(System.String,System.String,System.String[],System.Action{System.Int32},System.Func{System.Int32},System.String)">
+            <summary>
+            Creates a new HorizontalOption.
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="description">The description to be displayed.</param>
+            <param name="values">The values the HorizontalOption can have.</param>
+            <param name="applySetting">Triggered when a setting is applied.</param>
+            <param name="loadSetting">The Func(int) to Invoke to load the current setting.</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.HorizontalOption.Create(Modding.Menu.ContentArea,Satchel.BetterMenus.Menu,System.Boolean)">
+            <summary>
+            Creates a GameObjectRow based on the current variables.
+            </summary>
+            <param name="c">The ContentArea on which the ButtonBind is created.</param>
+            <param name="Instance">The current Menu instance.</param>
+            <param name="AddToList">Should this element be added to the MenuOrder (All non IShadowElements).</param>
+            <returns>The created GameObjectRow which can be used to add to the corresponding Lists.</returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.KeyBind">
+            <summary>
+            A KeyBind.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.KeyBind.PlayerAction">
+            <summary>
+            The PlayerAction connected to this bind.
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.KeyBind.#ctor(System.String,InControl.PlayerAction,System.String)">
+            <summary>
+            Creates a new KeyBind.
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="playerAction">The PlayerAction connected to this bind.</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.KeyBind.Create(Modding.Menu.ContentArea,Satchel.BetterMenus.Menu,System.Boolean)">
+            <summary>
+            Creates a GameObjectRow based on the current variables.
+            </summary>
+            <param name="c">The ContentArea on which the ButtonBind is created.</param>
+            <param name="Instance">The current Menu instance.</param>
+            <param name="AddToList">Should this element be added to the MenuOrder (All non IShadowElements).</param>
+            <returns>The created GameObjectRow which can be used to add to the corresponding Lists.</returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.MenuButton">
+            <summary>
+            A menu button.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.MenuButton.SubmitAction">
+            <summary>
+            The Action(UnityEngine.UI.MenuButton) to call when a value is submitted.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.MenuButton.Description">
+            <summary>
+            The description to be displayed.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.MenuButton.Proceed">
+            <summary>
+            Will this button navigate to another menu?.
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.MenuButton.#ctor(System.String,System.String,System.Action{UnityEngine.UI.MenuButton},System.Boolean,System.String)">
+            <summary>
+            Creates a MenuButton.
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="description">The description to be displayed.</param>
+            <param name="submitAction">The Action(UnityEngine.UI.MenuButton) to call when a value is submitted.</param>
+            <param name="proceed">Will this button navigate to another menu?</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.MenuButton.Create(Modding.Menu.ContentArea,Satchel.BetterMenus.Menu,System.Boolean)">
+            <summary>
+            Creates a GameObjectRow based on the current variables.
+            </summary>
+            <param name="c">The ContentArea on which the ButtonBind is created.</param>
+            <param name="Instance">The current Menu instance.</param>
+            <param name="AddToList">Should this element be added to the MenuOrder (All non IShadowElements).</param>
+            <returns>The created GameObjectRow which can be used to add to the corresponding Lists.</returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.MenuRow">
+            <summary>
+            Shows a row of Elements side-by-side.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.MenuRow.XDelta">
+            <summary>
+            The horizontal seperation between elements, the right element is moved to ensure this
+             default: 750f
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.MenuRow.#ctor(System.Collections.Generic.List{Satchel.BetterMenus.Element},System.String)">
+            <summary>
+            Creates a new MenuRow instance.
+            </summary>
+            <param name="Row">The Row of Elemenst.</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.MenuRow.Create(Modding.Menu.ContentArea,Satchel.BetterMenus.Menu,System.Boolean)">
+            <summary>
+            Creates a GameObjectRow based on the current variables.
+            </summary>
+            <param name="c">The ContentArea on which the ButtonBind is created.</param>
+            <param name="Instance">The current Menu instance.</param>
+            <param name="AddToList">Should this element be added to the MenuOrder (All non IShadowElements).</param>
+            <returns>The created GameObjectRow which can be used to add to the corresponding Lists.</returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.StaticPanel">
+            <summary>
+            A static panel.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.StaticPanel.CreateCustomItem">
+            <summary>
+            The Action(GameObject) te be called on creation. the Gameobject that will be passed in is the static panel go that will be the parent of the custom item you make
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.StaticPanel.Width">
+            <summary>
+            The width of the panel (default 1000f).
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.StaticPanel.#ctor(System.String,System.Action{UnityEngine.GameObject},System.Single,System.String)">
+            <summary>
+            Creates a new StaticPanel.
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="createCustomItem">The Action(GameObject) te be called on creation. the Gameobject that will be passed in is the static panel go that will be the parent of the custom item you make.</param>
+            <param name="width">The width of the panel.</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.StaticPanel.Create(Modding.Menu.ContentArea,Satchel.BetterMenus.Menu,System.Boolean)">
+            <summary>
+            Creates a GameObjectRow based on the current variables.
+            </summary>
+            <param name="c">The ContentArea on which the ButtonBind is created.</param>
+            <param name="Instance">The current Menu instance.</param>
+            <param name="AddToList">Should this element be added to the MenuOrder (All non IShadowElements).</param>
+            <returns>The created GameObjectRow which can be used to add to the corresponding Lists.</returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.TextPanel">
+            <summary>
+            A TextPanel.
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.TextPanel.Width">
+            <summary>
+            The width of the TextPanel (default 1000f).
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.TextPanel.FontSize">
+            <summary>
+            The fontSize of the TextPanel (default 35).
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.TextPanel.Font">
+            <summary>
+            The font used in the TextPanel (default TrajanBold).
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.TextPanel.Anchor">
+            <summary>
+            The anchor of the text in the TextPanel (default Center).
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.TextPanel.#ctor(System.String,System.Single,System.Int32,System.String)">
+            <summary>
+            Creates a new TextPanel.
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="width">The width of the TextPanel.</param>
+            <param name="fontSize">The fontSize of the TextPanel.</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.TextPanel.Create(Modding.Menu.ContentArea,Satchel.BetterMenus.Menu,System.Boolean)">
+            <summary>
+            Creates a GameObjectRow based on the current variables.
+            </summary>
+            <param name="c">The ContentArea on which the ButtonBind is created.</param>
+            <param name="Instance">The current Menu instance.</param>
+            <param name="AddToList">Should this element be added to the MenuOrder (All non IShadowElements).</param>
+            <returns>The created GameObjectRow which can be used to add to the corresponding Lists.</returns>
+        </member>
+        <member name="T:Satchel.BetterMenus.Blueprints">
+            <summary>
+            A class that holds helper methods for constructing Elements
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.AddConfirmDialog(Satchel.BetterMenus.Menu,Satchel.BetterMenus.Menu)">
+            <summary>
+            Change the inital menu's cancel action to make the supplied "DialogMenu" appear instead of the default CancelAction (when user tries to go to previous menu)
+            </summary>
+            <param name="initialMenu">The current Menu</param>
+            <param name="DialogMenu">The new dialog menu you want to be shown on going back</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.ShowDialog(Satchel.BetterMenus.Menu,Satchel.BetterMenus.Menu)">
+            <summary>
+            A function to close the current menu to make the dialogue menu appear.
+            </summary>
+            <param name="initialMenu">The current Menu</param>
+            <param name="DialogMenu">The dialog menu</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.CreateDialogMenu(System.String,System.String,System.String[],System.Action{System.String},System.Int32)">
+            <summary>
+            Creates a Menu that functions like a confirm dialog style menu. 
+            </summary>
+            <param name="title">Title of the dialog</param>
+            <param name="subTitle">Subtitle of the dialog</param>
+            <param name="Options">Options available in the dialog</param>
+            <param name="OnButtonPress">Action that is invoked with the user's selection</param>
+            <param name="optionsPerRow"> Number of options to show in a single row</param>
+            <returns>The Dialog Menu</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.AddConfirmDialog(Satchel.BetterMenus.Menu,System.String,System.String,System.String[],System.Action{System.String},System.Int32)">
+            <summary>
+            Adds a confirm dialogue style menu when back is pressed. It can be used to ask user to confirm across a set of options. Must be called before MenuScreen is returned to modding api
+            </summary>
+            <param name="initialMenu">Menu to add the confirm dialog on</param>
+            <param name="title">Title of the confirm dialog (can be left empty)</param>
+            <param name="subTitle">Subtitle of the confirm dialog (can be left empty) </param>
+            <param name="Options">Options available in the confirm dialog</param>
+            <param name="OnButtonPress">Action that is invoked with the user's selection</param>
+            <param name="optionsPerRow"> Number of options to show in a single row</param>
+            <returns>The Dialog Menu</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.GenericHorizontalOption``1(System.String,System.String,``0[],System.Action{``0},System.Func{``0},System.String)">
+            <summary>
+            Creates a Horizontal Option to toggle any type
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="description">The description to be displayed.</param>
+            <param name="values">An array of available options.</param>
+            <param name="applySetting">Gives you the selected integer to save to settings</param>
+            <param name="loadSetting">Provide an integer from the array to be set on loading of menu.</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+            <returns>The Horizontal Option to add to the menu</returns>
+            <typeparam name="T">The type that the values will be. The type must be able to formattable in a string representation</typeparam>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.GetCachedMenuScreen(Satchel.BetterMenus.Menu,MenuScreen)">
+            <summary>
+            Gets or creates new menuscreen to use in modmenu
+            </summary>
+            <param name="MenuRef">The Menu you want the MenuScreen of</param>
+            <param name="returnScreen">The screen to return to on esc/back button press</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.HorizontalBoolOption(System.String,System.String,System.Action{System.Boolean},System.Func{System.Boolean},System.String,System.String,System.String)">
+            <summary>
+            Creates a Horizontal Option to toggle bools
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="description">The description to be displayed.</param>
+            <param name="applySetting">Triggered when a setting is applied.</param>
+            <param name="loadSetting">The Func(bool) to Invoke to load the current setting.</param>
+            <param name="_true">the text that shows when bool is true</param>
+            <param name="_false">the text that shows when bool is false</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+            <returns>The Horizontal Option to add to the menu</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.KeyAndButtonBind(System.String,InControl.PlayerAction,InControl.PlayerAction,System.String)">
+             <summary>
+             A blueprint to create a row with keybind and a button bind where only the binding area of them are selectable
+             </summary>
+             <param name="name">name of the element</param>
+             <param name="keyBindAction">the InControl.PlayerAction for keybind</param>
+             <param name="buttonBindAction">the InControl.PlayerAction for the button bind</param>
+            <param name="Id">the id of the element that can be used to search for it. the keybind and buttonbind will get the id of the row appended by "key" and "button" respectively</param>
+             <returns>The MenuRow created</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.CreateToggle(Modding.ModToggleDelegates,System.String,System.String)">
+            <summary>
+            A blueprint to create a mod toggle (to Initialize/Unload the mod)
+            </summary>
+            <param name="toggleDelegates">The ModToggleDelegates that is given by MAPI in GetMenuScreen function</param>
+            <param name="name">the name of the toggle</param>
+            <param name="description">the description of the toggle</param>
+            <returns>the created horizontal option</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.CreateToggle(Modding.ModToggleDelegates,System.String,System.String,System.String,System.String)">
+            <summary>
+            A blueprint to create a mod toggle (to Initialize/Unload the mod)
+            </summary>
+            <param name="toggleDelegates">The ModToggleDelegates that is given by MAPI in GetMenuScreen function</param>
+            <param name="name">the name of the toggle</param>
+            <param name="description">the description of the toggle</param>
+            <param name="on">the text to display when mod is on</param>
+            <param name="off">the text to display when mod is off</param>
+            <returns>the created horizontal option</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.NavigateToMenu(System.String,System.String,System.Func{MenuScreen})">
+            <summary>
+            A blueprint to create a menubutton that takes user to a new menu screen
+            </summary>
+            <param name="name">the name of the button</param>
+            <param name="description">the description of the button</param>
+            <param name="getScreen">the new MenuScreen that will be opened on button press</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.ToggleButton(System.String,System.String,System.Action{System.Boolean},System.Func{System.Boolean},System.String)">
+            <summary>
+            Creates a Toggle Button to toggle a setting
+            </summary>
+            <param name="name">The name to be displayed.</param>
+            <param name="description">The description to be displayed.</param>
+            <param name="applySetting">Triggered when a setting is applied.</param>
+            <param name="loadSetting">The Func(bool) to Invoke to load the current setting.</param>
+            <param name="Id">the id of the element that can be used to search for it</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Blueprints.UpdateVisibility(Satchel.BetterMenus.Menu,System.Boolean,System.String[])">
+            <summary>
+            a blueprint to help update visibility of many elements in bulk
+            </summary>
+            <param name="menuRef">the Menu instance that created that holds the elements in the menu</param>
+            <param name="isVisible">the new visibility of the elements</param>
+            <param name="elements">array of element ids to update</param>
+        </member>
+        <member name="T:Satchel.BetterMenus.Menu">
+            <summary>
+            The class that needs to be instantiated to create a better menu
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Menu.menuScreen">
+            <summary>
+            the MenuScreen of the Menu
+            </summary>
+        </member>
+        <member name="F:Satchel.BetterMenus.Menu.returnScreen">
+            <summary>
+            the "previous" menu screen. It is the screen the game will return to to on back button press or esc
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.Menu.AddElement(Satchel.BetterMenus.Element)">
+            <summary>
+            Adds an element to the menu
+            </summary>
+            <param name="elem">the new element to be added</param>
+        </member>
+        <member name="M:Satchel.BetterMenus.Menu.#ctor(System.String,Satchel.BetterMenus.Element[])">
+            <summary>
+            Creates a new instance of Menu. This is used to create a better menu
+            <para/>Use Menu.Create for creating custom menus instead.
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.Menu.Find(System.String)">
+            <summary>
+            Returns the element with the id given in the Menu. The element found can then be used to edit its properties
+            </summary>
+            <param name="ElementId">The id of the element to find. If not specified, id is the name of the element</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Menu.GetMenuScreen(MenuScreen)">
+            <summary>
+            Creates a new MenuScreen from the Menu to be used by Modding API to create mod menu.
+            </summary>
+            <param name="_returnScreen">the "previous" menu screen. It is the screen the game will return to to on back button press or esc</param>
+            <returns>The MenuScreen returned is what needs to be given to the Modding API to have a modmenu</returns>
+        </member>
+        <member name="E:Satchel.BetterMenus.Menu.OnBuilt">
+            <summary>
+            Event for when the Menu is built
+            </summary>
+        </member>
+        <member name="E:Satchel.BetterMenus.Menu.OnReflow">
+            <summary>
+            Event for when reflow of the container happens
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.Menu.Reflow(System.Boolean)">
+            <summary>
+            Updates visibility of all elements, and updates menu 
+            </summary>
+            <param name="silent">Whether or not to call subscribers to OnReflow.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Menu.Reorder">
+            <summary>
+            Reorders the all the Elements in the menu
+            </summary>
+        </member>
+        <member name="M:Satchel.BetterMenus.Menu.Create(System.String,MenuScreen,Satchel.BetterMenus.Element[],Satchel.BetterMenus.Menu@)">
+            <summary>
+            Generates a new MenuScreen.
+            </summary>
+            <param name="Title">The title to be displayed.</param>
+            <param name="modListMenu">The MenuScreen of the returning screen (when back is pressed)</param>
+            <param name="MenuOptions">The Elements to add.</param>
+            <param name="betterMenuMod">The created Menu. (Can in most cases be assigned to discard.)</param>
+            <returns>The generated MenuScreen.</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Menu.Create(System.String,MenuScreen,Satchel.BetterMenus.Element[])">
+            <summary>
+            Generates a new MenuScreen.
+            </summary>
+            <param name="Title">The title to be displayed.</param>
+            <param name="modListMenu">The MenuScreen of the returning screen (when back is pressed)</param>
+            <param name="MenuOptions">The Elements to add.</param>
+            <returns>The generated MenuScreen.</returns>
+        </member>
+        <member name="M:Satchel.BetterMenus.Menu.Update">
+            <summary>
+            A funtion to update the title and all elements and reflow the menu
+            </summary>
+        </member>
+        <member name="M:Satchel.Futils.Extractors.AudioClips.GetAudioClips(PlayMakerFSM)">
+            <summary>
+            Extract all Audio Clips on a PlayMakerFSM
+            </summary>
+            <param name="self">The PlayMakerFSM</param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.Futils.Serialiser.Serialiser.EmitJsonFile(PlayMakerFSM)">
+            <summary>
+            Create a JSON file by  serialising FSM for debugging edited FSMS
+            </summary>
+            <param name="fsm"></param>
+        </member>
+        <member name="T:Satchel.Futils.Serialiser.FsmDataInstance">
+            <summary>
+            Create a Serializable representation of an FSM
+            </summary>
+        </member>
+        <member name="T:Satchel.Futils.CustomFsmAction">
+            <summary>
+            An FsmStateAction that executes a method when used
+            </summary>
+        </member>
+        <member name="T:Satchel.Futils.FsmVariables">
+            <summary>
+            Handles getting and setting variables in the FSM
+            </summary>
+        </member>
+        <member name="M:Satchel.Futils.FsmVariables.GetVariables``1(PlayMakerFSM)">
+            <summary>
+            Get NamedVariables of Type T
+            </summary>
+            <typeparam name="T">Type of NamedVariable</typeparam>
+            <param name="fsm"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.Futils.FsmVariables.SetVariables``1(PlayMakerFSM,HutongGames.PlayMaker.NamedVariable[])">
+            <summary>
+            Set NamedVariables of Type T
+            </summary>
+            <typeparam name="T">Type of NamedVariable</typeparam>
+            <param name="fsm"></param>
+            <param name="namedVariables"></param>
+        </member>
+        <member name="M:Satchel.Futils.FsmVariables.AddVariable``1(PlayMakerFSM,System.String)">
+            <summary>
+            Set NamedVariables of Type T 
+            </summary>
+            <typeparam name="T">Type of NamedVariable</typeparam>
+            <param name="fsm"></param>
+            <param name="name"></param>
+        </member>
+        <member name="M:Satchel.Futils.FsmVariables.AddGetVariable``1(PlayMakerFSM,System.String)">
+            <summary>
+            Get or Add NamedVariable of type T
+            </summary>
+            <typeparam name="T">Type of NamedVariable</typeparam>
+            <param name="fsm"></param>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.Futils.FsmVariables.GetVariable``1(PlayMakerFSM,System.String)">
+            <summary>
+            Get NamedVariable of type T
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="fsm"></param>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Satchel.Futils.InterceptorAction">
+            <summary>
+            an Action that invokes a method to raise an event based on the method
+            </summary>
+        </member>
+        <member name="T:Satchel.Futils.EventInterceptor">
+            <summary>
+            Intercept an event and Invoke an Action
+            </summary>
+        </member>
+        <member name="T:Satchel.Futils.TransitionInterceptor">
+            <summary>
+            Intercepts an FSMTransition and invokes onIntercept
+            </summary>
+        </member>
+        <member name="T:Satchel.Futils.InterceptorExtensions">
+            <summary>
+            Interceptions
+            </summary>
+        </member>
+        <member name="M:Satchel.Futils.InterceptorExtensions.Intercept(PlayMakerFSM,Satchel.Futils.TransitionInterceptor)">
+            <summary>
+            Intercept a transition on an FSM
+            </summary>
+            <param name="fsm"></param>
+            <param name="interceptor"></param>
+        </member>
+        <member name="M:Satchel.Futils.InterceptorExtensions.Intercept(PlayMakerFSM,Satchel.Futils.EventInterceptor)">
+            <summary>
+            Intercept an Event on an FSM
+            </summary>
+            <param name="fsm"></param>
+            <param name="interceptor"></param>
+        </member>
+        <member name="T:Satchel.FsmUtil">
+            <summary>
+            utilities to work with FSM
+            </summary>
+        </member>
+        <member name="M:Satchel.FsmUtil.AddState(PlayMakerFSM,HutongGames.PlayMaker.FsmState)">
+            <summary>
+            AddState
+            </summary>
+            <param name="fsm"></param>
+            <param name="state"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Satchel.FsmUtil.GiveStatesPosition(PlayMakerFSM,System.Single,System.Single)">
+            <summary>
+            Give all states semi-sensible positions for serialisation
+            </summary>
+            <param name="fsm"></param>
+            <param name="startX"></param>
+            <param name="Y"></param>
+        </member>
+        <member name="M:Satchel.FsmUtil.GiveStatePosition(HutongGames.PlayMaker.FsmState,System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Give a state position for serialisation
+            </summary>
+            <param name="state"></param>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="w"></param>
+            <param name="h"></param>
+        </member>
+    </members>
+</doc>
