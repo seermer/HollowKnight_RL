@@ -1,9 +1,10 @@
 import torch
-import tianshou as ts
 from torch.backends import cudnn
 
 import hkenv
 import models
+import trainer
+import buffer
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 cudnn.benchmark = True
@@ -15,46 +16,39 @@ def get_model(env: hkenv.HKEnv, n_frames: int):
     return m
 
 
-def train(env, policy, collector, episodes):
+def train(dqn):
     print('training started')
-    collector.collect(n_episode=1, random=True)
-    # b = collector.buffer.sample_indices(1)
-    # print(b)
-    eps = 0.85
-    for i in range(1, episodes + 1):
-        policy.set_eps(max(eps ** i, 0.05))
-        result = collector.collect(n_episode=1)  # TODO: stack for prediction
-        env.close()
-        losses = policy.update(64, collector.buffer)
-        print(f'episode {i}:'
-              f'collected {result["n/st"]}, reward {result["rew"]}, loss {losses["loss"]}')
+    dqn.run_episodes(1, random_action=True)
+
+    for _ in range(100):
+        prev_step = dqn.steps
+        rew = dqn.run_episode()
+        loss = 0
+        n_batches = (dqn.steps - prev_step) // 8
+        for _ in range(n_batches):
+            batch = dqn.replay_buffer.sample(64)
+            loss += dqn.learn(*batch)
+        print(f'episode {dqn.episodes} finished, total step {dqn.steps},',
+              f'total rewards {rew}, loss {loss / n_batches}', sep='\n')
+        print()
 
 
 def main():
     n_frames = 16
-    e = hkenv.HKEnv((160, 160))
-    m = get_model(e, n_frames)  # TODO: run warmup
-    e = ts.env.DummyVectorEnv([lambda: e])
+    env = hkenv.HKEnv((160, 160))
+    m = get_model(env, n_frames)
     optimizer = torch.optim.Adam(m.parameters(), lr=1e-3)
-    policy = ts.policy.DQNPolicy(
-        model=m,
-        optim=optimizer,
-        discount_factor=0.98,
-        estimation_step=5,
-        target_update_freq=30000
-    )
-    buffer = ts.data.PrioritizedVectorReplayBuffer(total_size=100000,
-                                                   buffer_num=1,
-                                                   alpha=0.6,
-                                                   beta=0.4,
-                                                   stack_num=n_frames)
-    collector = ts.data.Collector(
-        policy=policy,
-        env=e,
-        buffer=buffer,
-        exploration_noise=True
-    )
-    train(e, policy, collector, 100)
+    replay_buffer = buffer.Buffer(100000)
+    dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
+                          n_frames=n_frames, gamma=0.99, eps=1.,
+                          eps_func=(lambda val, episode, step:
+                                    max(0.1, val - 9e-6)),
+                          target_steps=10000,
+                          model=m,
+                          optimizer=optimizer,
+                          criterion=torch.nn.MSELoss(),
+                          device=DEVICE)
+    train(dqn)
 
 
 if __name__ == '__main__':

@@ -217,7 +217,7 @@ class HKEnv(gym.Env):
                 break
             else:
                 ready = is_loading
-        # print('game started')
+        time.sleep(0.5)
         return self.observe()[0], {}
 
     def close(self):

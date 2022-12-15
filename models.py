@@ -81,13 +81,7 @@ class SinglePathMLP(nn.Module):
 
         self.to(self.device)
 
-    def forward(self, x, state=None, info={}):
-        print(x.shape)
-        if not isinstance(x, torch.Tensor):
-            x = x.astype(np.float32)
-            x /= 127.5
-            x -= 1.  # to range [-1, 1]
-            x = torch.tensor(x, dtype=torch.float32, device=self.device)
+    def forward(self, x):
         x = self.extractor(x)
         x = self.pool(x)
         x = torch.flatten(x, 1)
@@ -96,7 +90,7 @@ class SinglePathMLP(nn.Module):
         x = self.linear2(x)
         x = self.act(x)
         x = self.out(x)
-        return x, state
+        return x
 
 
 class DuelingMLP(nn.Module):
