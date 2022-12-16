@@ -43,17 +43,18 @@ class SimpleExtractor(nn.Module):
         self.convs = nn.Sequential(
             nn.Conv2d(n_frames, 48, kernel_size=7, stride=4, padding=3),
             act,
-            nn.Conv2d(48, 80, kernel_size=5, stride=2, padding=2),
+            nn.Conv2d(48, 80, kernel_size=3, stride=2, padding=1),
             act,
             nn.Conv2d(80, 128, kernel_size=3, stride=2, padding=1),
             act,
             nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(256, 320, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(256, 256, kernel_size=3, stride=1),
             act,
         )
-        self.out_shape = np.array((320,) + tuple(obs_shape), dtype=int)
+        self.out_shape = np.array((256,) + tuple(obs_shape), dtype=int)
         self.out_shape[1:] //= 32
+        self.out_shape[1:] -= 2
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
         for m in self.modules():
@@ -67,11 +68,14 @@ class SimpleExtractor(nn.Module):
 
 
 class SinglePathMLP(nn.Module):
-    def __init__(self, extractor: nn.Module, n_out: int):
+    def __init__(self, extractor: nn.Module, n_out: int, pool=True):
         super(SinglePathMLP, self).__init__()
         self.extractor = extractor
-        self.pool = nn.AvgPool2d(tuple(extractor.out_shape[1:]))
-        self.linear1 = nn.Linear(extractor.out_shape[0], 512)
+        self.pool = nn.AvgPool2d(tuple(extractor.out_shape[1:])) if pool else nn.Identity()
+        units = extractor.out_shape[0]
+        if not pool:
+            units *= int(np.prod(extractor.out_shape[1:]))
+        self.linear1 = nn.Linear(units, 512)
         self.linear2 = nn.Linear(512, 512)
         self.out = nn.Linear(512, n_out)
         self.act = nn.ReLU(True)

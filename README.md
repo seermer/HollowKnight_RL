@@ -56,3 +56,9 @@ ___________________________
 
 Project inspired by https://github.com/ailec0623/DQN_HollowKnight <br>
 that is a very interesting project, and the author has already defeated Hornet with a trained agent. However, that project uses CE and windows API heavily, which I am less familiar with, so I decided to make one on my own.
+
+_______________________________
+
+## Changes
+- Remove Global Average Pooling
+- Use Huber Loss instead of MSE
