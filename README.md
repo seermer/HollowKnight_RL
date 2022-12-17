@@ -62,3 +62,5 @@ _______________________________
 ## Changes
 - Remove Global Average Pooling
 - Use Huber Loss instead of MSE
+- Add Spectral Normalization in model
+- Fixed a bug in DQN implementation

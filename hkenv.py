@@ -136,7 +136,7 @@ class HKEnv(gym.Env):
                    monitor['height'] // 2)
         return pyautogui.locateOnScreen(f'locator/menu_badge.png',
                                         region=monitor,
-                                        confidence=0.95)
+                                        confidence=0.9)
 
     def observe(self):
         with mss() as sct:
@@ -201,11 +201,10 @@ class HKEnv(gym.Env):
         super(HKEnv, self).reset(seed=seed)
         self.cleanup()
         while True:
-            menu = self._find_menu()
-            if menu:
+            if self._find_menu():
                 break
             pyautogui.press('w')
-            time.sleep(0.1)
+            time.sleep(0.01)
         pyautogui.press('space')
 
         # wait for loading screen

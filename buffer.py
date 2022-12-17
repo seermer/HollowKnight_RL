@@ -15,7 +15,6 @@ class Buffer:
         batch = random.sample(self.buffer, batch_size)
         obs, act, rew, obs_next, done = [], [], [], [], []
         for o, a, r, o_, d in batch:
-            o_ = o[1:] + (o_,)  # frame stack next obs
             obs.append(o)
             act.append(a)
             rew.append(r)
@@ -23,11 +22,11 @@ class Buffer:
             done.append(d)
 
         # avoid copy if possible (usually have to copy though)
-        return (np.array(obs, copy=False, dtype=np.uint8),
-                np.array(act, copy=False, dtype=np.int64),
-                np.array(rew, copy=False, dtype=np.float32),
-                np.array(obs_next, copy=False, dtype=np.uint8),
-                np.array(done, copy=False, dtype=bool))
+        return (np.array(obs, copy=False, dtype=np.float32),
+                np.array(act, copy=False, dtype=np.int64)[:, np.newaxis],
+                np.array(rew, copy=False, dtype=np.float32)[:, np.newaxis],
+                np.array(obs_next, copy=False, dtype=np.float32),
+                np.array(done, copy=False, dtype=bool)[:, np.newaxis])
 
     def __len__(self):
         return len(self.buffer)

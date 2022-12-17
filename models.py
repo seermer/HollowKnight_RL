@@ -1,7 +1,8 @@
-from torch import nn
 import torch
 import torchvision
 import numpy as np
+from torch import nn
+from torch.nn.utils.parametrizations import spectral_norm
 
 
 def param_init(m):  # code adapted from torchvision VGG class
@@ -68,7 +69,7 @@ class SimpleExtractor(nn.Module):
 
 
 class SinglePathMLP(nn.Module):
-    def __init__(self, extractor: nn.Module, n_out: int, pool=True):
+    def __init__(self, extractor: nn.Module, n_out: int, pool=True, sn=True):
         super(SinglePathMLP, self).__init__()
         self.extractor = extractor
         self.pool = nn.AvgPool2d(tuple(extractor.out_shape[1:])) if pool else nn.Identity()
@@ -76,7 +77,11 @@ class SinglePathMLP(nn.Module):
         if not pool:
             units *= int(np.prod(extractor.out_shape[1:]))
         self.linear1 = nn.Linear(units, 512)
+        if sn:
+            self.linear1 = spectral_norm(self.linear1)
         self.linear2 = nn.Linear(512, 512)
+        if sn:
+            self.linear2 = spectral_norm(self.linear2)
         self.out = nn.Linear(512, n_out)
         self.act = nn.ReLU(True)
         self.device = extractor.device or ('cuda' if torch.cuda.is_available() else 'cpu')
@@ -102,30 +107,6 @@ class DuelingMLP(nn.Module):
     def __init__(self, extractor: nn.Module, action_dims: list):
         raise NotImplementedError
         super(DuelingMLP, self).__init__()
-        self.extractor = extractor
-        self.pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.linear1 = nn.Linear(extractor.out_shape[0], 1024)
-        self.branches = nn.ModuleList([nn.Linear(1024, 256)
-                                       for _ in range(len(action_dims))])
-        self.outs = nn.ModuleList([nn.Linear(256, n_actions)
-                                   for n_actions in action_dims])
-        self.act = nn.ReLU(True)
-
-        for m in self.modules():
-            param_init(m)
 
     def forward(self, x, *args, **kwargs):
         raise NotImplementedError
-        x = self.extractor(x)
-        x = self.pool(x)
-        x = torch.flatten(x, 1)
-        x = self.linear1(x)
-        x = self.act(x)
-        xs = []
-        for linear2, clf in zip(self.branches, self.outs):
-            branch = linear2(x)
-            branch = self.act(branch)
-            branch = clf(branch)
-            xs.append(branch)
-        x = torch.hstack(xs)
-        return x
