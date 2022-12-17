@@ -71,12 +71,12 @@ class Trainer:
 
     def run_episode(self, random_action=False, no_sleep=False):
         self.episodes += 1
+
+        initial, _ = self.env.reset()
         stacked_obs = deque(
-            (np.zeros(self.env.observation_space.shape, dtype=np.uint8)
-             for _ in range(self.n_frames - 1)),
+            (initial for _ in range(self.n_frames)),
             maxlen=self.n_frames
         )
-        stacked_obs.append(self.env.reset()[0])
         total_rewards = 0
         while True:
             obs_tuple = tuple(stacked_obs)
@@ -122,7 +122,7 @@ class Trainer:
                 obs_next,
                 dtype=torch.float32,
                 device=self.device
-            ).view(self.batch_size, -1)
+            ).squeeze(1)
             done = torch.as_tensor(done,
                                    dtype=torch.float32,
                                    device=self.device)
@@ -136,7 +136,7 @@ class Trainer:
             obs,
             dtype=torch.float32,
             device=self.device
-        ).view(self.batch_size, -1)
+        ).squeeze(1)
         obs = self._preprocess(obs)
 
         self.model.train()

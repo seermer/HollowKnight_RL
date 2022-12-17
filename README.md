@@ -51,7 +51,10 @@ ___________________________
 - [ ] Add code for additional functionalities (like saving buffer, model...)
   - [x] Saving model periodically
   - [x] Tensorboard logging
-- [ ] Improve the algorithm
+- [ ] Improve the algorithm/model/implementation
+  - [x] Spectral Normalization
+  - [x] Huber Loss
+  - [ ] Double DQN
 
 
 Project inspired by https://github.com/ailec0623/DQN_HollowKnight <br>
@@ -64,3 +67,10 @@ _______________________________
 - Use Huber Loss instead of MSE
 - Add Spectral Normalization in model
 - Fixed a bug in DQN implementation
+
+
+_______________________________
+
+## References
+- [Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
+- [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf)
