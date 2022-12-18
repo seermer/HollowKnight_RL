@@ -10,16 +10,20 @@ from torch.utils.tensorboard import SummaryWriter
 
 class Trainer:
     GAP = 0.15
+
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps,
                  model, lr, criterion, batch_size, device,
-                 is_double=True,
+                 is_double=True, frame_skip=True,
                  save_loc=None, no_save=False):
         self.env = env
         self.replay_buffer = replay_buffer
 
         assert n_frames > 0
-        self.n_frames = n_frames
+        if frame_skip:
+            self.n_frames = n_frames * 2 - 1
+        else:
+            self.n_frames = n_frames
         self.gamma = gamma
         self.eps = eps
         self.eps_func = eps_func
@@ -35,10 +39,9 @@ class Trainer:
             self.criterion = self.criterion.to(device)
         self.batch_size = batch_size
         self.device = device
-        self._warmup(self.model)
-        self._warmup(self.target_model)
 
         self.is_double = is_double
+        self.frame_skip = frame_skip
 
         self.steps = 0
         self.episodes = 0
@@ -53,6 +56,9 @@ class Trainer:
                 os.makedirs(self.save_loc)
             self.writer = SummaryWriter(self.save_loc + 'log/')
 
+        self._warmup(self.model)
+        self._warmup(self.target_model)
+
     @staticmethod
     def _preprocess(obs):
         if len(obs.shape) > 3:  # image
@@ -60,9 +66,16 @@ class Trainer:
             obs -= 1.
         return obs
 
+    def _process_frames(self, frames):
+        if self.frame_skip:
+            return tuple((frame for i, frame in enumerate(frames) if i % 2 == 0))
+        else:
+            return tuple(frames)
+
     @torch.no_grad()
     def _warmup(self, model):
-        model(torch.rand((1, self.n_frames) + self.env.observation_space.shape,
+        n_frames = (self.n_frames + 1) // 2 if self.frame_skip else self.n_frames
+        model(torch.rand((1, n_frames) + self.env.observation_space.shape,
                          dtype=torch.float32, device=self.device))
 
     @torch.no_grad()
@@ -84,7 +97,7 @@ class Trainer:
         total_rewards = 0
         while True:
             t = time.time()
-            obs_tuple = tuple(stacked_obs)
+            obs_tuple = self._process_frames(stacked_obs)
             model_input = np.array([obs_tuple], dtype=np.float32)
             action = self.get_action(model_input)
             # note that we intentionally run the prediction no matter what epsilon is,
@@ -96,7 +109,7 @@ class Trainer:
             total_rewards += rew
             self.steps += 1
             stacked_obs.append(obs_next)
-            obs_next_tuple = tuple(stacked_obs)
+            obs_next_tuple = self._process_frames(stacked_obs)
             self.replay_buffer.add(obs_tuple, action, rew, obs_next_tuple, done)
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.episodes, self.steps)
@@ -106,7 +119,7 @@ class Trainer:
             if done:
                 break
             t = time.time() - t
-            if t > self.GAP:
+            if t < self.GAP and not no_sleep:
                 time.sleep(self.GAP - t)
         return total_rewards
 

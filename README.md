@@ -58,7 +58,7 @@ ___________________________
   - [x] Huber Loss
   - [x] Double DQN
   - [x] Dueling DQN
-  - [ ] Frame Skipping
+  - [x] Frame Skipping
   - [ ] Feature extractor learned with unsupervised representation learning
   - [ ] ? RAdam Optimizer
   - [ ] ? Image Augmentation (DrQ)
@@ -80,6 +80,8 @@ _______________________________
 - Add no magnitude reward (so all rewards are either 1, 0, or -1)
 - Use LeakyReLU instead of ReLU
 - Removed Dash, it is way too hard to use
+- Added Fixed time for each step
+- Added Frame Skip
 
 
 _______________________________

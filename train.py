@@ -19,7 +19,7 @@ def get_model(env: gym.Env, n_frames: int):
 
 def train(dqn):
     print('training started')
-    dqn.run_episodes(8, random_action=True)
+    # dqn.run_episodes(8, random_action=True)
 
     saved_rew = float('-inf')
     for i in range(3000):
@@ -43,8 +43,8 @@ def train(dqn):
 
 
 def main():
-    n_frames = 5
-    env = hkenv.HKEnv((160, 160), w1=1., w2=36., w3=0., no_magnitude=True)
+    n_frames = 4
+    env = hkenv.HKEnv((160, 160), w1=1., w2=36., w3=0.)
     m = get_model(env, n_frames)
     replay_buffer = buffer.Buffer(20000)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
@@ -57,7 +57,8 @@ def main():
                           criterion=torch.nn.HuberLoss(),
                           batch_size=32,
                           device=DEVICE,
-                          is_double=True)
+                          is_double=True,
+                          no_save=True)
     train(dqn)
 
 

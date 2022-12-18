@@ -73,7 +73,7 @@ class HKEnv(gym.Env):
     @staticmethod
     def _find_window():
         window = pyautogui.getWindowsWithTitle('Hollow Knight')
-        assert len(window) == 1, f'found {len(window)} windows called Hollow Knight'
+        assert len(window) == 1, f'found {len(window)} windows called Hollow Knight {window}'
         window = window[0]
         try:
             window.activate()
