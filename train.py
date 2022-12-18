@@ -62,7 +62,8 @@ def main():
                           lr=2e-4,
                           criterion=torch.nn.HuberLoss(),
                           batch_size=32,
-                          device=DEVICE)
+                          device=DEVICE,
+                          is_double=True)
     train(dqn)
 
 

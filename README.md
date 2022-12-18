@@ -53,10 +53,15 @@ ___________________________
   - [x] Tensorboard logging
   - [ ] Save/load random agent experiences
 - [ ] Improve the algorithm/model/implementation
+  - [x] Frame Stacking
   - [x] Spectral Normalization
   - [x] Huber Loss
   - [x] Double DQN
   - [x] Dueling DQN
+  - [ ] Frame Skipping
+  - [ ] Feature extractor learned with unsupervised representation learning
+  - [ ] ? RAdam Optimizer
+  - [ ] ? Image Augmentation (DrQ)
 
 
 
@@ -80,4 +85,6 @@ _______________________________
 
 ## References
 - [Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
-- [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf)
+- [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461)
+- [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)
+- [Spectral Normalisation for Deep Reinforcement Learning: an Optimisation Perspective](https://arxiv.org/abs/2105.05246)
