@@ -52,7 +52,7 @@ class HKEnv(gym.Env):
     HP_CKPT = [64, 99, 135, 171, 207, 242, 278, 314, 352]
     ACTIONS = [Move, Jump, Attack, Dash]
 
-    def __init__(self, obs_shape=(160, 160), w1=1., w2=18., w3=0.01):
+    def __init__(self, obs_shape=(160, 160), w1=1., w2=18., w3=0.01, no_magnitude=False):
         self.monitor = self._find_window()
         self.holding = []
         self.prev_knight_hp = None
@@ -66,6 +66,7 @@ class HKEnv(gym.Env):
         self.w2 = w2
         self.w3 = w3
         self._w3 = w3
+        self.no_magnitude = no_magnitude
 
         self._timer = None
 
@@ -195,6 +196,8 @@ class HKEnv(gym.Env):
 
         self.prev_knight_hp = knight_hp
         self.prev_enemy_hp = enemy_hp
+        if self.no_magnitude:
+            reward = np.sign(reward)
         return obs, reward, done, False, {}
 
     def reset(self, seed=None, options=None):

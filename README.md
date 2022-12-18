@@ -19,7 +19,7 @@ Screen with at least (1280, 720) resolution <br>
 CUDA GPU (You can also try CPU, the code will still work, 
 but then you need to install the libraries on your own, 
 because requirements.txt contains CUDA related packages) <br>
-Newest Hollow Knight Game (tested with Steam version) <br>
+The newest version of Hollow Knight Game (tested with Steam version) <br>
 packages listed in requirements.txt <br>
 
 
@@ -51,14 +51,17 @@ ___________________________
 - [ ] Add code for additional functionalities (like saving buffer, model...)
   - [x] Saving model periodically
   - [x] Tensorboard logging
+  - [ ] Save/load random agent experiences
 - [ ] Improve the algorithm/model/implementation
   - [x] Spectral Normalization
   - [x] Huber Loss
-  - [ ] Double DQN
+  - [x] Double DQN
+  - [x] Dueling DQN
+
 
 
 Project inspired by https://github.com/ailec0623/DQN_HollowKnight <br>
-that is a very interesting project, and the author has already defeated Hornet with a trained agent. However, that project uses CE and windows API heavily, which I am less familiar with, so I decided to make one on my own.
+It is a very interesting project, and the author has already defeated Hornet with a trained agent. However, that project uses CE and Windows API heavily, which I am less familiar with, and I also want to practice with extensions on dqn, so I decided to write one from scratch on my own.
 
 _______________________________
 
@@ -67,6 +70,10 @@ _______________________________
 - Use Huber Loss instead of MSE
 - Add Spectral Normalization in model
 - Fixed a bug in DQN implementation
+- Add Double DQN
+- Add Dueling DQN (No gradient rescaling yet)
+- Add no magnitude reward (so all rewards are either 1, 0, or -1)
+- Use LeakyReLU instead of ReLU
 
 
 _______________________________

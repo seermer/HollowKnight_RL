@@ -12,6 +12,7 @@ class Trainer:
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps,
                  model, lr, criterion, batch_size, device,
+                 is_double=True,
                  save_loc=None, no_save=False):
         self.env = env
         self.replay_buffer = replay_buffer
@@ -36,6 +37,8 @@ class Trainer:
         self._warmup(self.model)
         self._warmup(self.target_model)
 
+        self.is_double = is_double
+
         self.steps = 0
         self.episodes = 0
         self.target_replace_steps = 0
@@ -51,7 +54,7 @@ class Trainer:
 
     @staticmethod
     def _preprocess(obs):
-        if len(obs.shape) > 2:  # image
+        if len(obs.shape) > 3:  # image
             obs /= 127.5
             obs -= 1.
         return obs
@@ -101,7 +104,7 @@ class Trainer:
                     self.learn(*batch)
                     learned = True
             if not learned and not no_sleep:  # when no training, make sure gap between frames are similar
-                time.sleep(0.1)
+                time.sleep(0.03)
             if done:
                 break
         return total_rewards
@@ -129,7 +132,13 @@ class Trainer:
             obs_next = self._preprocess(obs_next)
 
             target_q = self.target_model(obs_next).detach()
-            max_target_q, _ = target_q.max(dim=1, keepdims=True)
+            if self.is_double:
+                self.model.eval()
+                max_act = torch.argmax(self.model(obs_next).detach(), dim=1)
+                max_target_q = target_q[torch.arange(self.batch_size), max_act]
+                max_target_q = max_target_q.unsqueeze(-1)
+            else:
+                max_target_q, _ = target_q.max(dim=1, keepdims=True)
             target = rew + self.gamma * max_target_q * (1. - done)
 
         obs = torch.as_tensor(
@@ -156,11 +165,11 @@ class Trainer:
                 self.target_model.eval()
         return loss
 
-    def save_models(self):
+    def save_models(self, prefix=''):
         if not self.no_save:
-            torch.save(self.model.state_dict(), self.save_loc + 'model.pt')
-            torch.save(self.target_model.state_dict(), self.save_loc + 'target_model.pt')
-            torch.save(self.optimizer.state_dict(), self.save_loc + 'optimizer.pt')
+            torch.save(self.model.state_dict(), self.save_loc + prefix + 'model.pt')
+            torch.save(self.target_model.state_dict(), self.save_loc + prefix + 'target_model.pt')
+            torch.save(self.optimizer.state_dict(), self.save_loc + prefix + 'optimizer.pt')
 
     def log(self, info):
         if not self.no_save:
