@@ -31,7 +31,7 @@ class Trainer:
 
         self.model = model.to(device)
         self.target_model = copy.deepcopy(self.model)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, eps=1e-4)
+        self.optimizer = torch.optim.RAdam(self.model.parameters(), lr=lr, eps=1e-4)
         self.model.eval()
         self.target_model.eval()
         self.criterion = criterion

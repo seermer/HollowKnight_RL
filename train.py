@@ -44,9 +44,9 @@ def train(dqn):
 
 def main():
     n_frames = 4
-    env = hkenv.HKEnv((160, 160), w1=1., w2=36., w3=0.)
+    env = hkenv.HKEnv((224, 224), w1=1., w2=36., w3=0.)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.Buffer(20000)
+    replay_buffer = buffer.Buffer(25000)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.99, eps=1.,
                           eps_func=(lambda val, episode, step:
@@ -58,6 +58,7 @@ def main():
                           batch_size=32,
                           device=DEVICE,
                           is_double=True,
+                          frame_skip=True,
                           no_save=True)
     train(dqn)
 
