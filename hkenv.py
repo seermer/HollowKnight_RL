@@ -50,9 +50,9 @@ class HKEnv(gym.Env):
         Attack.ATTACK: 'j',
     }
     HP_CKPT = [64, 99, 135, 171, 207, 242, 278, 314, 352]
-    ACTIONS = [Move, Jump, Attack, Dash]
+    ACTIONS = [Move, Jump, Attack]
 
-    def __init__(self, obs_shape=(160, 160), w1=1., w2=18., w3=0.01, no_magnitude=False):
+    def __init__(self, obs_shape=(160, 160), w1=1., w2=18., w3=0., no_magnitude=False):
         self.monitor = self._find_window()
         self.holding = []
         self.prev_knight_hp = None
@@ -96,7 +96,7 @@ class HKEnv(gym.Env):
             pyautogui.keyDown(key)
             time.sleep(seconds)
             pyautogui.keyUp(key)
-            time.sleep(0.005)
+            time.sleep(0.0025)
 
         if self._timer is None or not self._timer.is_alive():
             # timer available, do timed action
@@ -137,7 +137,7 @@ class HKEnv(gym.Env):
                    monitor['height'] // 2)
         return pyautogui.locateOnScreen(f'locator/menu_badge.png',
                                         region=monitor,
-                                        confidence=0.92)
+                                        confidence=0.9)
 
     def observe(self):
         with mss() as sct:
@@ -165,6 +165,7 @@ class HKEnv(gym.Env):
     def step(self, actions):
         actions = self._to_multi_discrete(actions)
         self._step_actions(actions)
+        time.sleep(0.025)
         obs, knight_hp, enemy_hp = self.observe()
         if self.prev_knight_hp is None:
             self.prev_knight_hp = knight_hp
@@ -207,7 +208,7 @@ class HKEnv(gym.Env):
             if self._find_menu():
                 break
             pyautogui.press('w')
-            time.sleep(0.075)
+            time.sleep(0.1)
         pyautogui.press('space')
 
         # wait for loading screen

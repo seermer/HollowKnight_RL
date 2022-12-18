@@ -9,6 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 class Trainer:
+    GAP = 0.15
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps,
                  model, lr, criterion, batch_size, device,
@@ -82,6 +83,7 @@ class Trainer:
         )
         total_rewards = 0
         while True:
+            t = time.time()
             obs_tuple = tuple(stacked_obs)
             model_input = np.array([obs_tuple], dtype=np.float32)
             action = self.get_action(model_input)
@@ -96,17 +98,16 @@ class Trainer:
             stacked_obs.append(obs_next)
             obs_next_tuple = tuple(stacked_obs)
             self.replay_buffer.add(obs_tuple, action, rew, obs_next_tuple, done)
-            learned = False
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.episodes, self.steps)
                 if len(self.replay_buffer) > self.batch_size:
                     batch = self.replay_buffer.sample(self.batch_size)
                     self.learn(*batch)
-                    learned = True
-            if not learned and not no_sleep:  # when no training, make sure gap between frames are similar
-                time.sleep(0.03)
             if done:
                 break
+            t = time.time() - t
+            if t > self.GAP:
+                time.sleep(self.GAP - t)
         return total_rewards
 
     def run_episodes(self, n, **kwargs):

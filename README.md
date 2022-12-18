@@ -79,6 +79,13 @@ _______________________________
 - Add Dueling DQN (No gradient rescaling yet)
 - Add no magnitude reward (so all rewards are either 1, 0, or -1)
 - Use LeakyReLU instead of ReLU
+- Removed Dash, it is way too hard to use
+
+
+_______________________________
+
+## Training:
+12/18/2022: agent stuck in repeating a sequence of actions, and eventually stopped doing anything (no op) most of the time
 
 
 _______________________________

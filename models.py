@@ -116,7 +116,7 @@ class DuelingMLP(nn.Module):
             self.linear_adv = spectral_norm(self.linear_adv)
         self.val = nn.Linear(320, 1)
         self.adv = nn.Linear(320, n_out)
-        self.act = nn.ReLU(True)
+        self.act = nn.LeakyReLU(True)
         self.device = extractor.device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
         for m in self.modules():
