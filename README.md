@@ -82,6 +82,7 @@ _______________________________
 - Removed Dash, it is way too hard to use
 - Added Fixed time for each step
 - Added Frame Skip
+- Remove no magnitude reward and make base reward +-1 instead, so it is more straightforward to set weights
 
 
 _______________________________

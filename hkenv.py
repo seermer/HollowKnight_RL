@@ -52,7 +52,7 @@ class HKEnv(gym.Env):
     HP_CKPT = [64, 99, 135, 171, 207, 242, 278, 314, 352]
     ACTIONS = [Move, Jump, Attack]
 
-    def __init__(self, obs_shape=(160, 160), w1=1., w2=18., w3=0., no_magnitude=False):
+    def __init__(self, obs_shape=(160, 160), w1=1., w2=1., w3=0.):
         self.monitor = self._find_window()
         self.holding = []
         self.prev_knight_hp = None
@@ -66,7 +66,6 @@ class HKEnv(gym.Env):
         self.w2 = w2
         self.w3 = w3
         self._w3 = w3
-        self.no_magnitude = no_magnitude
 
         self._timer = None
 
@@ -185,8 +184,8 @@ class HKEnv(gym.Env):
         if win:
             enemy_hp = 0
         reward = (
-                self.w1 * (knight_hp - self.prev_knight_hp)
-                + self.w2 * (self.prev_enemy_hp - enemy_hp)
+                self.w1 * np.sign(knight_hp - self.prev_knight_hp)
+                + self.w2 * np.sign(self.prev_enemy_hp - enemy_hp)
                 + self.w3
         )
         if win:  # extra reward for winning based on remaining health
@@ -197,8 +196,6 @@ class HKEnv(gym.Env):
 
         self.prev_knight_hp = knight_hp
         self.prev_enemy_hp = enemy_hp
-        if self.no_magnitude:
-            reward = np.sign(reward)
         return obs, reward, done, False, {}
 
     def reset(self, seed=None, options=None):
