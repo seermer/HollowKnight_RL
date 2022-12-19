@@ -14,16 +14,13 @@ class Trainer:
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps,
                  model, lr, criterion, batch_size, device,
-                 is_double=True, frame_skip=True,
+                 is_double=True,
                  save_loc=None, no_save=False):
         self.env = env
         self.replay_buffer = replay_buffer
 
         assert n_frames > 0
-        if frame_skip:
-            self.n_frames = n_frames * 2 - 1
-        else:
-            self.n_frames = n_frames
+        self.n_frames = n_frames
         self.gamma = gamma
         self.eps = eps
         self.eps_func = eps_func
@@ -41,7 +38,6 @@ class Trainer:
         self.device = device
 
         self.is_double = is_double
-        self.frame_skip = frame_skip
 
         self.steps = 0
         self.episodes = 0
@@ -68,15 +64,11 @@ class Trainer:
         return obs
 
     def _process_frames(self, frames):
-        if self.frame_skip:
-            return tuple((frame for i, frame in enumerate(frames) if i % 2 == 0))
-        else:
-            return tuple(frames)
+        return tuple(frames)
 
     @torch.no_grad()
     def _warmup(self, model):
-        n_frames = (self.n_frames + 1) // 2 if self.frame_skip else self.n_frames
-        model(torch.rand((1, n_frames) + self.env.observation_space.shape,
+        model(torch.rand((1, self.n_frames) + self.env.observation_space.shape,
                          dtype=torch.float32,
                          device=self.device)).detach().cpu().numpy()
 
@@ -97,6 +89,8 @@ class Trainer:
             maxlen=self.n_frames
         )
         total_rewards = 0
+        total_loss = 0
+        learned_times = 0
         while True:
             t = time.time()
             obs_tuple = self._process_frames(stacked_obs)
@@ -115,15 +109,16 @@ class Trainer:
             self.replay_buffer.add(obs_tuple, action, rew, obs_next_tuple, done)
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.episodes, self.steps)
-                if len(self.replay_buffer) > self.batch_size:
+                if len(self.replay_buffer) > self.batch_size and self.steps % 4 == 0:
                     batch = self.replay_buffer.sample(self.batch_size)
-                    self.learn(*batch)
+                    total_loss += self.learn(*batch)
+                    learned_times += 1
             if done:
                 break
-            t = time.time() - t
-            if t < self.GAP and not no_sleep:
-                time.sleep(self.GAP - t)
-        return total_rewards
+            t = self.GAP - (time.time() - t)
+            if t > 0 and not no_sleep:
+                time.sleep(t)
+        return total_rewards, total_loss / learned_times
 
     def run_episodes(self, n, **kwargs):
         for _ in range(n):

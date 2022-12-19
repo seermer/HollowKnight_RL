@@ -21,20 +21,21 @@ def get_model(env: gym.Env, n_frames: int):
 
 @torch.no_grad()
 def main():
-    n_frames = 5
-    env = hkenv.HKEnv((160, 160), w1=1., w2=36., w3=0., no_magnitude=True)
+    n_frames = 4
+    env = hkenv.HKEnv((224, 224), w1=1., w2=1., w3=0.)
     m = get_model(env, n_frames)
     m.eval()
-    m.load_state_dict(torch.load('./saved/1671354397/bestmodel.pt'))
+    m.load_state_dict(torch.load('SAVE_PATH_HERE'))
     m(torch.ones((1, n_frames) + env.observation_space.shape,
                  dtype=torch.float32, device=DEVICE))
     for i in range(5):
         initial, _ = env.reset()
         stacked_obs = deque(
-            (initial for _ in range(n_frames)),
+            (initial for _ in range(n_frames * 2 - 1)),
             maxlen=n_frames
         )
         while True:
+            t = time.time()
             obs_tuple = tuple(stacked_obs)
             obs = np.array([obs_tuple], dtype=np.float32)
             obs = torch.as_tensor(obs, dtype=torch.float32,
@@ -43,10 +44,12 @@ def main():
             action = np.argmax(pred)
             obs_next, rew, done, _, _ = env.step(action)
             print(rew)
-            time.sleep(0.042)
             stacked_obs.append(obs_next)
             if done:
                 break
+            t = 0.15 - (time.time() - t)
+            if t > 0:
+                time.sleep(t)
 
 
 if __name__ == '__main__':

@@ -60,7 +60,6 @@ ___________________________
   - [x] Huber Loss
   - [x] Double DQN
   - [x] Dueling DQN
-  - [x] Frame Skipping
   - [ ] Feature extractor learned with unsupervised representation learning
   - [x] RAdam Optimizer
   - [ ] improve reward function (make it denser)
@@ -84,10 +83,10 @@ _______________________________
 - Use LeakyReLU instead of ReLU
 - Remove Dash, it is way too hard to use
 - Add Fixed time for each step
-- Add Frame Skip
 - Remove no magnitude reward and make base reward +-1 instead, so it is more straightforward to set weights
 - Add save/load random explorations
 - Use RAdam instead of Adam optimizer
+- Reduce learning update frequency
 
 
 _______________________________

@@ -24,27 +24,27 @@ def train(dqn):
 
     saved_rew = float('-inf')
     for i in range(3000):
-        rew = dqn.run_episode()
+        rew, loss = dqn.run_episode()
         if rew >= saved_rew and dqn.eps < 0.1001:
             saved_rew = rew
             dqn.save_models('best')
         dqn.save_models('latest')
 
-        loss = 0
-        n_batches = 64
-        for _ in range(n_batches):
-            batch = dqn.replay_buffer.sample(dqn.batch_size)
-            cur_loss = dqn.learn(*batch)
-            loss += cur_loss
+        # loss = 0
+        # n_batches = 64
+        # for _ in range(n_batches):
+        #     batch = dqn.replay_buffer.sample(dqn.batch_size)
+        #     cur_loss = dqn.learn(*batch)
+        #     loss += cur_loss
 
         dqn.log({'reward': rew, 'loss': loss})
         print(f'episode {dqn.episodes} finished, total step {dqn.steps}, epsilon {dqn.eps}',
-              f'total rewards {rew}, loss {loss / n_batches}', sep='\n')
+              f'total rewards {rew}, loss {loss}', sep='\n')
         print()
 
 
 def main():
-    n_frames = 4
+    n_frames = 5
     env = hkenv.HKEnv((224, 224), w1=1., w2=1., w3=0.)
     m = get_model(env, n_frames)
     replay_buffer = buffer.Buffer(25000)
@@ -59,7 +59,6 @@ def main():
                           batch_size=32,
                           device=DEVICE,
                           is_double=True,
-                          frame_skip=True,
                           no_save=True)
     train(dqn)
 
