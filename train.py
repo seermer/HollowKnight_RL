@@ -19,12 +19,13 @@ def get_model(env: gym.Env, n_frames: int):
 
 def train(dqn):
     print('training started')
-    # dqn.run_episodes(8, random_action=True)
+    dqn.save_explorations(35)
+    dqn.load_explorations()
 
     saved_rew = float('-inf')
     for i in range(3000):
         rew = dqn.run_episode()
-        if rew >= saved_rew and dqn.eps <= 0.1001:
+        if rew >= saved_rew and dqn.eps < 0.1001:
             saved_rew = rew
             dqn.save_models('best')
         dqn.save_models('latest')
@@ -50,8 +51,8 @@ def main():
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.99, eps=1.,
                           eps_func=(lambda val, episode, step:
-                                    max(0.1, val - 1e-5)),
-                          target_steps=1200,
+                                    max(0.1, val - 9e-6)),
+                          target_steps=1500,
                           model=m,
                           lr=1e-4,
                           criterion=torch.nn.HuberLoss(),

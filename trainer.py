@@ -49,9 +49,10 @@ class Trainer:
 
         self.no_save = no_save
         if not no_save:
-            self.save_loc = ('./saved/' + str(int(time.time()))) if save_loc is None else save_loc
-            if not self.save_loc.endswith('/'):
-                self.save_loc += '/'
+            save_loc = ('./saved/' + str(int(time.time()))) if save_loc is None else save_loc
+            assert not save_loc.endswith('\\')
+            save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
+            self.save_loc = save_loc
             if not os.path.exists(self.save_loc):
                 os.makedirs(self.save_loc)
             self.writer = SummaryWriter(self.save_loc + 'log/')
@@ -76,7 +77,8 @@ class Trainer:
     def _warmup(self, model):
         n_frames = (self.n_frames + 1) // 2 if self.frame_skip else self.n_frames
         model(torch.rand((1, n_frames) + self.env.observation_space.shape,
-                         dtype=torch.float32, device=self.device))
+                         dtype=torch.float32,
+                         device=self.device)).detach().cpu().numpy()
 
     @torch.no_grad()
     def get_action(self, obs):
@@ -178,6 +180,69 @@ class Trainer:
                 self.target_replace_steps = 0
                 self.target_model.eval()
         return loss
+
+    def load_explorations(self, save_loc='./explorations/'):
+        assert not save_loc.endswith('\\')
+        save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
+        for file in os.listdir(save_loc):
+            if not file.endswith('.npz'):
+                continue
+            fname = save_loc + file
+            print('loading', os.path.abspath(fname))
+            arrs = np.load(fname)
+            obs_lst = arrs['o']
+            action_lst = arrs['a']
+            rew_lst = arrs['r']
+            done_lst = arrs['d']
+            assert obs_lst[0].shape == self.env.observation_space.shape
+            assert (len(action_lst) == len(rew_lst) ==
+                    len(done_lst) == len(obs_lst) - 1)
+            stacked_obs = deque(
+                (obs_lst[0] for _ in range(self.n_frames)),
+                maxlen=self.n_frames
+            )
+            for o, a, r, d in zip(obs_lst[1:], action_lst, rew_lst, done_lst):
+                obs_tuple = self._process_frames(stacked_obs)
+                stacked_obs.append(o)
+                obs_next_tuple = self._process_frames(stacked_obs)
+                self.replay_buffer.add(obs_tuple, a, r, obs_next_tuple, d)
+        print('loading complete, with buffer length', len(self.replay_buffer))
+
+    def save_explorations(self, n_episodes, save_loc='./explorations/'):
+        assert not save_loc.endswith('\\')
+        save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
+        for i in range(n_episodes):
+            fname = f'{save_loc}{i}.npz'
+            if os.path.exists(fname):
+                print(f'{os.path.abspath(fname)} already exists, skipping')
+                continue
+            obs, _ = self.env.reset()
+            obs_lst = [obs]
+            action_lst, rew_lst, done_lst = [], [], []
+            while True:
+                t = time.time()
+                action = self.env.action_space.sample()
+                # predict with model to simulate the time taken in real episode
+                self._warmup(self.model)
+                obs_next, rew, done, _, _ = self.env.step(action)
+                obs_lst.append(obs_next)
+                action_lst.append(action)
+                rew_lst.append(rew)
+                done_lst.append(done)
+                t = time.time() - t
+                if t < self.GAP:
+                    time.sleep(self.GAP - t)
+                if done:
+                    break
+            obs_lst = np.array(obs_lst, dtype=obs.dtype)
+            if max(action_lst) < 256:
+                action_lst = np.array(action_lst, dtype=np.uint8)
+            else:
+                action_lst = np.array(action_lst, dtype=np.uint64)
+            rew_lst = np.array(rew_lst, dtype=np.float32)
+            done_lst = np.array(done_lst, dtype=np.bool8)
+            np.savez_compressed(fname, o=obs_lst, a=action_lst, r=rew_lst, d=done_lst)
+            print(f'saved exploration at {os.path.abspath(fname)}')
 
     def save_models(self, prefix=''):
         if not self.no_save:

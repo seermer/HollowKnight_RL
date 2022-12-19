@@ -217,7 +217,11 @@ class HKEnv(gym.Env):
                 break
             else:
                 ready = is_loading
-        time.sleep(0.5)
+        self._step_actions([Move.HOLD_RIGHT])
+        # forcefully move right for a short time
+        # so the knight can have better chance explore right side
+        time.sleep(0.65)
+        self._step_actions([])
         return self.observe()[0], {}
 
     def close(self):

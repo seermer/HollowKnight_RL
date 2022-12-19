@@ -9,6 +9,8 @@ You need to install the Satchel and EnemyHPBar Mod to correctly run (so it can r
 I have made some modifications (custom HP bar color) 
 for more stable recognition, the mod files can be found in Managed folder.
 
+**Note: I am still updating the project, so any file or structure of the repo may change**
+
 ________________________
 
 ## Platform and requirements
@@ -48,10 +50,10 @@ ___________________________
   - [x] Add instructions to train
   - [ ] Add more docstrings and typehint in code
 - [ ] Train an agent that can defeat Hornet
-- [ ] Add code for additional functionalities (like saving buffer, model...)
+- [x] Add code for additional functionalities (like saving buffer, model...)
   - [x] Saving model periodically
   - [x] Tensorboard logging
-  - [ ] Save/load random agent experiences
+  - [x] Save/load random agent experiences
 - [ ] Improve the algorithm/model/implementation
   - [x] Frame Stacking
   - [x] Spectral Normalization
@@ -60,8 +62,9 @@ ___________________________
   - [x] Dueling DQN
   - [x] Frame Skipping
   - [ ] Feature extractor learned with unsupervised representation learning
-  - [ ] ? RAdam Optimizer
-  - [ ] ? Image Augmentation (DrQ)
+  - [x] RAdam Optimizer
+  - [ ] improve reward function (make it denser)
+  - [ ] ? Image Augmentation (DrQ, RAD...)
 
 
 
@@ -74,15 +77,17 @@ _______________________________
 - Remove Global Average Pooling
 - Use Huber Loss instead of MSE
 - Add Spectral Normalization in model
-- Fixed a bug in DQN implementation
+- Fix a bug in DQN implementation
 - Add Double DQN
 - Add Dueling DQN (No gradient rescaling yet)
 - Add no magnitude reward (so all rewards are either 1, 0, or -1)
 - Use LeakyReLU instead of ReLU
-- Removed Dash, it is way too hard to use
-- Added Fixed time for each step
-- Added Frame Skip
+- Remove Dash, it is way too hard to use
+- Add Fixed time for each step
+- Add Frame Skip
 - Remove no magnitude reward and make base reward +-1 instead, so it is more straightforward to set weights
+- Add save/load random explorations
+- Use RAdam instead of Adam optimizer
 
 
 _______________________________
