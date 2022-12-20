@@ -40,12 +40,12 @@ def main():
     n_frames = 5
     env = hkenv.HKEnv((224, 224), w1=1., w2=1., w3=0.005)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.MultistepBuffer(30000)
+    replay_buffer = buffer.MultistepBuffer(30000, n=5, gamma=0.9)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.9, eps=1.,
                           eps_func=(lambda val, episode, step:
                                     max(0.1, val - 1e-5)),
-                          target_steps=1600,
+                          target_steps=2000,
                           model=m,
                           lr=1e-4,
                           criterion=torch.nn.HuberLoss(),

@@ -139,27 +139,31 @@ class HKEnv(gym.Env):
                                         region=monitor,
                                         confidence=0.9)
 
-    def observe(self):
+    def observe(self, knight_only=False):
         with mss() as sct:
             frame = np.asarray(sct.grab(self.monitor), dtype=np.uint8)[:, :, :3]
         # print(frame.shape)
-        enemy_hp_bar = frame[625, 191:769, :3]
-        enemy_hp_bar_red = enemy_hp_bar[..., 2]
-        # print(enemy_hp_bar[..., 2] - enemy_hp_bar[..., 1], enemy_hp_bar[..., 2] - enemy_hp_bar[..., 0])
-        enemy_hp = (((enemy_hp_bar_red - enemy_hp_bar[..., 0]) == 201)
-                    & ((enemy_hp_bar_red - enemy_hp_bar[..., 1]) == 209))
-        enemy_hp = enemy_hp.sum()
-        if enemy_hp == 0:
-            enemy_hp = len(enemy_hp_bar)
-        enemy_hp /= len(enemy_hp_bar)
-        # print(enemy_hp)
+        if knight_only:
+            enemy_hp = None
+        else:
+            enemy_hp_bar = frame[625, 191:769, :3]
+            enemy_hp_bar_red = enemy_hp_bar[..., 2]
+            enemy_hp = (((enemy_hp_bar_red - enemy_hp_bar[..., 0]) == 201)
+                        & ((enemy_hp_bar_red - enemy_hp_bar[..., 1]) == 209))
+            enemy_hp = enemy_hp.sum()
+            if enemy_hp == 0:
+                enemy_hp = len(enemy_hp_bar)
+            enemy_hp /= len(enemy_hp_bar)
         knight_hp_bar = frame[45, :353, 0]
         knight_hp = (knight_hp_bar[self.HP_CKPT] > 180).sum()
-        obs = frame[:608, ...]
-        obs = cv2.resize(obs,
-                         dsize=self.observation_space.shape,
-                         interpolation=cv2.INTER_AREA)
-        obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
+        if knight_only:
+            obs = None
+        else:
+            obs = frame[:608, ...]
+            obs = cv2.resize(obs,
+                             dsize=self.observation_space.shape,
+                             interpolation=cv2.INTER_AREA)
+            obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
         return obs, knight_hp, enemy_hp
 
     def step(self, actions):
@@ -172,26 +176,31 @@ class HKEnv(gym.Env):
             self.prev_enemy_hp = enemy_hp
             return obs, self.w3, False, False, {}
 
+        _, _knight_hp, _ = self.observe(knight_only=True)
+        knight_hp = max(knight_hp, _knight_hp)  # failsafe
         win = self.prev_enemy_hp < enemy_hp
         lose = knight_hp == 0
         done = win or lose
+
+        if win:
+            knight_hp = max(knight_hp, 1)
+            enemy_hp = 0.
         if enemy_hp < self.prev_enemy_hp:  # enemy gets hit
             self.w3 = max(self.w3, 0.)
         else:
             self.w3 -= self._w3 / 20.
             self.w3 = max(self.w3, -self._w3)
-        if win:
-            enemy_hp = 0.
+
         reward = (
                 self.w1 * np.sign(knight_hp - self.prev_knight_hp)
                 + self.w2 * np.sign(self.prev_enemy_hp - enemy_hp)
                 + self.w3
         )
         if win:  # extra reward for winning based on conditions
-            time_rew = 40. / (time.time() - self._episode_time)
-            reward += np.log2(knight_hp) + 6. + time_rew
+            time_rew = 45. / (time.time() - self._episode_time)
+            reward += knight_hp * 0.33 + 6. + time_rew
         elif lose:
-            reward -= np.log2(enemy_hp * 9) + 6.
+            reward -= enemy_hp * 3 + 5.
         # print('reward', reward)
         # print()
 

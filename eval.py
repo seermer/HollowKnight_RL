@@ -21,11 +21,11 @@ def get_model(env: gym.Env, n_frames: int):
 
 @torch.no_grad()
 def main():
-    n_frames = 4
+    n_frames = 5
     env = hkenv.HKEnv((224, 224), w1=1., w2=1., w3=0.)
     m = get_model(env, n_frames)
     m.eval()
-    m.load_state_dict(torch.load('SAVE_PATH_HERE'))
+    m.load_state_dict(torch.load('saved/1671514410/bestmodel.pt'))
     m(torch.ones((1, n_frames) + env.observation_space.shape,
                  dtype=torch.float32, device=DEVICE))
     for i in range(5):
@@ -37,11 +37,14 @@ def main():
         while True:
             t = time.time()
             obs_tuple = tuple(stacked_obs)
-            obs = np.array([obs_tuple], dtype=np.float32)
-            obs = torch.as_tensor(obs, dtype=torch.float32,
-                                  device=DEVICE)
-            pred = m(obs).detach().cpu().numpy()[0]
-            action = np.argmax(pred)
+            if random.uniform(0, 1) < 0.05:
+                action = env.action_space.sample()
+            else:
+                obs = np.array([obs_tuple], dtype=np.float32)
+                obs = torch.as_tensor(obs, dtype=torch.float32,
+                                      device=DEVICE)
+                pred = m(obs).detach().cpu().numpy()[0]
+                action = np.argmax(pred)
             obs_next, rew, done, _, _ = env.step(action)
             print(rew)
             stacked_obs.append(obs_next)
