@@ -38,7 +38,7 @@ def train(dqn):
 
 def main():
     n_frames = 5
-    env = hkenv.HKEnv((224, 224), w1=1., w2=1., w3=0.006)
+    env = hkenv.HKEnv((224, 224), w1=1., w2=1., w3=0.005)
     m = get_model(env, n_frames)
     replay_buffer = buffer.MultistepBuffer(30000)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
@@ -52,7 +52,7 @@ def main():
                           batch_size=32,
                           device=DEVICE,
                           is_double=True,
-                          no_save=True)
+                          no_save=False)
     train(dqn)
 
 

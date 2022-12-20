@@ -192,8 +192,8 @@ class HKEnv(gym.Env):
             reward += np.log2(knight_hp) + 6. + time_rew
         elif lose:
             reward -= np.log2(enemy_hp * 9) + 6.
-        print('reward', reward)
-        print()
+        # print('reward', reward)
+        # print()
 
         self.prev_knight_hp = knight_hp
         self.prev_enemy_hp = enemy_hp
