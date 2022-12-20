@@ -28,7 +28,7 @@ class Trainer:
 
         self.model = model.to(device)
         self.target_model = copy.deepcopy(self.model)
-        self.optimizer = torch.optim.RAdam(self.model.parameters(), lr=lr, eps=1e-4)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, eps=1e-4)
         self.model.eval()
         self.target_model.eval()
         self.criterion = criterion
@@ -94,19 +94,16 @@ class Trainer:
         while True:
             t = time.time()
             obs_tuple = self._process_frames(stacked_obs)
-            model_input = np.array([obs_tuple], dtype=np.float32)
-            action = self.get_action(model_input)
-            # note that we intentionally run the prediction no matter what epsilon is,
-            # even when predicted action is immediately ignored,
-            # so that fps can be slightly more stable
             if random_action or self.eps > random.uniform(0, 1):
                 action = self.env.action_space.sample()
+            else:
+                model_input = np.array([obs_tuple], dtype=np.float32)
+                action = self.get_action(model_input)
             obs_next, rew, done, _, _ = self.env.step(action)
             total_rewards += rew
             self.steps += 1
             stacked_obs.append(obs_next)
-            obs_next_tuple = self._process_frames(stacked_obs)
-            self.replay_buffer.add(obs_tuple, action, rew, obs_next_tuple, done)
+            self.replay_buffer.add(obs_tuple, action, rew, done)
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.episodes, self.steps)
                 if len(self.replay_buffer) > self.batch_size and self.steps % 4 == 0:
@@ -118,7 +115,8 @@ class Trainer:
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
-        return total_rewards, total_loss / learned_times
+        total_loss = total_loss / learned_times if learned_times > 0 else 0
+        return total_rewards, total_loss
 
     def run_episodes(self, n, **kwargs):
         for _ in range(n):
@@ -199,8 +197,7 @@ class Trainer:
             for o, a, r, d in zip(obs_lst[1:], action_lst, rew_lst, done_lst):
                 obs_tuple = self._process_frames(stacked_obs)
                 stacked_obs.append(o)
-                obs_next_tuple = self._process_frames(stacked_obs)
-                self.replay_buffer.add(obs_tuple, a, r, obs_next_tuple, d)
+                self.replay_buffer.add(obs_tuple, a, r, d)
         print('loading complete, with buffer length', len(self.replay_buffer))
 
     def save_explorations(self, n_episodes, save_loc='./explorations/'):

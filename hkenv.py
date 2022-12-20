@@ -68,6 +68,7 @@ class HKEnv(gym.Env):
         self._w3 = w3
 
         self._timer = None
+        self._episode_time = None
 
     @staticmethod
     def _find_window():
@@ -175,24 +176,24 @@ class HKEnv(gym.Env):
         lose = knight_hp == 0
         done = win or lose
         if enemy_hp < self.prev_enemy_hp:  # enemy gets hit
-            self.w3 = self._w3
-        else:  # nothing happens
-            self.w3 -= 0.00012
+            self.w3 = max(self.w3, 0.)
+        else:
+            self.w3 -= self._w3 / 20.
             self.w3 = max(self.w3, -self._w3)
-        if knight_hp < self.prev_knight_hp:  # knight gets hit
-            self.w3 = min(self.w3, 0.)
         if win:
-            enemy_hp = 0
+            enemy_hp = 0.
         reward = (
                 self.w1 * np.sign(knight_hp - self.prev_knight_hp)
                 + self.w2 * np.sign(self.prev_enemy_hp - enemy_hp)
                 + self.w3
         )
-        if win:  # extra reward for winning based on remaining health
-            reward += np.log10(knight_hp / 2.)
-        # print('reward', reward)
-        # print()
-        # TODO: add special reward for winning with shorter steps/time
+        if win:  # extra reward for winning based on conditions
+            time_rew = 40. / (time.time() - self._episode_time)
+            reward += np.log2(knight_hp) + 6. + time_rew
+        elif lose:
+            reward -= np.log2(enemy_hp * 9) + 6.
+        print('reward', reward)
+        print()
 
         self.prev_knight_hp = knight_hp
         self.prev_enemy_hp = enemy_hp
@@ -222,6 +223,7 @@ class HKEnv(gym.Env):
         # so the knight can have better chance explore right side
         time.sleep(0.65)
         self._step_actions([])
+        self._episode_time = time.time()
         return self.observe()[0], {}
 
     def close(self):
@@ -237,3 +239,4 @@ class HKEnv(gym.Env):
         self.prev_enemy_hp = None
         self.w3 = self._w3
         self._timer = None
+        self._episode_time = None

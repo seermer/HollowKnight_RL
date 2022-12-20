@@ -60,8 +60,8 @@ ___________________________
   - [x] Huber Loss
   - [x] Double DQN
   - [x] Dueling DQN
-  - [ ] Feature extractor learned with unsupervised representation learning
-  - [x] RAdam Optimizer
+  - [x] Multistep return
+  - [ ] ? Feature extractor learned with unsupervised/self-supervised representation learning
   - [ ] improve reward function (make it denser)
   - [ ] ? Image Augmentation (DrQ, RAD...)
 
@@ -73,26 +73,25 @@ It is a very interesting project, and the author has already defeated Hornet wit
 _______________________________
 
 ## Changes
-- Remove Global Average Pooling
 - Use Huber Loss instead of MSE
 - Add Spectral Normalization in model
-- Fix a bug in DQN implementation
 - Add Double DQN
 - Add Dueling DQN (No gradient rescaling yet)
 - Add no magnitude reward (so all rewards are either 1, 0, or -1)
 - Use LeakyReLU instead of ReLU
 - Remove Dash, it is way too hard to use
 - Add Fixed time for each step
-- Remove no magnitude reward and make base reward +-1 instead, so it is more straightforward to set weights
+- Rewrite reward function
 - Add save/load random explorations
-- Use RAdam instead of Adam optimizer
 - Reduce learning update frequency
+- Add Multistep return
 
 
 _______________________________
 
 ## Training:
-12/18/2022: agent stuck in repeating a sequence of actions, and eventually stopped doing anything (no op) most of the time
+- 12/18/2022: agent stuck in repeating a sequence of actions, and eventually stopped doing anything (no op) most of the time
+- 12/19/2022: significantly reduced learning update frequency, the agent no longer converge to a no op situation, so it appears that the problem was overfitting. My next goal would be addressing sparse reward, multistep return is my first attempt
 
 
 _______________________________
@@ -102,3 +101,5 @@ _______________________________
 - [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461)
 - [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)
 - [Spectral Normalisation for Deep Reinforcement Learning: an Optimisation Perspective](https://arxiv.org/abs/2105.05246)
+- [Rainbow: Combining Improvements in Deep Reinforcement Learning](https://arxiv.org/abs/1710.02298)
+- 
