@@ -64,7 +64,7 @@ class HKEnv(gym.Env):
 
         self.w1 = w1
         self.w2 = w2
-        self.w3 = w3
+        self.w3 = 0.
         self._w3 = w3
 
         self._timer = None
@@ -184,9 +184,10 @@ class HKEnv(gym.Env):
 
         if win:
             knight_hp = max(knight_hp, 1)
+            lose = False
             enemy_hp = 0.
         if enemy_hp < self.prev_enemy_hp:  # enemy gets hit
-            self.w3 = max(self.w3, 0.)
+            self.w3 = 0.
         else:
             self.w3 -= self._w3 / 20.
             self.w3 = max(self.w3, -self._w3)
@@ -206,6 +207,7 @@ class HKEnv(gym.Env):
 
         self.prev_knight_hp = knight_hp
         self.prev_enemy_hp = enemy_hp
+        reward = np.clip(reward, -11., 11.)
         return obs, reward, done, False, {}
 
     def reset(self, seed=None, options=None):
@@ -230,8 +232,9 @@ class HKEnv(gym.Env):
         self._step_actions([Move.HOLD_RIGHT])
         # forcefully move right for a short time
         # so the knight can have better chance explore right side
-        time.sleep(0.65)
+        time.sleep(0.7)
         self._step_actions([])
+        time.sleep(0.3)
         self._episode_time = time.time()
         return self.observe()[0], {}
 
@@ -246,6 +249,6 @@ class HKEnv(gym.Env):
             pyautogui.keyUp(key)
         self.prev_knight_hp = None
         self.prev_enemy_hp = None
-        self.w3 = self._w3
+        self.w3 = 0.
         self._timer = None
         self._episode_time = None

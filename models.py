@@ -2,6 +2,7 @@ import torch
 import torchvision
 import numpy as np
 from torch import nn
+from torchvision.ops.misc import SqueezeExcitation as SE
 from torch.nn.utils.parametrizations import spectral_norm
 
 
@@ -27,8 +28,7 @@ class VGGExtractor(nn.Module):
         self.out_shape[1:] //= 32
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
-        for m in self.modules():
-            param_init(m, 'relu', 0)
+        param_init(self.convs[0], 'relu', 0)
 
         self.to(self.device)
 
@@ -40,7 +40,7 @@ class VGGExtractor(nn.Module):
 class SimpleExtractor(nn.Module):
     def __init__(self, obs_shape: tuple, n_frames: int, device=None):
         super(SimpleExtractor, self).__init__()
-        act = nn.LeakyReLU(0.15, True)
+        act = nn.LeakyReLU(0.1, True)
         self.convs = nn.Sequential(
             nn.Conv2d(n_frames, 64, kernel_size=7, stride=4, padding=3),
             act,
@@ -58,7 +58,44 @@ class SimpleExtractor(nn.Module):
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
         for m in self.modules():
-            param_init(m, a=0.15)
+            param_init(m, a=0.1)
+
+        self.to(self.device)
+
+    def forward(self, x):
+        x = self.convs(x)
+        return x
+
+
+class AttentionExtractor(nn.Module):
+    def __init__(self, obs_shape: tuple, n_frames: int, device=None):
+        super(AttentionExtractor, self).__init__()
+        act = nn.LeakyReLU(0.1, True)
+        self.convs = nn.Sequential(
+            nn.Conv2d(n_frames, 32, kernel_size=3, stride=2, padding=1),
+            act,
+            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
+            act,
+            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
+            act,
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
+            act,
+            SE(128, 8, activation=lambda: act),
+            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
+            act,
+            SE(256, 16, activation=lambda: act),
+            nn.Conv2d(256, 384, kernel_size=3, stride=2, padding=1),
+            act,
+            SE(384, 24, activation=lambda: act),
+            nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=1),
+            act,
+        )
+        self.out_shape = np.array((384,) + tuple(obs_shape), dtype=int)
+        self.out_shape[1:] //= 32
+        self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
+
+        for m in self.modules():
+            param_init(m, a=0.1)
 
         self.to(self.device)
 
@@ -68,23 +105,20 @@ class SimpleExtractor(nn.Module):
 
 
 class SinglePathMLP(nn.Module):
-    def __init__(self, extractor: nn.Module, n_out: int, pool=True, sn=True):
+    def __init__(self, extractor: nn.Module, n_out: int, pool=True):
         super(SinglePathMLP, self).__init__()
         self.extractor = extractor
         self.pool = nn.AvgPool2d(tuple(extractor.out_shape[1:])) if pool else nn.Identity()
         units = extractor.out_shape[0]
         if not pool:
             units *= int(np.prod(extractor.out_shape[1:]))
-        self.linear = nn.Linear(units, 512)
-        if sn:
-            self.linear = spectral_norm(self.linear)
+        self.linear = spectral_norm(nn.Linear(units, 512))
         self.out = nn.Linear(512, n_out)
-        self.act = nn.LeakyReLU(0.15, True)
+        self.act = nn.LeakyReLU(0.1, True)
         self.device = extractor.device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
-        for m in self.modules():
-            if not isinstance(m, nn.Conv2d):
-                param_init(m, a=0.15)
+        param_init(self.linear, a=0.1)
+        param_init(self.out, a=0.1)
 
         self.to(self.device)
 
@@ -92,8 +126,6 @@ class SinglePathMLP(nn.Module):
         x = self.extractor(x)
         x = self.pool(x)
         x = torch.flatten(x, 1)
-        x = self.linear1(x)
-        x = self.act(x)
         x = self.linear(x)
         x = self.act(x)
         x = self.out(x)
@@ -101,7 +133,7 @@ class SinglePathMLP(nn.Module):
 
 
 class DuelingMLP(nn.Module):
-    def __init__(self, extractor: nn.Module, n_out: int, pool=True, sn=True):
+    def __init__(self, extractor: nn.Module, n_out: int, pool=True):
         super(DuelingMLP, self).__init__()
         self.extractor = extractor
         self.pool = nn.AvgPool2d(tuple(extractor.out_shape[1:])) if pool else nn.Identity()
@@ -110,17 +142,14 @@ class DuelingMLP(nn.Module):
             units *= int(np.prod(extractor.out_shape[1:]))
         self.linear_val = nn.Linear(units, 320)
         self.linear_adv = nn.Linear(units, 320)
-        if sn:
-            self.linear_val = spectral_norm(self.linear_val)
-            self.linear_adv = spectral_norm(self.linear_adv)
         self.val = nn.Linear(320, 1)
         self.adv = nn.Linear(320, n_out)
-        self.act = nn.LeakyReLU(True)
+        self.act = nn.LeakyReLU(0.1, True)
         self.device = extractor.device or ('cuda' if torch.cuda.is_available() else 'cpu')
 
         for m in self.modules():
             if not isinstance(m, nn.Conv2d):
-                param_init(m, a=0.15)
+                param_init(m, a=0.1)
 
         self.to(self.device)
 

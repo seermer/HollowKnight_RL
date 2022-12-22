@@ -14,8 +14,8 @@ cudnn.benchmark = True
 
 
 def get_model(env: gym.Env, n_frames: int):
-    m = models.SimpleExtractor(env.observation_space.shape, n_frames, device=DEVICE)
-    m = models.DuelingMLP(m, env.action_space.n, False)
+    m = models.AttentionExtractor(env.observation_space.shape, n_frames, device=DEVICE)
+    m = models.SinglePathMLP(m, env.action_space.n, False)
     return m
 
 
@@ -25,7 +25,7 @@ def main():
     env = hkenv.HKEnv((224, 224), w1=1., w2=1., w3=0.)
     m = get_model(env, n_frames)
     m.eval()
-    m.load_state_dict(torch.load('saved/1671514410/bestmodel.pt'))
+    m.load_state_dict(torch.load('saved/1671598991/bestmodel.pt'))
     m(torch.ones((1, n_frames) + env.observation_space.shape,
                  dtype=torch.float32, device=DEVICE))
     for i in range(5):

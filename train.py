@@ -12,15 +12,16 @@ cudnn.benchmark = True
 
 
 def get_model(env: gym.Env, n_frames: int):
-    m = models.SimpleExtractor(env.observation_space.shape, n_frames, device=DEVICE)
-    m = models.DuelingMLP(m, env.action_space.n, False)
+    m = models.AttentionExtractor(env.observation_space.shape, n_frames, device=DEVICE)
+    m = models.SinglePathMLP(m, env.action_space.n, False)
     return m
 
 
 def train(dqn):
     print('training started')
-    dqn.save_explorations(50)
+    dqn.save_explorations(110)
     dqn.load_explorations()
+    # raise ValueError
 
     saved_rew = float('-inf')
     for i in range(3000):
@@ -38,7 +39,7 @@ def train(dqn):
 
 def main():
     n_frames = 5
-    env = hkenv.HKEnv((224, 224), w1=1., w2=1., w3=0.005)
+    env = hkenv.HKEnv((224, 224), w1=1., w2=.98, w3=0.)
     m = get_model(env, n_frames)
     replay_buffer = buffer.MultistepBuffer(30000, n=5, gamma=0.9)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
@@ -46,13 +47,15 @@ def main():
                           eps_func=(lambda val, episode, step:
                                     max(0.1, val - 1e-5)),
                           target_steps=2000,
+                          learn_freq=1,
                           model=m,
                           lr=1e-4,
-                          criterion=torch.nn.HuberLoss(),
+                          criterion=torch.nn.MSELoss(),
                           batch_size=32,
                           device=DEVICE,
                           is_double=True,
-                          no_save=False)
+                          DrQ=True,
+                          no_save=True)
     train(dqn)
 
 

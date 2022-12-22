@@ -5,16 +5,17 @@ import torch
 import random
 import numpy as np
 from collections import deque
+from torchvision import transforms as T
 from torch.utils.tensorboard import SummaryWriter
 
 
 class Trainer:
-    GAP = 0.15
+    GAP = 0.26
 
     def __init__(self, env, replay_buffer,
-                 n_frames, gamma, eps, eps_func, target_steps,
+                 n_frames, gamma, eps, eps_func, target_steps, learn_freq,
                  model, lr, criterion, batch_size, device,
-                 is_double=True,
+                 is_double=True, DrQ=True,
                  save_loc=None, no_save=False):
         self.env = env
         self.replay_buffer = replay_buffer
@@ -25,6 +26,7 @@ class Trainer:
         self.eps = eps
         self.eps_func = eps_func
         self.target_steps = target_steps
+        self.learn_freq = learn_freq
 
         self.model = model.to(device)
         self.target_model = copy.deepcopy(self.model)
@@ -38,6 +40,10 @@ class Trainer:
         self.device = device
 
         self.is_double = is_double
+        self.DrQ = DrQ
+        self.transform = T.RandomCrop(size=self.env.observation_space.shape,
+                                      padding=8,
+                                      padding_mode='edge')
 
         self.steps = 0
         self.episodes = 0
@@ -63,8 +69,13 @@ class Trainer:
             obs -= 1.
         return obs
 
-    def _process_frames(self, frames):
+    @staticmethod
+    def _process_frames(frames):
         return tuple(frames)
+
+    def augment(self, image):
+        return [self.transform(image)
+                for _ in range(2)]
 
     @torch.no_grad()
     def _warmup(self, model):
@@ -106,7 +117,7 @@ class Trainer:
             self.replay_buffer.add(obs_tuple, action, rew, done)
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.episodes, self.steps)
-                if len(self.replay_buffer) > self.batch_size and self.steps % 4 == 0:
+                if len(self.replay_buffer) > self.batch_size and self.steps % self.learn_freq == 0:
                     batch = self.replay_buffer.sample(self.batch_size)
                     total_loss += self.learn(*batch)
                     learned_times += 1
@@ -135,15 +146,20 @@ class Trainer:
                 dtype=torch.float32,
                 device=self.device
             ).squeeze(1)
+            obs_next = torch.vstack(self.augment(obs_next))
             done = torch.as_tensor(done,
                                    dtype=torch.float32,
                                    device=self.device)
             obs_next = self._preprocess(obs_next)
 
             target_q = self.target_model(obs_next).detach()
+            target_q = target_q[:self.batch_size] + target_q[self.batch_size:]
+            target_q /= 2.
             if self.is_double:
                 self.model.eval()
-                max_act = torch.argmax(self.model(obs_next).detach(), dim=1)
+                max_act = self.model(obs_next).detach()
+                max_act = max_act[:self.batch_size] + max_act[self.batch_size:]
+                max_act = torch.argmax(max_act, dim=1)
                 max_target_q = target_q[torch.arange(self.batch_size), max_act]
                 max_target_q = max_target_q.unsqueeze(-1)
             else:
@@ -155,14 +171,17 @@ class Trainer:
             dtype=torch.float32,
             device=self.device
         ).squeeze(1)
+        obs = torch.vstack(self.augment(obs))
         obs = self._preprocess(obs)
 
         self.model.train()
         self.optimizer.zero_grad(set_to_none=True)
         q = self.model(obs)
+        q = (q[:self.batch_size] + q[self.batch_size:]) / 2.
         q = torch.gather(q, 1, act)
         loss = self.criterion(q, target)
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 10)
         self.optimizer.step()
 
         with torch.no_grad():

@@ -63,7 +63,7 @@ ___________________________
   - [x] Multistep return
   - [ ] ? Feature extractor learned with unsupervised/self-supervised representation learning
   - [ ] improve reward function (make it denser)
-  - [ ] ? Image Augmentation (DrQ, RAD...)
+  - [x] Image Augmentation (DrQ)
 
 
 
@@ -93,6 +93,7 @@ _______________________________
 - 12/18/2022: agent stuck in repeating a sequence of actions, and eventually stopped doing anything (no op) most of the time.
 - 12/19/2022: significantly reduced learning update frequency, the agent no longer converge to a no op situation, so it appears that the problem was overfitting. My next goal would be addressing sparse reward, multistep return is my first attempt.
 - 12/20/2022: The agent defeated Hornet the first time (at evaluation), the winning agent is a saved copy from the episode with the highest training reward. Unfortunately, there is a bug in the environment, leading to infinity reward, and broke the agent later on.
+- 12/21/2022: The agent stays in a suboptimal policy that tries to die as fast as possible, likely due to the small negative reward for each step, so I removed it
 
 
 _______________________________
