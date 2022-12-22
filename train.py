@@ -41,7 +41,7 @@ def main():
     n_frames = 5
     env = hkenv.HKEnv((224, 224), w1=1., w2=.98, w3=0.)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.MultistepBuffer(30000, n=5, gamma=0.9)
+    replay_buffer = buffer.MultistepBuffer(40000, n=5, gamma=0.9)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.9, eps=1.,
                           eps_func=(lambda val, episode, step:
@@ -55,7 +55,7 @@ def main():
                           device=DEVICE,
                           is_double=True,
                           DrQ=True,
-                          no_save=True)
+                          no_save=False)
     train(dqn)
 
 
