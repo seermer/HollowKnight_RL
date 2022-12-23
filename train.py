@@ -12,14 +12,14 @@ cudnn.benchmark = True
 
 
 def get_model(env: gym.Env, n_frames: int):
-    m = models.AttentionExtractor(env.observation_space.shape, n_frames, device=DEVICE)
+    m = models.ResidualExtractor(env.observation_space.shape, n_frames, device=DEVICE)
     m = models.SinglePathMLP(m, env.action_space.n, False)
     return m
 
 
 def train(dqn):
     print('training started')
-    dqn.save_explorations(110)
+    dqn.save_explorations(100)
     dqn.load_explorations()
     # raise ValueError
 
@@ -39,13 +39,13 @@ def train(dqn):
 
 def main():
     n_frames = 5
-    env = hkenv.HKEnv((224, 224), w1=1., w2=.98, w3=0.)
+    env = hkenv.HKEnv((192, 192), w1=1., w2=1., w3=0.002)
     m = get_model(env, n_frames)
     replay_buffer = buffer.MultistepBuffer(40000, n=5, gamma=0.9)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.9, eps=1.,
                           eps_func=(lambda val, episode, step:
-                                    max(0.1, val - 1e-5)),
+                                    max(0.1, val - 6e-5)),
                           target_steps=2000,
                           learn_freq=1,
                           model=m,
@@ -55,7 +55,7 @@ def main():
                           device=DEVICE,
                           is_double=True,
                           DrQ=True,
-                          no_save=False)
+                          no_save=True)
     train(dqn)
 
 

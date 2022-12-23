@@ -169,15 +169,13 @@ class HKEnv(gym.Env):
     def step(self, actions):
         actions = self._to_multi_discrete(actions)
         self._step_actions(actions)
-        time.sleep(0.025)
+        time.sleep(0.015)
         obs, knight_hp, enemy_hp = self.observe()
         if self.prev_knight_hp is None:
             self.prev_knight_hp = knight_hp
             self.prev_enemy_hp = enemy_hp
             return obs, self.w3, False, False, {}
 
-        _, _knight_hp, _ = self.observe(knight_only=True)
-        knight_hp = max(knight_hp, _knight_hp)  # failsafe
         win = self.prev_enemy_hp < enemy_hp
         lose = knight_hp == 0
         done = win or lose
@@ -189,7 +187,7 @@ class HKEnv(gym.Env):
         if enemy_hp < self.prev_enemy_hp:  # enemy gets hit
             self.w3 = 0.
         else:
-            self.w3 -= self._w3 / 20.
+            self.w3 -= self._w3 / 16.
             self.w3 = max(self.w3, -self._w3)
 
         reward = (
@@ -233,8 +231,8 @@ class HKEnv(gym.Env):
         # forcefully move right for a short time
         # so the knight can have better chance explore right side
         time.sleep(0.7)
-        self._step_actions([])
-        time.sleep(0.3)
+        self.cleanup()
+        time.sleep(0.5)
         self._episode_time = time.time()
         return self.observe()[0], {}
 

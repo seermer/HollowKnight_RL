@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 class Trainer:
-    GAP = 0.26
+    GAP = 0.16
 
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps, learn_freq,
@@ -33,6 +33,8 @@ class Trainer:
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, eps=1.5e-4)
         self.model.eval()
         self.target_model.eval()
+        for param in self.target_model.parameters():
+            param.requires_grad = False
         self.criterion = criterion
         if hasattr(self.criterion, 'to'):
             self.criterion = self.criterion.to(device)
@@ -42,7 +44,7 @@ class Trainer:
         self.is_double = is_double
         self.DrQ = DrQ
         self.transform = T.RandomCrop(size=self.env.observation_space.shape,
-                                      padding=8,
+                                      padding=6,
                                       padding_mode='edge')
 
         self.steps = 0
@@ -87,7 +89,6 @@ class Trainer:
     def get_action(self, obs):
         obs = torch.as_tensor(obs, dtype=torch.float32,
                               device=self.device)
-        self.model.eval()
         pred = self.model(obs).detach().cpu().numpy()[0]
         return np.argmax(pred)
 
@@ -126,6 +127,7 @@ class Trainer:
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
+            print(t)
         total_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, total_loss
 
@@ -183,6 +185,7 @@ class Trainer:
         loss.backward()
         torch.nn.utils.clip_grad_norm_(self.model.parameters(), 10)
         self.optimizer.step()
+        self.model.eval()
 
         with torch.no_grad():
             self.target_replace_steps += 1
