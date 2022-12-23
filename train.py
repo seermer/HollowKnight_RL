@@ -13,13 +13,13 @@ cudnn.benchmark = True
 
 def get_model(env: gym.Env, n_frames: int):
     m = models.ResidualExtractor(env.observation_space.shape, n_frames, device=DEVICE)
-    m = models.SinglePathMLP(m, env.action_space.n, False)
+    m = models.DuelingMLP(m, env.action_space.n, False)
     return m
 
 
 def train(dqn):
     print('training started')
-    dqn.save_explorations(100)
+    dqn.save_explorations(75)
     dqn.load_explorations()
     # raise ValueError
 
@@ -41,12 +41,12 @@ def main():
     n_frames = 5
     env = hkenv.HKEnv((192, 192), w1=1., w2=1., w3=0.002)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.MultistepBuffer(40000, n=5, gamma=0.9)
+    replay_buffer = buffer.MultistepBuffer(50000, n=10, gamma=0.98)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
-                          n_frames=n_frames, gamma=0.9, eps=1.,
+                          n_frames=n_frames, gamma=0.98, eps=1.,
                           eps_func=(lambda val, episode, step:
-                                    max(0.1, val - 6e-5)),
-                          target_steps=2000,
+                                    max(0.08, val - 5e-5)),
+                          target_steps=2500,
                           learn_freq=1,
                           model=m,
                           lr=1e-4,
@@ -55,7 +55,7 @@ def main():
                           device=DEVICE,
                           is_double=True,
                           DrQ=True,
-                          no_save=True)
+                          no_save=False)
     train(dqn)
 
 

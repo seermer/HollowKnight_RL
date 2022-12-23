@@ -58,7 +58,7 @@ class VGGExtractor(nn.Module):
 class ResidualExtractor(nn.Module):
     def __init__(self, obs_shape: tuple, n_frames: int, device=None):
         super(ResidualExtractor, self).__init__()
-        self.out_shape = np.array((800,) + tuple(obs_shape), dtype=int)
+        self.out_shape = np.array((1280,) + tuple(obs_shape), dtype=int)
         self.out_shape[1:] //= 32
         self.convs = nn.Sequential(
             nn.Conv2d(n_frames, 48, 4, 4),
@@ -68,7 +68,7 @@ class ResidualExtractor(nn.Module):
             BasicBlock(160, 160),
             BasicBlock(160, 320, 2),
             BasicBlock(320, 320),
-            nn.Conv2d(320, 800, 1),
+            nn.Conv2d(320, 1280, 1),
             nn.ReLU(inplace=True),
             nn.AvgPool2d(tuple(self.out_shape[1:]))
         )
@@ -156,7 +156,7 @@ class SinglePathMLP(nn.Module):
     def __init__(self, extractor: nn.Module, n_out: int, pool=True):
         super(SinglePathMLP, self).__init__()
         self.extractor = extractor
-        self.pool = nn.AvgPool2d(tuple(extractor.out_shape[1:])) if pool else nn.Identity()
+        self.pool = nn.AvgPool2d(tuple(extractor.out_shape[1:])) if pool else lambda x: x
         units = extractor.out_shape[0]
         if not pool:
             units *= int(np.prod(extractor.out_shape[1:]))

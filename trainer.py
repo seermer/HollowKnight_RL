@@ -188,12 +188,12 @@ class Trainer:
         self.model.eval()
 
         with torch.no_grad():
-            self.target_replace_steps += 1
             loss = float(loss.detach().cpu().numpy())
-            if self.target_replace_steps >= self.target_steps:
+            if self.target_replace_steps % self.target_steps == 0:
+                t = time.time()
                 self.target_model.load_state_dict(self.model.state_dict())
-                self.target_replace_steps = 0
                 self.target_model.eval()
+            self.target_replace_steps += 1
         return loss
 
     def load_explorations(self, save_loc='./explorations/'):
