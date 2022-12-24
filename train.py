@@ -21,14 +21,15 @@ def train(dqn):
     print('training started')
     dqn.save_explorations(75)
     dqn.load_explorations()
-    # raise ValueError
 
     saved_rew = float('-inf')
-    for i in range(3000):
+    for i in range(1000):
         rew, loss = dqn.run_episode()
-        if rew >= saved_rew and dqn.eps < 0.1001:
-            saved_rew = rew
-            dqn.save_models('best')
+        if i % 10 == 0:
+            eval_rew = dqn.evaluate()
+            if eval_rew > saved_rew:
+                saved_rew = eval_rew
+                dqn.save_models('best')
         dqn.save_models('latest')
 
         dqn.log({'reward': rew, 'loss': loss})
@@ -38,18 +39,18 @@ def train(dqn):
 
 
 def main():
-    n_frames = 5
+    n_frames = 4
     env = hkenv.HKEnv((192, 192), w1=1., w2=1., w3=0.002)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.MultistepBuffer(50000, n=10, gamma=0.98)
+    replay_buffer = buffer.MultistepBuffer(80000, n=12, gamma=0.99)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
-                          n_frames=n_frames, gamma=0.98, eps=1.,
+                          n_frames=n_frames, gamma=0.99, eps=1.,
                           eps_func=(lambda val, episode, step:
-                                    max(0.08, val - 5e-5)),
-                          target_steps=2500,
+                                    max(0.1, val - 1e-5)),
+                          target_steps=5000,
                           learn_freq=1,
                           model=m,
-                          lr=1e-4,
+                          lr=1e-3,
                           criterion=torch.nn.MSELoss(),
                           batch_size=32,
                           device=DEVICE,

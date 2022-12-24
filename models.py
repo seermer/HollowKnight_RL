@@ -58,7 +58,7 @@ class VGGExtractor(nn.Module):
 class ResidualExtractor(nn.Module):
     def __init__(self, obs_shape: tuple, n_frames: int, device=None):
         super(ResidualExtractor, self).__init__()
-        self.out_shape = np.array((1280,) + tuple(obs_shape), dtype=int)
+        self.out_shape = np.array((1024,) + tuple(obs_shape), dtype=int)
         self.out_shape[1:] //= 32
         self.convs = nn.Sequential(
             nn.Conv2d(n_frames, 48, 4, 4),
@@ -66,9 +66,9 @@ class ResidualExtractor(nn.Module):
             BasicBlock(48, 96, 2),
             BasicBlock(96, 160, 2),
             BasicBlock(160, 160),
-            BasicBlock(160, 320, 2),
-            BasicBlock(320, 320),
-            nn.Conv2d(320, 1280, 1),
+            BasicBlock(160, 256, 2),
+            BasicBlock(256, 256),
+            nn.Conv2d(256, 1024, 1),
             nn.ReLU(inplace=True),
             nn.AvgPool2d(tuple(self.out_shape[1:]))
         )
@@ -97,8 +97,6 @@ class SimpleExtractor(nn.Module):
             nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
             act,
             nn.Conv2d(256, 384, kernel_size=3, stride=2, padding=1),
-            act,
-            nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=1),
             act,
         )
         self.out_shape = np.array((384,) + tuple(obs_shape), dtype=int)

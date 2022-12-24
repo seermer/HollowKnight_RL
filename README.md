@@ -49,11 +49,13 @@ ___________________________
   - [x] Add requirements.txt, mod files
   - [x] Add instructions to train
   - [ ] Add more docstrings and typehint in code
+  - [x] Add a simple sanity check that runs gym cartpole
 - [ ] Train an agent that can defeat Hornet
 - [x] Add code for additional functionalities (like saving buffer, model...)
   - [x] Saving model periodically
   - [x] Tensorboard logging
   - [x] Save/load random agent experiences
+  - [x] Add evaluate in trainer
 - [ ] Improve the algorithm/model/implementation
   - [x] Frame Stacking
   - [x] Spectral Normalization
@@ -78,7 +80,7 @@ _______________________________
 - Use Huber Loss instead of MSE
 - Add Spectral Normalization in model
 - Add Double DQN
-- Add Dueling DQN (No gradient rescaling yet)
+- Add Dueling DQN (No gradient rescaling)
 - Add no magnitude reward (so all rewards are either 1, 0, or -1)
 - Use LeakyReLU instead of ReLU
 - Remove Dash, it is way too hard to use
@@ -99,7 +101,7 @@ _______________________________
 - 12/19/2022: significantly reduced learning update frequency, the agent no longer converge to a no op situation, so it appears that the problem was overfitting. My next goal would be addressing sparse reward, multistep return is my first attempt.
 - 12/20/2022: The agent defeated Hornet the first time (at evaluation), the winning agent is a saved copy from the episode with the highest training reward. Unfortunately, there is a bug in the environment, leading to infinity reward, and broke the agent later on.
 - 12/21/2022: The agent stays in a suboptimal policy that tries to die as fast as possible, likely due to the small negative reward for each step, so I removed it
-
+- 12/22/2022-12/23/2022: focus on improving code, code now takes about 10% less time compared to before
 
 _______________________________
 

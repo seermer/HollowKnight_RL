@@ -28,12 +28,11 @@ class Buffer:
             obs_next.append(o_)
             done.append(d)
 
-        # avoid copy if possible (usually have to copy though)
-        return (np.array(obs, copy=False, dtype=np.float32),
-                np.array(act, copy=False, dtype=np.int64)[:, np.newaxis],
-                np.array(rew, copy=False, dtype=np.float32)[:, np.newaxis],
-                np.array(obs_next, copy=False, dtype=np.float32),
-                np.array(done, copy=False, dtype=bool)[:, np.newaxis])
+        return (np.array(obs, copy=True, dtype=np.float32),
+                np.array(act, copy=True, dtype=np.int64)[:, np.newaxis],
+                np.array(rew, copy=True, dtype=np.float32)[:, np.newaxis],
+                np.array(obs_next, copy=True, dtype=np.float32),
+                np.array(done, copy=True, dtype=bool)[:, np.newaxis])
 
     def __len__(self):
         return len(self.buffer)

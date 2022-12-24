@@ -42,10 +42,9 @@ class Trainer:
         self.device = device
 
         self.is_double = is_double
-        self.DrQ = DrQ
         self.transform = T.RandomCrop(size=self.env.observation_space.shape,
                                       padding=6,
-                                      padding_mode='edge')
+                                      padding_mode='edge') if DrQ else None
 
         self.steps = 0
         self.episodes = 0
@@ -65,19 +64,21 @@ class Trainer:
         self._warmup(self.target_model)
 
     @staticmethod
-    def _preprocess(obs):
-        if len(obs.shape) > 3:  # image
-            obs /= 127.5
-            obs -= 1.
-        return obs
-
-    @staticmethod
     def _process_frames(frames):
         return tuple(frames)
 
-    def augment(self, image):
-        return [self.transform(image)
-                for _ in range(2)]
+    def _preprocess(self, obs):
+        if len(obs.shape) < 4:  # not image
+            return torch.as_tensor(obs, dtype=torch.float32,
+                                   device=self.device).squeeze()
+        obs = torch.as_tensor(obs, dtype=torch.float32,
+                              device=self.device)
+        obs -= 92.54949702814011
+        obs /= 57.94090462506912  # values found from empirical data
+        if self.transform:
+            return torch.vstack((self.transform(obs), self.transform(obs)))
+        else:
+            return obs
 
     @torch.no_grad()
     def _warmup(self, model):
@@ -127,13 +128,38 @@ class Trainer:
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
-            print(t)
         total_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, total_loss
 
     def run_episodes(self, n, **kwargs):
         for _ in range(n):
             self.run_episode(**kwargs)
+
+    def evaluate(self, no_sleep=False):
+        initial, _ = self.env.reset()
+        stacked_obs = deque(
+            (initial for _ in range(self.n_frames)),
+            maxlen=self.n_frames
+        )
+        rewards = 0
+        while True:
+            t = time.time()
+            obs_tuple = tuple(stacked_obs)
+            if random.uniform(0, 1) < 0.05:
+                action = self.env.action_space.sample()
+            else:
+                model_input = np.array([obs_tuple], dtype=np.float32)
+                action = self.get_action(model_input)
+            obs_next, rew, done, _, _ = self.env.step(action)
+            rewards += rew
+            stacked_obs.append(obs_next)
+            if done:
+                break
+            t = self.GAP - (time.time() - t)
+            if t > 0 and not no_sleep:
+                time.sleep(t)
+        print('eval reward', rewards)
+        return rewards
 
     def learn(self, obs, act, rew, obs_next, done):  # update with a given batch
         with torch.no_grad():
@@ -143,24 +169,19 @@ class Trainer:
             rew = torch.as_tensor(rew,
                                   dtype=torch.float32,
                                   device=self.device)
-            obs_next = torch.as_tensor(
-                obs_next,
-                dtype=torch.float32,
-                device=self.device
-            ).squeeze(1)
-            obs_next = torch.vstack(self.augment(obs_next))
+            obs_next = self._preprocess(obs_next)
             done = torch.as_tensor(done,
                                    dtype=torch.float32,
                                    device=self.device)
-            obs_next = self._preprocess(obs_next)
 
             target_q = self.target_model(obs_next).detach()
-            target_q = target_q[:self.batch_size] + target_q[self.batch_size:]
-            target_q /= 2.
+            if self.transform:
+                target_q = target_q[:self.batch_size] + target_q[self.batch_size:]
+                target_q /= 2.
             if self.is_double:
-                self.model.eval()
                 max_act = self.model(obs_next).detach()
-                max_act = max_act[:self.batch_size] + max_act[self.batch_size:]
+                if self.transform:
+                    max_act = max_act[:self.batch_size] + max_act[self.batch_size:]
                 max_act = torch.argmax(max_act, dim=1)
                 max_target_q = target_q[torch.arange(self.batch_size), max_act]
                 max_target_q = max_target_q.unsqueeze(-1)
@@ -168,18 +189,13 @@ class Trainer:
                 max_target_q, _ = target_q.max(dim=1, keepdims=True)
             target = rew + self.gamma * max_target_q * (1. - done)
 
-        obs = torch.as_tensor(
-            obs,
-            dtype=torch.float32,
-            device=self.device
-        ).squeeze(1)
-        obs = torch.vstack(self.augment(obs))
         obs = self._preprocess(obs)
 
         self.model.train()
         self.optimizer.zero_grad(set_to_none=True)
         q = self.model(obs)
-        q = (q[:self.batch_size] + q[self.batch_size:]) / 2.
+        if self.transform:
+            q = (q[:self.batch_size] + q[self.batch_size:]) / 2.
         q = torch.gather(q, 1, act)
         loss = self.criterion(q, target)
         loss.backward()
@@ -193,6 +209,7 @@ class Trainer:
                 t = time.time()
                 self.target_model.load_state_dict(self.model.state_dict())
                 self.target_model.eval()
+                print('target replaced')
             self.target_replace_steps += 1
         return loss
 
