@@ -6,16 +6,26 @@ from torch.backends import cudnn
 
 import trainer
 import buffer
+import models
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 cudnn.benchmark = True
 
 
-class Net(nn.Module):
+class DummyExtractor(nn.Module):
+    def __init__(self, out_shape):
+        super(DummyExtractor, self).__init__()
+        self.out_shape = np.array([1, out_shape, 1])
+
+    def forward(self, x):
+        return x
+
+
+class Net(models.AbstractFullyConnected):
     def __init__(self, inp, out):
-        super(Net, self).__init__()
-        self.linear1 = nn.Linear(inp, 64)
-        self.linear2 = nn.Linear(64, out)
+        super(Net, self).__init__(DummyExtractor(out), out, pool=False, noisy=True)
+        self.linear1 = self.linear_cls(inp, 64)
+        self.linear2 = self.linear_cls(64, out)
         self.act = nn.ReLU(inplace=True)
 
     def forward(self, x):
@@ -27,7 +37,7 @@ class Net(nn.Module):
 
 
 def get_model(env: gym.Env):
-    m = Net(np.prod(env.observation_space.shape), env.action_space.n)
+    m = Net(np.prod(env.observation_space.shape), env.action_space.n).to('cuda')
     return m
 
 
@@ -49,9 +59,9 @@ def main():
     m = get_model(env)
     replay_buffer = buffer.MultistepBuffer(500000, n=12, gamma=0.99)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
-                          n_frames=n_frames, gamma=0.99, eps=0.1,
+                          n_frames=n_frames, gamma=0.99, eps=0.,
                           eps_func=(lambda val, episode, step:
-                                    0.1),
+                                    0.),
                           target_steps=2000,
                           learn_freq=1,
                           model=m,

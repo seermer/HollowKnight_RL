@@ -68,6 +68,7 @@ ___________________________
   - [x] Image Augmentation (DrQ)
   - [x] ResNet-like model
   - [x] Squeeze and Excitation based model
+  - [x] Noisy Network
 
 
 
@@ -92,6 +93,7 @@ _______________________________
 - Add DrQ
 - Remove Spectral Normalization
 - Add more models
+- Add Noisy Network based model
 
 
 _______________________________
@@ -102,6 +104,7 @@ _______________________________
 - 12/20/2022: The agent defeated Hornet the first time (at evaluation), the winning agent is a saved copy from the episode with the highest training reward. Unfortunately, there is a bug in the environment, leading to infinity reward, and broke the agent later on.
 - 12/21/2022: The agent stays in a suboptimal policy that tries to die as fast as possible, likely due to the small negative reward for each step, so I removed it
 - 12/22/2022-12/23/2022: focus on improving code, code now takes about 10% less time compared to before
+- 12/24/2022: The agent again stays in suboptimal policy
 
 _______________________________
 
@@ -116,3 +119,8 @@ _______________________________
 - [Squeeze-and-Excitation Networks](https://arxiv.org/abs/1709.01507)
 - [A ConvNet for the 2020s](https://arxiv.org/abs/2201.03545)
 - [Bag of Tricks for Image Classification with Convolutional Neural Networks](https://arxiv.org/pdf/1812.01187.pdf)
+- [Noisy Networks for Exploration](https://arxiv.org/abs/1706.10295)
+
+- https://github.com/toshikwa/fqf-iqn-qrdqn.pytorch/blob/master/fqf_iqn_qrdqn/network.py
+- https://github.com/pytorch/vision/blob/main/torchvision/models/vgg.py
+- https://www.youtube.com/watch?v=NP8pXZdU-5U

@@ -120,14 +120,14 @@ class Trainer:
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.episodes, self.steps)
                 if len(self.replay_buffer) > self.batch_size and self.steps % self.learn_freq == 0:
-                    batch = self.replay_buffer.sample(self.batch_size)
-                    total_loss += self.learn(*batch)
+                    total_loss += self.learn()
                     learned_times += 1
             if done:
                 break
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
+            # print(t)
         total_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, total_loss
 
@@ -136,6 +136,7 @@ class Trainer:
             self.run_episode(**kwargs)
 
     def evaluate(self, no_sleep=False):
+        self.model.noise_mode(False)
         initial, _ = self.env.reset()
         stacked_obs = deque(
             (initial for _ in range(self.n_frames)),
@@ -158,11 +159,15 @@ class Trainer:
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
+        self.model.noise_mode(True)
         print('eval reward', rewards)
         return rewards
 
-    def learn(self, obs, act, rew, obs_next, done):  # update with a given batch
+    def learn(self):  # update with a given batch
+        obs, act, rew, obs_next, done = self.replay_buffer.sample(self.batch_size)
         with torch.no_grad():
+            self.model.reset_noise()
+            self.target_model.reset_noise()
             act = torch.as_tensor(act,
                                   dtype=torch.int64,
                                   device=self.device)
@@ -206,7 +211,6 @@ class Trainer:
         with torch.no_grad():
             loss = float(loss.detach().cpu().numpy())
             if self.target_replace_steps % self.target_steps == 0:
-                t = time.time()
                 self.target_model.load_state_dict(self.model.state_dict())
                 self.target_model.eval()
                 print('target replaced')

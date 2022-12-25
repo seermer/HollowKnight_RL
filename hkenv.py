@@ -102,23 +102,28 @@ class HKEnv(gym.Env):
             # ignore if there is already a timed action in progress
             self._timer = threading.Thread(target=timer_thread)
             self._timer.start()
+            return False
+        else:
+            return True
 
     def _step_actions(self, actions):
         for key in self.holding:
             pyautogui.keyUp(key)
         self.holding = []
-
+        failed = False
         for act in actions:
             if not act.value:
                 continue
             key = self.KEYMAPS[act]
+
             if act.name.startswith('HOLD'):
                 pyautogui.keyDown(key)
                 self.holding.append(key)
             elif act.name.startswith('TIMED'):
-                self._timed_hold(key, act.value * 0.2)
+                failed = self._timed_hold(key, act.value * 0.2)
             else:
                 pyautogui.press(key)
+        return failed * 0.0001
 
     def _to_multi_discrete(self, num):
         num = int(num)
@@ -136,7 +141,7 @@ class HKEnv(gym.Env):
                    monitor['height'] // 2)
         return pyautogui.locateOnScreen(f'locator/menu_badge.png',
                                         region=monitor,
-                                        confidence=0.9)
+                                        confidence=0.95)
 
     def observe(self, knight_only=False):
         with mss() as sct:
@@ -167,7 +172,7 @@ class HKEnv(gym.Env):
 
     def step(self, actions):
         actions = self._to_multi_discrete(actions)
-        self._step_actions(actions)
+        action_rew = self._step_actions(actions)
         time.sleep(0.012)
         obs, knight_hp, enemy_hp = self.observe()
 
@@ -188,11 +193,12 @@ class HKEnv(gym.Env):
         )
         if not (hurt or hit):
             reward = self.w3
+        reward += action_rew
         if win:  # extra reward for winning based on conditions
             time_rew = 45. / (time.time() - self._episode_time)
             reward += knight_hp * 0.33 + 6. + time_rew
         elif lose:
-            reward -= enemy_hp * 3 + 3.
+            reward -= enemy_hp * 3 + 4.
         # print('reward', reward)
         # print()
 
@@ -208,7 +214,7 @@ class HKEnv(gym.Env):
             if self._find_menu():
                 break
             pyautogui.press('w')
-            time.sleep(0.1)
+            time.sleep(0.22)
         pyautogui.press('space')
 
         # wait for loading screen
