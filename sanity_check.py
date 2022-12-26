@@ -23,12 +23,12 @@ class DummyExtractor(nn.Module):
 
 class Net(models.AbstractFullyConnected):
     def __init__(self, inp, out):
-        super(Net, self).__init__(DummyExtractor(out), out, pool=False, noisy=True)
+        super(Net, self).__init__(DummyExtractor(out), out, noisy=True)
         self.linear1 = self.linear_cls(inp, 64)
         self.linear2 = self.linear_cls(64, out)
         self.act = nn.ReLU(inplace=True)
 
-    def forward(self, x):
+    def forward(self, x, **kwargs):
         x = torch.flatten(x, 1)
         x = self.linear1(x)
         x = self.act(x)

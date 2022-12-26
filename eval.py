@@ -9,29 +9,30 @@ from torch.backends import cudnn
 
 import hkenv
 import models
+import trainer
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 cudnn.benchmark = True
 
 
 def get_model(env: gym.Env, n_frames: int):
-    m = models.ResidualExtractor(env.observation_space.shape, n_frames)
-    m = models.DuelingMLP(m, env.action_space.n, False, True)
+    m = models.AttentionExtractor(env.observation_space.shape, n_frames)
+    m = models.DuelingMLP(m, env.action_space.n, True)
     return m.to(DEVICE)
 
 
 @torch.no_grad()
 def main():
     n_frames = 4
-    env = hkenv.HKEnv((192, 192), w1=1., w2=1., w3=-0.)
+    env = hkenv.HKEnv((192, 192), w1=1., w2=1., w3=0.)
     m = get_model(env, n_frames)
     m.eval()
     fname = sorted(os.listdir('saved'))[-1]
     print(f'evaluating {fname}')
-    m.load_state_dict(torch.load(f'saved/{fname}/bestmodel.pt'))
+    m.load_state_dict(torch.load(f'saved/{fname}/besttrainmodel.pt'))
     m(torch.ones((1, n_frames) + env.observation_space.shape,
                  dtype=torch.float32, device=DEVICE))
-    m.noise_mode(False)
+    # m.noise_mode(False)
     for i in range(5):
         initial, _ = env.reset()
         stacked_obs = deque(
@@ -48,6 +49,7 @@ def main():
                 obs = np.array([obs_tuple], dtype=np.float32)
                 obs = torch.as_tensor(obs, dtype=torch.float32,
                                       device=DEVICE)
+                trainer.Trainer.standardize(obs)
                 pred = m(obs).detach().cpu().numpy()[0]
                 print(pred)
                 action = np.argmax(pred)

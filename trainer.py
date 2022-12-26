@@ -5,7 +5,7 @@ import torch
 import random
 import numpy as np
 from collections import deque
-from torchvision import transforms as T
+from kornia import augmentation as K
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -42,9 +42,9 @@ class Trainer:
         self.device = device
 
         self.is_double = is_double
-        self.transform = T.RandomCrop(size=self.env.observation_space.shape,
-                                      padding=6,
-                                      padding_mode='edge') if DrQ else None
+        self.transform = K.RandomCrop(size=self.env.observation_space.shape,
+                                      padding=(6, 6),
+                                      padding_mode='replicate').to(device) if DrQ else None
 
         self.steps = 0
         self.episodes = 0
@@ -67,16 +67,22 @@ class Trainer:
     def _process_frames(frames):
         return tuple(frames)
 
+    @staticmethod
+    def standardize(obs):
+        # values found from empirical data
+        obs -= 92.54949702814011
+        obs /= 57.94090462506912
+        return obs
+
     def _preprocess(self, obs):
         if len(obs.shape) < 4:  # not image
             return torch.as_tensor(obs, dtype=torch.float32,
                                    device=self.device).squeeze()
         obs = torch.as_tensor(obs, dtype=torch.float32,
                               device=self.device)
-        obs -= 92.54949702814011
-        obs /= 57.94090462506912  # values found from empirical data
+        self.standardize(obs)
         if self.transform:
-            return torch.vstack((self.transform(obs), self.transform(obs)))
+            return torch.vstack((obs, self.transform(obs)))
         else:
             return obs
 
@@ -90,7 +96,8 @@ class Trainer:
     def get_action(self, obs):
         obs = torch.as_tensor(obs, dtype=torch.float32,
                               device=self.device)
-        pred = self.model(obs).detach().cpu().numpy()[0]
+        self.standardize(obs)
+        pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
         return np.argmax(pred)
 
     def run_episode(self, random_action=False, no_sleep=False):
@@ -180,18 +187,17 @@ class Trainer:
                                    device=self.device)
 
             target_q = self.target_model(obs_next).detach()
-            if self.transform:
-                target_q = target_q[:self.batch_size] + target_q[self.batch_size:]
-                target_q /= 2.
             if self.is_double:
                 max_act = self.model(obs_next).detach()
-                if self.transform:
-                    max_act = max_act[:self.batch_size] + max_act[self.batch_size:]
                 max_act = torch.argmax(max_act, dim=1)
-                max_target_q = target_q[torch.arange(self.batch_size), max_act]
+                length = self.batch_size * 2 if self.transform else self.batch_size
+                max_target_q = target_q[torch.arange(length), max_act]
                 max_target_q = max_target_q.unsqueeze(-1)
             else:
                 max_target_q, _ = target_q.max(dim=1, keepdims=True)
+            if self.transform:
+                max_target_q = max_target_q[:self.batch_size] + max_target_q[self.batch_size:]
+                max_target_q /= 2.
             target = rew + self.gamma * max_target_q * (1. - done)
 
         obs = self._preprocess(obs)

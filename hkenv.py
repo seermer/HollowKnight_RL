@@ -1,3 +1,4 @@
+import gc
 import gym
 import cv2
 import time
@@ -95,24 +96,25 @@ class HKEnv(gym.Env):
             pyautogui.keyDown(key)
             time.sleep(seconds)
             pyautogui.keyUp(key)
-            time.sleep(0.0025)
+            time.sleep(0.002)
 
         if self._timer is None or not self._timer.is_alive():
             # timer available, do timed action
             # ignore if there is already a timed action in progress
             self._timer = threading.Thread(target=timer_thread)
             self._timer.start()
-            return False
+            return 0
         else:
-            return True
+            return 1
 
     def _step_actions(self, actions):
         for key in self.holding:
             pyautogui.keyUp(key)
         self.holding = []
-        failed = False
+        no_op = 0
         for act in actions:
             if not act.value:
+                no_op += 1
                 continue
             key = self.KEYMAPS[act]
 
@@ -120,10 +122,10 @@ class HKEnv(gym.Env):
                 pyautogui.keyDown(key)
                 self.holding.append(key)
             elif act.name.startswith('TIMED'):
-                failed = self._timed_hold(key, act.value * 0.2)
+                no_op += self._timed_hold(key, act.value * 0.2)
             else:
                 pyautogui.press(key)
-        return failed * 0.0001
+        return no_op * -0.0001
 
     def _to_multi_discrete(self, num):
         num = int(num)
@@ -214,7 +216,7 @@ class HKEnv(gym.Env):
             if self._find_menu():
                 break
             pyautogui.press('w')
-            time.sleep(0.22)
+            time.sleep(0.4)
         pyautogui.press('space')
 
         # wait for loading screen
@@ -249,3 +251,4 @@ class HKEnv(gym.Env):
         self.prev_enemy_hp = None
         self._timer = None
         self._episode_time = None
+        gc.collect()

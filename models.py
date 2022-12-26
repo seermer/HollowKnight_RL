@@ -97,27 +97,12 @@ class BasicBlock(nn.Module):
         return x
 
 
-class VGGExtractor(nn.Module):
-    def __init__(self, obs_shape: tuple, n_frames: int):
-        super(VGGExtractor, self).__init__()
-        self.convs = torchvision.models.vgg11().features[:-1]
-        self.convs[0] = nn.Conv2d(n_frames, 64, 5, stride=2, padding=2)
-        self.out_shape = np.array((512,) + tuple(obs_shape), dtype=int)
-        self.out_shape[1:] //= 32
-
-        param_init(self.convs[0])
-
-    def forward(self, x):
-        x = self.convs(x)
-        return x
-
-
 class ResidualExtractor(nn.Module):
     def __init__(self, obs_shape: tuple, n_frames: int):
         super(ResidualExtractor, self).__init__()
-        self.out_shape = np.array((1024,) + tuple(obs_shape), dtype=int)
-        self.out_shape[1:] //= 32
         act = nn.ReLU(inplace=True)
+        out_shape = np.array(obs_shape, dtype=int)
+        out_shape //= 32
         self.convs = nn.Sequential(
             nn.Conv2d(n_frames, 48, 4, 4),
             act,
@@ -129,9 +114,9 @@ class ResidualExtractor(nn.Module):
             BasicBlock(256, 256),
             nn.Conv2d(256, 1024, 1),
             act,
-            nn.AvgPool2d(tuple(self.out_shape[1:]))
+            nn.AvgPool2d(tuple(out_shape))
         )
-        self.out_shape[1:] = [1, 1]
+        self.units = 1024
 
         for m in self.modules():
             param_init(m)
@@ -145,18 +130,24 @@ class SimpleExtractor(nn.Module):
     def __init__(self, obs_shape: tuple, n_frames: int):
         super(SimpleExtractor, self).__init__()
         act = nn.ReLU(inplace=True)
+        out_shape = np.array(obs_shape, dtype=int)
+        out_shape //= 32
         self.convs = nn.Sequential(
-            nn.Conv2d(n_frames, 64, kernel_size=7, stride=4, padding=3),
+            nn.Conv2d(n_frames, 32, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(32, 48, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(48, 96, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(256, 384, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(96, 160, kernel_size=3, stride=2, padding=1),
             act,
+            nn.Conv2d(160, 256, kernel_size=3, stride=2, padding=1),
+            act,
+            nn.Conv2d(256, 960, kernel_size=1),
+            act,
+            nn.AvgPool2d(tuple(out_shape)),
         )
-        self.out_shape = np.array((384,) + tuple(obs_shape), dtype=int)
-        self.out_shape[1:] //= 32
+        self.units = 960
 
         for m in self.modules():
             param_init(m)
@@ -170,27 +161,27 @@ class AttentionExtractor(nn.Module):
     def __init__(self, obs_shape: tuple, n_frames: int):
         super(AttentionExtractor, self).__init__()
         act = nn.ReLU(inplace=True)
+        out_shape = np.array(obs_shape, dtype=int)
+        out_shape //= 32
         self.convs = nn.Sequential(
-            nn.Conv2d(n_frames, 32, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(n_frames, 32, kernel_size=5, stride=2, padding=2),
             act,
-            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(32, 48, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(48, 96, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
+            SE(96, 12, activation=lambda: act),
+            nn.Conv2d(96, 160, kernel_size=3, stride=2, padding=1),
             act,
-            SE(128, 8, activation=lambda: act),
-            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
+            SE(160, 16, activation=lambda: act),
+            nn.Conv2d(160, 256, kernel_size=3, stride=2, padding=1),
             act,
-            SE(256, 16, activation=lambda: act),
-            nn.Conv2d(256, 384, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(256, 960, kernel_size=1),
             act,
-            SE(384, 24, activation=lambda: act),
-            nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=1),
-            act,
+            nn.AvgPool2d(tuple(out_shape)),
         )
-        self.out_shape = np.array((384,) + tuple(obs_shape), dtype=int)
-        self.out_shape[1:] //= 32
+        self.units = 960
+
 
         for m in self.modules():
             param_init(m)
@@ -201,15 +192,11 @@ class AttentionExtractor(nn.Module):
 
 
 class AbstractFullyConnected(nn.Module):
-    def __init__(self, extractor: nn.Module, n_out: int, pool=True, noisy=False):
+    def __init__(self, extractor: nn.Module, n_out: int, noisy=False):
         super(AbstractFullyConnected, self).__init__()
         self.noisy = nn.ModuleList()
         self.linear_cls = NoisyLinear if noisy else nn.Linear
         self.extractor = extractor
-        self.pool = nn.AvgPool2d(tuple(extractor.out_shape[1:])) if pool else lambda x: x
-        self.units = extractor.out_shape[0]
-        if not pool:
-            self.units *= int(np.prod(extractor.out_shape[1:]))
 
         self.act = nn.ReLU(inplace=True)
 
@@ -221,14 +208,14 @@ class AbstractFullyConnected(nn.Module):
         for layer in self.noisy:
             layer.noise_mode(mode)
 
-    def forward(self, x):
+    def forward(self, x, **kwargs):
         raise NotImplementedError
 
 
 class SinglePathMLP(AbstractFullyConnected):
-    def __init__(self, extractor: nn.Module, n_out: int, pool=True, noisy=False):
-        super(SinglePathMLP, self).__init__(extractor, n_out, pool, noisy)
-        self.linear = self.linear_cls(self.units, 512)
+    def __init__(self, extractor: nn.Module, n_out: int, noisy=False):
+        super(SinglePathMLP, self).__init__(extractor, n_out, noisy)
+        self.linear = self.linear_cls(extractor.units, 512)
         self.out = self.linear_cls(512, n_out)
         if noisy:
             self.noisy.append(self.linear)
@@ -237,9 +224,8 @@ class SinglePathMLP(AbstractFullyConnected):
         param_init(self.linear)
         param_init(self.out)
 
-    def forward(self, x):
+    def forward(self, x, **kwargs):
         x = self.extractor(x)
-        x = self.pool(x)
         x = torch.flatten(x, 1)
         x = self.linear(x)
         x = self.act(x)
@@ -248,10 +234,10 @@ class SinglePathMLP(AbstractFullyConnected):
 
 
 class DuelingMLP(AbstractFullyConnected):
-    def __init__(self, extractor: nn.Module, n_out: int, pool=True, noisy=False):
-        super(DuelingMLP, self).__init__(extractor, n_out, pool, noisy)
-        self.linear_val = self.linear_cls(self.units, 320)
-        self.linear_adv = self.linear_cls(self.units, 320)
+    def __init__(self, extractor: nn.Module, n_out: int, noisy=False):
+        super(DuelingMLP, self).__init__(extractor, n_out, noisy)
+        self.linear_val = self.linear_cls(extractor.units, 320)
+        self.linear_adv = self.linear_cls(extractor.units, 320)
         self.val = self.linear_cls(320, 1)
         self.adv = self.linear_cls(320, n_out)
 
@@ -266,13 +252,14 @@ class DuelingMLP(AbstractFullyConnected):
         param_init(self.adv)
         param_init(self.val)
 
-    def forward(self, x):
+    def forward(self, x, adv_only=False, **kwargs):
         x = self.extractor(x)
-        x = self.pool(x)
         x = torch.flatten(x, 1)
         adv = self.linear_adv(x)
         adv = self.act(adv)
         adv = self.adv(adv)
+        if adv_only:
+            return adv
         val = self.linear_val(x)
         val = self.act(val)
         val = self.val(val)
