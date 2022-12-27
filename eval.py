@@ -16,7 +16,7 @@ cudnn.benchmark = True
 
 
 def get_model(env: gym.Env, n_frames: int):
-    m = models.AttentionExtractor(env.observation_space.shape, n_frames)
+    m = models.SimpleExtractor(env.observation_space.shape, n_frames)
     m = models.DuelingMLP(m, env.action_space.n, True)
     return m.to(DEVICE)
 
@@ -29,7 +29,7 @@ def main():
     m.eval()
     fname = sorted(os.listdir('saved'))[-1]
     print(f'evaluating {fname}')
-    m.load_state_dict(torch.load(f'saved/{fname}/bestmodel.pt'))  # replace this path with your weight file
+    m.load_state_dict(torch.load(f'saved/{fname}/besttrainmodel.pt'))  # replace this path with your weight file
     m(torch.ones((1, n_frames) + env.observation_space.shape,
                  dtype=torch.float32, device=DEVICE))
     m.noise_mode(False)
@@ -42,17 +42,13 @@ def main():
         while True:
             t = time.time()
             obs_tuple = tuple(stacked_obs)
-            if random.uniform(0, 1) < 0.05:
-                action = env.action_space.sample()
-                print('random')
-            else:
-                obs = np.array([obs_tuple], dtype=np.float32)
-                obs = torch.as_tensor(obs, dtype=torch.float32,
-                                      device=DEVICE)
-                trainer.Trainer.standardize(obs)
-                pred = m(obs).detach().cpu().numpy()[0]
-                print(pred)
-                action = np.argmax(pred)
+            obs = np.array([obs_tuple], dtype=np.float32)
+            obs = torch.as_tensor(obs, dtype=torch.float32,
+                                  device=DEVICE)
+            trainer.Trainer.standardize(obs)
+            pred = m(obs).detach().cpu().numpy()[0]
+            print(pred)
+            action = np.argmax(pred)
             obs_next, rew, done, _, _ = env.step(action)
             print(action, rew)
             stacked_obs.append(obs_next)

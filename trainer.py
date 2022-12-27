@@ -43,7 +43,7 @@ class Trainer:
 
         self.is_double = is_double
         self.transform = K.RandomCrop(size=self.env.observation_space.shape,
-                                      padding=(6, 6),
+                                      padding=(8, 8),
                                       padding_mode='replicate').to(device) if DrQ else None
 
         self.steps = 0
@@ -82,7 +82,10 @@ class Trainer:
                               device=self.device)
         self.standardize(obs)
         if self.transform:
-            return torch.vstack((obs, self.transform(obs)))
+            scale = torch.randn((self.batch_size, 1, 1, 1),
+                                dtype=torch.float32, device=self.device)
+            scale = torch.clip(scale, -2, 2) * 0.025 + 1.
+            return torch.vstack((obs * scale, self.transform(obs)))
         else:
             return obs
 

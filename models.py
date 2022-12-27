@@ -1,5 +1,4 @@
 import torch
-import torchvision
 import numpy as np
 from torch import nn
 from torch.nn import functional as F
@@ -97,9 +96,17 @@ class BasicBlock(nn.Module):
         return x
 
 
-class ResidualExtractor(nn.Module):
+class AbstractExtractor(nn.Module):
     def __init__(self, obs_shape: tuple, n_frames: int):
-        super(ResidualExtractor, self).__init__()
+        super(AbstractExtractor, self).__init__()
+
+    def forward(self, x):
+        raise NotImplementedError
+
+
+class ResidualExtractor(AbstractExtractor):
+    def __init__(self, obs_shape: tuple, n_frames: int):
+        super(ResidualExtractor, self).__init__(obs_shape, n_frames)
         act = nn.ReLU(inplace=True)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape //= 32
@@ -126,9 +133,9 @@ class ResidualExtractor(nn.Module):
         return x
 
 
-class SimpleExtractor(nn.Module):
+class SimpleExtractor(AbstractExtractor):
     def __init__(self, obs_shape: tuple, n_frames: int):
-        super(SimpleExtractor, self).__init__()
+        super(SimpleExtractor, self).__init__(obs_shape, n_frames)
         act = nn.ReLU(inplace=True)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape //= 32
@@ -141,13 +148,11 @@ class SimpleExtractor(nn.Module):
             act,
             nn.Conv2d(96, 160, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(160, 256, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(160, 320, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(256, 960, kernel_size=1),
-            act,
-            nn.AvgPool2d(tuple(out_shape)),
+            nn.Flatten(),
         )
-        self.units = 960
+        self.units = 320 * np.prod(out_shape)
 
         for m in self.modules():
             param_init(m)
@@ -157,9 +162,9 @@ class SimpleExtractor(nn.Module):
         return x
 
 
-class AttentionExtractor(nn.Module):
+class AttentionExtractor(AbstractExtractor):
     def __init__(self, obs_shape: tuple, n_frames: int):
-        super(AttentionExtractor, self).__init__()
+        super(AttentionExtractor, self).__init__(obs_shape, n_frames)
         act = nn.ReLU(inplace=True)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape //= 32
@@ -182,7 +187,6 @@ class AttentionExtractor(nn.Module):
         )
         self.units = 960
 
-
         for m in self.modules():
             param_init(m)
 
@@ -197,7 +201,6 @@ class AbstractFullyConnected(nn.Module):
         self.noisy = nn.ModuleList()
         self.linear_cls = NoisyLinear if noisy else nn.Linear
         self.extractor = extractor
-
         self.act = nn.ReLU(inplace=True)
 
     def reset_noise(self):

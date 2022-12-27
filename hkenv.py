@@ -58,6 +58,7 @@ class HKEnv(gym.Env):
         self.holding = []
         self.prev_knight_hp = None
         self.prev_enemy_hp = None
+        self.prev_action = -1
         total_actions = np.prod([len(Act) for Act in self.ACTIONS])
         self.observation_space = gym.spaces.Box(low=0, high=255,
                                                 dtype=np.uint8, shape=obs_shape)
@@ -111,10 +112,9 @@ class HKEnv(gym.Env):
         for key in self.holding:
             pyautogui.keyUp(key)
         self.holding = []
-        no_op = 0
+        action_rew = 0
         for act in actions:
             if not act.value:
-                no_op += 1
                 continue
             key = self.KEYMAPS[act]
 
@@ -122,10 +122,10 @@ class HKEnv(gym.Env):
                 pyautogui.keyDown(key)
                 self.holding.append(key)
             elif act.name.startswith('TIMED'):
-                no_op += self._timed_hold(key, act.value * 0.2)
+                action_rew += self._timed_hold(key, act.value * 0.2)
             else:
                 pyautogui.press(key)
-        return no_op * -0.0001
+        return action_rew * -0.0001
 
     def _to_multi_discrete(self, num):
         num = int(num)
@@ -173,9 +173,13 @@ class HKEnv(gym.Env):
         return obs, knight_hp, enemy_hp
 
     def step(self, actions):
+        action_rew = 0
+        if actions == self.prev_action:
+            action_rew -= 2e-5
+        self.prev_action = actions
         actions = self._to_multi_discrete(actions)
-        action_rew = self._step_actions(actions)
-        time.sleep(0.012)
+        action_rew += self._step_actions(actions)
+        time.sleep(0.01)
         obs, knight_hp, enemy_hp = self.observe()
 
         win = self.prev_enemy_hp < enemy_hp
@@ -183,7 +187,6 @@ class HKEnv(gym.Env):
         done = win or lose
 
         if win:
-            knight_hp = max(knight_hp, 1)
             lose = False
             enemy_hp = 0.
         hurt = knight_hp < self.prev_knight_hp
@@ -192,21 +195,21 @@ class HKEnv(gym.Env):
         reward = (
                 - self.w1 * hurt
                 + self.w2 * hit
+                + action_rew
         )
         if not (hurt or hit):
-            reward = self.w3
-        reward += action_rew
+            reward += self.w3
         if win:  # extra reward for winning based on conditions
-            time_rew = 45. / (time.time() - self._episode_time)
-            reward += knight_hp * 0.33 + 6. + time_rew
+            time_rew = 5. / (time.time() - self._episode_time)
+            reward += knight_hp / 40. + time_rew
         elif lose:
-            reward -= enemy_hp * 3 + 4.
+            reward -= enemy_hp / 5.
         # print('reward', reward)
         # print()
 
         self.prev_knight_hp = knight_hp
         self.prev_enemy_hp = enemy_hp
-        reward = np.clip(reward, -11., 11.)
+        reward = np.clip(reward, -10., 10.)
         return obs, reward, done, False, None
 
     def reset(self, seed=None, options=None):
@@ -249,6 +252,7 @@ class HKEnv(gym.Env):
             pyautogui.keyUp(key)
         self.prev_knight_hp = None
         self.prev_enemy_hp = None
+        self.prev_action = -1
         self._timer = None
         self._episode_time = None
         gc.collect()

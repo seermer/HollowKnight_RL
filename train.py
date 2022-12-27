@@ -12,19 +12,21 @@ cudnn.benchmark = True
 
 
 def get_model(env: gym.Env, n_frames: int):
-    m = models.AttentionExtractor(env.observation_space.shape, n_frames)
+    m = models.SimpleExtractor(env.observation_space.shape, n_frames)
     m = models.DuelingMLP(m, env.action_space.n, noisy=True)
     return m.to(DEVICE)
 
 
 def train(dqn):
     print('training started')
-    dqn.save_explorations(40)
+    dqn.save_explorations(60)
     dqn.load_explorations()
+    # raise ValueError
+    dqn.learn()  # warmup
 
     saved_rew = float('-inf')
     saved_train_rew = float('-inf')
-    for i in range(1000):
+    for i in range(300):
         print('episode', i + 1)
         rew, loss = dqn.run_episode()
         if rew > saved_train_rew:
@@ -47,15 +49,15 @@ def train(dqn):
 
 def main():
     n_frames = 4
-    env = hkenv.HKEnv((192, 192), w1=1., w2=1., w3=-0.0001)
+    env = hkenv.HKEnv((192, 192), w1=0.8, w2=0.8, w3=-0.0001)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.MultistepBuffer(40000, n=10, gamma=0.99)
+    replay_buffer = buffer.MultistepBuffer(50000, n=10, gamma=0.99)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.99, eps=0.,
                           eps_func=(lambda val, episode, step:
                                     0.),
-                          target_steps=10000,
-                          learn_freq=2,
+                          target_steps=8000,
+                          learn_freq=4,
                           model=m,
                           lr=1e-4,
                           criterion=torch.nn.MSELoss(),
