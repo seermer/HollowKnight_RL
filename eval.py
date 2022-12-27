@@ -29,10 +29,10 @@ def main():
     m.eval()
     fname = sorted(os.listdir('saved'))[-1]
     print(f'evaluating {fname}')
-    m.load_state_dict(torch.load(f'saved/{fname}/besttrainmodel.pt'))
+    m.load_state_dict(torch.load(f'saved/{fname}/bestmodel.pt'))
     m(torch.ones((1, n_frames) + env.observation_space.shape,
                  dtype=torch.float32, device=DEVICE))
-    # m.noise_mode(False)
+    m.noise_mode(False)
     for i in range(5):
         initial, _ = env.reset()
         stacked_obs = deque(
