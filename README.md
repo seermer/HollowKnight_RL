@@ -106,7 +106,7 @@ _______________________________
 - 12/21/2022: The agent stays in a suboptimal policy that tries to die as fast as possible, likely due to the small negative reward for each step, so I removed it
 - 12/22/2022-12/23/2022: focus on improving code, code now takes about 10% less time compared to before
 - 12/24/2022: The agent again stays in suboptimal policy
-- 12/25/2022: The agent now can defeat Hornet with a decent win rate (6 win out of 10 runs with bestmodel)
+- 12/25/2022: The agent now can defeat Hornet with a decent win rate (6 win out of 10 runs with bestmodel), model weight can be found [here](https://drive.google.com/drive/folders/13gsvjp27c9Tx2OmP5A6NC4Fz7f2XhRep?usp=sharing)
 
 _______________________________
 

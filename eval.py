@@ -29,7 +29,7 @@ def main():
     m.eval()
     fname = sorted(os.listdir('saved'))[-1]
     print(f'evaluating {fname}')
-    m.load_state_dict(torch.load(f'saved/{fname}/bestmodel.pt'))
+    m.load_state_dict(torch.load(f'saved/{fname}/bestmodel.pt'))  # replace this path with your weight file
     m(torch.ones((1, n_frames) + env.observation_space.shape,
                  dtype=torch.float32, device=DEVICE))
     m.noise_mode(False)
