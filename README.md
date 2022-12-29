@@ -11,6 +11,8 @@ for more stable recognition, the mod files can be found in Managed folder.
 
 **Note: I am still updating the project, so any file or structure of the repo may change**
 
+**Note: the "master" branch contains files and algorithms working in progress, "hornet" branch contains a version that was able to train an agent that can defeat hornet most of the time, that branch will no longer be modified unless important updates (e.g. bug fix) is needed**
+
 ________________________
 
 ## Platform and requirements
