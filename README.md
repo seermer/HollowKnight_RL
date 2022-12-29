@@ -48,26 +48,24 @@ While running, do not click on other windows, stay focused on the Hollow Knight 
 ___________________________
 
 ## Project Tentative Plan:
-- [ ] Update Project Structure
+- [x] Update Project Structure
   - [x] Add requirements.txt, mod files
   - [x] Add instructions to train
-  - [ ] Add more docstrings and typehint in code
   - [x] Add a simple sanity check that runs gym cartpole
-- [ ] Train an agent that can defeat Hornet
+- [x] Train an agent that can defeat Hornet
 - [x] Add code for additional functionalities (like saving buffer, model...)
   - [x] Saving model periodically
   - [x] Tensorboard logging
   - [x] Save/load random agent experiences
   - [x] Add evaluate in trainer
-- [ ] Improve the algorithm/model/implementation
+- [x] Improve the algorithm/model/implementation
   - [x] Frame Stacking
   - [x] Spectral Normalization
   - [x] Huber Loss
   - [x] Double DQN
   - [x] Dueling DQN
   - [x] Multistep return
-  - [ ] ? Feature extractor learned with unsupervised/self-supervised representation learning
-  - [ ] improve reward function (make it denser)
+  - [x] improve reward function (make it denser)
   - [x] Image Augmentation (DrQ)
   - [x] ResNet-like model
   - [x] Squeeze and Excitation based model
