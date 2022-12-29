@@ -29,8 +29,8 @@ _________________________
 
 ## Usage
 run Hollow knight in window mode, make sure use the following keymap settings:
-![Keyboard settings](resources/keymaps.png)
-Currently, only up, down, left, right, jump, attack, and dash are used, so others doesn't matter at this time.
+![Keyboard settings](resources/keymaps.png) <br>
+Currently, only up, down, left, right, jump, attack are used, so others doesn't matter at this time.
 
 charms I used:
 ![Charms used](resources/charms.png)
