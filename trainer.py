@@ -7,6 +7,7 @@ import numpy as np
 from collections import deque
 from kornia import augmentation as K
 from torch.utils.tensorboard import SummaryWriter
+from torch.optim.lr_scheduler import CosineAnnealingLR
 
 
 class Trainer:
@@ -30,7 +31,10 @@ class Trainer:
 
         self.model = model.to(device)
         self.target_model = copy.deepcopy(self.model)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, eps=1.5e-4)
+        self.init_lr = lr
+        self.optimizer = torch.optim.NAdam(self.model.parameters(), lr=lr, eps=1.5e-4)
+        self.scheduler = None
+        self.scheduler_max_decay = None
         self.model.eval()
         self.target_model.eval()
         for param in self.target_model.parameters():
@@ -48,13 +52,15 @@ class Trainer:
 
         self.steps = 0
         self.episodes = 0
-        self.target_replace_steps = 0
+        self.learn_steps = 0
+        self.target_replace_times = 0
 
         self.no_save = no_save
         if not no_save:
             save_loc = ('./saved/' + str(int(time.time()))) if save_loc is None else save_loc
             assert not save_loc.endswith('\\')
             save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
+            print('save files at', save_loc)
             self.save_loc = save_loc
             if not os.path.exists(self.save_loc):
                 os.makedirs(self.save_loc)
@@ -77,14 +83,14 @@ class Trainer:
     def _preprocess(self, obs):
         if len(obs.shape) < 4:  # not image
             return torch.as_tensor(obs, dtype=torch.float32,
-                                   device=self.device).squeeze()
+                                   device=self.device)
         obs = torch.as_tensor(obs, dtype=torch.float32,
                               device=self.device)
         self.standardize(obs)
         if self.transform:
             scale = torch.randn((self.batch_size, 1, 1, 1),
                                 dtype=torch.float32, device=self.device)
-            scale = torch.clip(scale, -2, 2) * 0.025 + 1.
+            scale = torch.clip(scale, -2, 2) * 0.03 + 1.
             return torch.vstack((obs * scale, self.transform(obs)))
         else:
             return obs
@@ -99,7 +105,8 @@ class Trainer:
     def get_action(self, obs):
         obs = torch.as_tensor(obs, dtype=torch.float32,
                               device=self.device)
-        self.standardize(obs)
+        if len(obs.shape) >= 4:
+            self.standardize(obs)
         pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
         return np.argmax(pred)
 
@@ -139,7 +146,7 @@ class Trainer:
                 time.sleep(t)
             # print(t)
         total_loss = total_loss / learned_times if learned_times > 0 else 0
-        return total_rewards, total_loss
+        return total_rewards, total_loss, self.optimizer.param_groups[0]['lr']
 
     def run_episodes(self, n, **kwargs):
         for _ in range(n):
@@ -215,15 +222,25 @@ class Trainer:
         loss.backward()
         torch.nn.utils.clip_grad_norm_(self.model.parameters(), 10)
         self.optimizer.step()
+        # if self.scheduler is not None and self.scheduler_max_decay > self.learn_steps:
+        #     self.scheduler.step()
         self.model.eval()
 
         with torch.no_grad():
             loss = float(loss.detach().cpu().numpy())
-            if self.target_replace_steps % self.target_steps == 0:
+            if self.learn_steps % self.target_steps == 0:
                 self.target_model.load_state_dict(self.model.state_dict())
                 self.target_model.eval()
-                print('target replaced')
-            self.target_replace_steps += 1
+                self.target_replace_times += 1
+                print(f'target replaced {self.target_replace_times} times')
+
+                # if self.target_replace_times == 2:
+                #     self.scheduler_max_decay = self.learn_steps * 3
+                #     self.scheduler = CosineAnnealingLR(self.optimizer,
+                #                                        self.scheduler_max_decay,
+                #                                        self.init_lr / 10.)
+                #     self.scheduler_max_decay += self.learn_steps
+            self.learn_steps += 1
         return loss
 
     def load_explorations(self, save_loc='./explorations/'):
