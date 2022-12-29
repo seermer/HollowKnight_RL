@@ -9,7 +9,7 @@ You need to install the Satchel and EnemyHPBar Mod to correctly run (so it can r
 I have made some modifications (custom HP bar color) 
 for more stable recognition, the mod files can be found in Managed folder.
 
-**Note: I am still updating the project, so any file or structure of the repo may change**
+**This branch will not change unless important changes are required (e.g, bug fix)**
 
 ________________________
 
