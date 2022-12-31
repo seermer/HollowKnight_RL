@@ -143,7 +143,7 @@ class HKEnv(gym.Env):
                    monitor['height'] // 2)
         return pyautogui.locateOnScreen(f'locator/menu_badge.png',
                                         region=monitor,
-                                        confidence=0.95)
+                                        confidence=0.85)
 
     def observe(self, knight_only=False):
         with mss() as sct:
