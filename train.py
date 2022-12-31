@@ -59,7 +59,7 @@ def main():
                           target_steps=6000,
                           learn_freq=0.5,
                           model=m,
-                          lr=9e-5,
+                          lr=1e-4,
                           criterion=torch.nn.MSELoss(),
                           batch_size=32,
                           device=DEVICE,

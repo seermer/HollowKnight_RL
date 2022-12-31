@@ -228,6 +228,7 @@ class AbstractFullyConnected(nn.Module):
     def __init__(self, extractor: nn.Module, n_out: int, noisy=False):
         super(AbstractFullyConnected, self).__init__()
         self.noisy = nn.ModuleList()
+        self.resetable = nn.ModuleList()
         self.linear_cls = NoisyLinear if noisy else nn.Linear
         self.extractor = extractor
         self.act = nn.ReLU(inplace=True)
@@ -241,8 +242,11 @@ class AbstractFullyConnected(nn.Module):
             layer.noise_mode(mode)
 
     def reset_linear(self):
-        for layer in self.linear:
+        n = 0
+        for layer in self.resetable:
+            n += 1
             param_init(layer)
+        print(f'{n} linear layers parameter reset successfully')
 
     def forward(self, x, **kwargs):
         raise NotImplementedError
@@ -257,8 +261,12 @@ class SinglePathMLP(AbstractFullyConnected):
             self.noisy.append(self.linear)
             self.noisy.append(self.out)
 
-        param_init(self.linear)
-        param_init(self.out)
+        self.resetable = nn.ModuleList([
+            self.linear,
+            self.out
+        ])
+
+        self.reset_linear()
 
     def forward(self, x, **kwargs):
         x = self.extractor(x)
@@ -283,10 +291,14 @@ class DuelingMLP(AbstractFullyConnected):
             self.noisy.append(self.val)
             self.noisy.append(self.adv)
 
-        param_init(self.linear_adv)
-        param_init(self.linear_val)
-        param_init(self.adv)
-        param_init(self.val)
+        self.resetable = nn.ModuleList([
+            self.linear_val,
+            self.linear_adv,
+            self.val,
+            self.adv
+        ])
+
+        self.reset_linear()
 
     def forward(self, x, adv_only=False, **kwargs):
         x = self.extractor(x)
