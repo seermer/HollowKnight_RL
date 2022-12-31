@@ -159,7 +159,7 @@ class Trainer:
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
-            print(t)
+            # print(t)
         total_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, total_loss, self.optimizer.param_groups[0]['lr']
 
