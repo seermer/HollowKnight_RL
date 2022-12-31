@@ -14,38 +14,16 @@ cudnn.benchmark = True
 def get_model(env: gym.Env, n_frames: int):
     m = models.SimpleExtractor(env.observation_space.shape, n_frames)
     m = models.DuelingMLP(m, env.action_space.n, noisy=True)
-    return m.to(DEVICE)
+    m = m.to(DEVICE)
+    # modify below path to the weight file you have
+    m.load_state_dict(torch.load('./saved/1672386082Hornet2/latestmodel.pt'))
+    return m
 
 
-def train(dqn):
-    print('training started')
-    dqn.save_explorations(75)
-    dqn.load_explorations()
-    # raise ValueError
-    dqn.learn()  # warmup
-
-    saved_rew = float('-inf')
-    saved_train_rew = float('-inf')
-    for i in range(1, 501):
-        print('episode', i)
-        rew, loss, lr = dqn.run_episode()
-        if rew > saved_train_rew:
-            print('new best train model found')
-            saved_train_rew = rew
-            dqn.save_models('besttrain')
-        if i % 10 == 0:
-            dqn.run_episode(random_action=True)
-            eval_rew = dqn.evaluate()
-            if eval_rew > saved_rew:
-                print('new best eval model found')
-                saved_rew = eval_rew
-                dqn.save_models('best')
-        dqn.save_models('latest')
-
-        dqn.log({'reward': rew, 'loss': loss}, i)
-        print(f'episode {i} finished, total step {dqn.steps}, learned {dqn.learn_steps}, epsilon {dqn.eps}',
-              f'total rewards {round(rew, 3)}, loss {round(loss, 3)}, current lr {round(lr, 8)}', sep='\n')
-        print()
+def evaluate(dqn):
+    for _ in range(5):
+        rew = dqn.evaluate()
+        print(rew)
 
 
 def main():
@@ -66,8 +44,8 @@ def main():
                           is_double=True,
                           DrQ=True,
                           reset=20000,
-                          no_save=False)
-    train(dqn)
+                          no_save=True)
+    evaluate(dqn)
 
 
 if __name__ == '__main__':

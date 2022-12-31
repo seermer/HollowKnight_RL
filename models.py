@@ -10,6 +10,8 @@ def param_init(m):  # code adapted from torchvision VGG class
         nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity='relu')
         if m.bias is not None:
             nn.init.constant_(m.bias, 0)
+    elif isinstance(m, NoisyLinear):
+        m.reset_param()
     elif isinstance(m, nn.Linear):
         nn.init.normal_(m.weight, 0, 0.01)
         nn.init.constant_(m.bias, 0)
@@ -162,6 +164,33 @@ class SimpleExtractor(AbstractExtractor):
         return x
 
 
+class TinyExtractor(AbstractExtractor):
+    def __init__(self, obs_shape: tuple, n_frames: int):
+        super(TinyExtractor, self).__init__(obs_shape, n_frames)
+        act = nn.ReLU(inplace=True)
+        out_shape = np.array(obs_shape, dtype=int)
+        out_shape = out_shape // 32
+        self.convs = nn.Sequential(
+            nn.Conv2d(n_frames, 32, kernel_size=7, stride=4, padding=3),
+            act,
+            nn.Conv2d(32, 64, kernel_size=7, stride=4, padding=3),
+            act,
+            nn.Conv2d(64, 128, kernel_size=5, stride=2, padding=2),
+            act,
+            nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1),
+            act,
+            nn.Flatten()
+        )
+        self.units = 128 * np.prod(out_shape)
+
+        for m in self.modules():
+            param_init(m)
+
+    def forward(self, x):
+        x = self.convs(x)
+        return x
+
+
 class AttentionExtractor(AbstractExtractor):
     def __init__(self, obs_shape: tuple, n_frames: int):
         super(AttentionExtractor, self).__init__(obs_shape, n_frames)
@@ -211,6 +240,10 @@ class AbstractFullyConnected(nn.Module):
         for layer in self.noisy:
             layer.noise_mode(mode)
 
+    def reset_linear(self):
+        for layer in self.linear:
+            param_init(layer)
+
     def forward(self, x, **kwargs):
         raise NotImplementedError
 
@@ -239,10 +272,10 @@ class SinglePathMLP(AbstractFullyConnected):
 class DuelingMLP(AbstractFullyConnected):
     def __init__(self, extractor: nn.Module, n_out: int, noisy=False):
         super(DuelingMLP, self).__init__(extractor, n_out, noisy)
-        self.linear_val = self.linear_cls(extractor.units, 320)
-        self.linear_adv = self.linear_cls(extractor.units, 320)
-        self.val = self.linear_cls(320, 1)
-        self.adv = self.linear_cls(320, n_out)
+        self.linear_val = self.linear_cls(extractor.units, 512)
+        self.linear_adv = self.linear_cls(extractor.units, 512)
+        self.val = self.linear_cls(512, 1)
+        self.adv = self.linear_cls(512, n_out)
 
         if noisy:
             self.noisy.append(self.linear_val)

@@ -19,10 +19,8 @@ ________________________
 
 Python 3 (tested with Python 3.10) <br>
 Windows 10 or 11 <br>
-Screen with at least (1280, 720) resolution <br>
-CUDA GPU (You can also try CPU, the code will still work, 
-but then you need to install the libraries on your own, 
-because requirements.txt contains CUDA related packages) <br>
+Screen with at least width/height of (1280, 720) resolution (note that this can be modified to smaller resolution in hkenv.py, but then you need to rewrite quite a bit of recognition codes) <br>
+CUDA GPU <br>
 The newest version of Hollow Knight Game (tested with Steam version) <br>
 packages listed in requirements.txt <br>
 
@@ -68,13 +66,13 @@ ___________________________
   - [x] Double DQN
   - [x] Dueling DQN
   - [x] Multistep return
-  - [ ] ? Feature extractor learned with unsupervised/self-supervised representation learning
-  - [ ] improve reward function (make it denser)
+  - [x] improve reward function (make it denser)
   - [x] Image Augmentation (DrQ)
   - [x] ResNet-like model
   - [x] Squeeze and Excitation based model
   - [x] Noisy Network
   - [x] NAdam Optimizer
+  - [x] Reset Training
 
 
 
@@ -103,6 +101,8 @@ _______________________________
 - Use Kornia for augmentation (significantly faster than numpy/torchvision)
 - Add Intensity augmentation
 - Use NAdam optimizer
+- remove non-cuda support to use cuda mix-precision
+- Add reset training
 
 
 _______________________________
@@ -120,7 +120,7 @@ _______________________________
 
 _______________________________
 
-## References
+## References  (order based on my implementation order)
 - [Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
 - [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461)
 - [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)
@@ -132,6 +132,7 @@ _______________________________
 - [A ConvNet for the 2020s](https://arxiv.org/abs/2201.03545)
 - [Bag of Tricks for Image Classification with Convolutional Neural Networks](https://arxiv.org/pdf/1812.01187.pdf)
 - [Noisy Networks for Exploration](https://arxiv.org/abs/1706.10295)
+- [The Primacy Bias in Deep Reinforcement Learning](https://arxiv.org/abs/2205.07802)
 
 - https://github.com/toshikwa/fqf-iqn-qrdqn.pytorch/blob/master/fqf_iqn_qrdqn/network.py
 - https://github.com/pytorch/vision/blob/main/torchvision/models/vgg.py

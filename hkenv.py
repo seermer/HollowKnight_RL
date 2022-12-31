@@ -179,7 +179,6 @@ class HKEnv(gym.Env):
         self.prev_action = actions
         actions = self._to_multi_discrete(actions)
         action_rew += self._step_actions(actions)
-        time.sleep(0.01)
         obs, knight_hp, enemy_hp = self.observe()
 
         win = self.prev_enemy_hp < enemy_hp
@@ -219,7 +218,7 @@ class HKEnv(gym.Env):
             if self._find_menu():
                 break
             pyautogui.press('w')
-            time.sleep(0.4)
+            time.sleep(0.75)
         pyautogui.press('space')
 
         # wait for loading screen

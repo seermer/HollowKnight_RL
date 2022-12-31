@@ -7,12 +7,12 @@ class Buffer:
     def __init__(self, size: int, *args, **kwargs):
         assert size > 0
         self.buffer = deque(maxlen=size)
-        self.max_len = size
+        self.maxlen = size
         self._temp_buffer = []
 
     @property
     def is_full(self):
-        return len(self.buffer) == self.max_len
+        return len(self.buffer) == self.maxlen
 
     def add(self, obs, act, rew, done):
         self._temp_buffer.append((obs, act, rew, done))
