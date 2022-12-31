@@ -84,11 +84,12 @@ class HKEnv(gym.Env):
             window.restore()
         window.resizeTo(1280, 720)
         window.moveTo(0, 0)
+        geo = pyautogui.locateOnScreen('./locator/geo.png', confidence=0.9)
         loc = {
-            'left': window.left + 160,
-            'top': window.top + 64,
+            'left': geo.left - 48,
+            'top': geo.top - 78,
             'width': 986,
-            'height': window.height - 80
+            'height': 640
         }
         return loc
 
@@ -143,7 +144,7 @@ class HKEnv(gym.Env):
                    monitor['height'] // 2)
         return pyautogui.locateOnScreen(f'locator/menu_badge.png',
                                         region=monitor,
-                                        confidence=0.95)
+                                        confidence=0.85)
 
     def observe(self, knight_only=False):
         with mss() as sct:
@@ -219,7 +220,7 @@ class HKEnv(gym.Env):
             if self._find_menu():
                 break
             pyautogui.press('w')
-            time.sleep(0.4)
+            time.sleep(0.75)
         pyautogui.press('space')
 
         # wait for loading screen
