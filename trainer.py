@@ -29,7 +29,7 @@ class Trainer:
         self.eps_func = eps_func
         self.target_steps = target_steps
         self.learn_freq = max(1, int(learn_freq))
-        self.num_batches = max(1, int(1 / self.learn_freq))
+        self.num_batches = max(1, int(1. / learn_freq))
 
         self.model = model.to(device)
         self.target_model = copy.deepcopy(self.model)
@@ -144,11 +144,13 @@ class Trainer:
             stacked_obs.append(obs_next)
             self.replay_buffer.add(obs_tuple, action, rew, done)
             if self.reset and self.steps % self.reset == 0:
+                print('model reset')
                 self.model.reset_linear()
                 self._update_target()
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.steps)
                 if len(self.replay_buffer) > self.batch_size and self.steps % self.learn_freq == 0:
+                    # print(self.num_batches)
                     for _ in range(self.num_batches):
                         total_loss += self.learn()
                         learned_times += 1
@@ -157,7 +159,7 @@ class Trainer:
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
-            # print(t)
+            print(t)
         total_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, total_loss, self.optimizer.param_groups[0]['lr']
 
