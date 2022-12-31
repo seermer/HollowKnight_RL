@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 class Trainer:
-    GAP = 0.16
+    GAP = 0.17
     DEFAULT_STATS = (92.54949702814011,
                      57.94090462506912)
 
@@ -116,9 +116,10 @@ class Trainer:
     def get_action(self, obs):
         obs = torch.as_tensor(obs, dtype=torch.float32,
                               device=self.device)
-        if len(obs.shape) >= 4:
-            self._standardize(obs)
-        pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
+        with torch.amp.autocast(self.device):
+            if len(obs.shape) >= 4:
+                self._standardize(obs)
+            pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
         return np.argmax(pred)
 
     def run_episode(self, random_action=False, no_sleep=False):
