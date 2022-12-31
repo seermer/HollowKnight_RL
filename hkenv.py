@@ -84,11 +84,12 @@ class HKEnv(gym.Env):
             window.restore()
         window.resizeTo(1280, 720)
         window.moveTo(0, 0)
+        geo = pyautogui.locateOnScreen('./locator/geo.png', confidence=0.9)
         loc = {
-            'left': window.left + 160,
-            'top': window.top + 64,
+            'left': geo.left - 48,
+            'top': geo.top - 78,
             'width': 986,
-            'height': window.height - 80
+            'height': 640
         }
         return loc
 
