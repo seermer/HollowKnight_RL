@@ -84,7 +84,10 @@ class HKEnv(gym.Env):
             window.restore()
         window.resizeTo(1280, 720)
         window.moveTo(0, 0)
-        geo = pyautogui.locateOnScreen('./locator/geo.png', confidence=0.9)
+        geo = None
+        while geo is None:
+            geo = pyautogui.locateOnScreen('./locator/geo.png', confidence=0.9)
+            time.sleep(0.2)
         loc = {
             'left': geo.left - 48,
             'top': geo.top - 78,
@@ -231,13 +234,8 @@ class HKEnv(gym.Env):
                 break
             else:
                 ready = is_loading
-        self._step_actions([Move.HOLD_RIGHT])
-        # forcefully move right for a short time
-        # so the knight can have better chance explore right side
-        time.sleep(0.7)
-        self.cleanup()
-        time.sleep(0.5)
-        self.prev_knight_hp, self.prev_enemy_hp = 9, 1.
+        time.sleep(1.5)
+        self.prev_knight_hp, self.prev_enemy_hp = len(self.HP_CKPT), 1.
         self._episode_time = time.time()
         return self.observe()[0], None
 

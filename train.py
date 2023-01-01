@@ -50,22 +50,22 @@ def train(dqn):
 
 def main():
     n_frames = 4
-    env = hkenv.HKEnv((160, 160), w1=0.8, w2=0.8, w3=-0.0001)
+    env = hkenv.HKEnv((224, 224), w1=0.8, w2=0.8, w3=-0.0001)
     m = get_model(env, n_frames)
     replay_buffer = buffer.MultistepBuffer(100000, n=20, gamma=0.99)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.99, eps=0.,
                           eps_func=(lambda val, step: 0.),
                           target_steps=6000,
-                          learn_freq=0.5,
+                          learn_freq=4,
                           model=m,
-                          lr=1e-4,
-                          criterion=torch.nn.MSELoss(),
+                          lr=9e-5,
+                          criterion=torch.nn.SmoothL1Loss(),
                           batch_size=32,
                           device=DEVICE,
                           is_double=True,
                           DrQ=True,
-                          reset=20000,
+                          reset=0,  # no reset
                           no_save=False)
     train(dqn)
 
