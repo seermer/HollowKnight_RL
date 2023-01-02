@@ -52,7 +52,7 @@ def main():
     n_frames = 5
     env = hkenv.HKEnv((224, 224), w1=0.8, w2=0.8, w3=-0.0001)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.MultistepBuffer(100, n=20, gamma=0.98,
+    replay_buffer = buffer.MultistepBuffer(100000, n=20, gamma=0.98,
                                            prioritized={
                                                'alpha': 0.6,
                                                'beta': 0.4,
