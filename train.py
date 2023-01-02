@@ -19,7 +19,7 @@ def get_model(env: gym.Env, n_frames: int):
 
 def train(dqn):
     print('training started')
-    # dqn.save_explorations(65)
+    dqn.save_explorations(65)
     dqn.load_explorations()
     # raise ValueError
     dqn.learn()  # warmup
