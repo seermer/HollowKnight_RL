@@ -19,7 +19,7 @@ def get_model(env: gym.Env, n_frames: int):
 
 def train(dqn):
     print('training started')
-    dqn.save_explorations(75)
+    # dqn.save_explorations(65)
     dqn.load_explorations()
     # raise ValueError
     dqn.learn()  # warmup
@@ -49,17 +49,17 @@ def train(dqn):
 
 
 def main():
-    n_frames = 4
+    n_frames = 5
     env = hkenv.HKEnv((224, 224), w1=0.8, w2=0.8, w3=-0.0001)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.MultistepBuffer(100000, n=20, gamma=0.99)
+    replay_buffer = buffer.MultistepBuffer(100000, n=20, gamma=0.98)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
-                          n_frames=n_frames, gamma=0.99, eps=0.,
+                          n_frames=n_frames, gamma=0.98, eps=0.,
                           eps_func=(lambda val, step: 0.),
-                          target_steps=6000,
-                          learn_freq=4,
+                          target_steps=8000,
+                          learn_freq=3,
                           model=m,
-                          lr=9e-5,
+                          lr=1e-4,
                           criterion=torch.nn.SmoothL1Loss(),
                           batch_size=32,
                           device=DEVICE,

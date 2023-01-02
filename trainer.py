@@ -65,7 +65,7 @@ class Trainer:
         if not no_save:
             save_loc = ('./saved/'
                         + str(int(time.time()))
-                        + 'Hornet') if save_loc is None else save_loc
+                        + 'HiveKnight') if save_loc is None else save_loc
             assert not save_loc.endswith('\\')
             save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
             print('save files at', save_loc)
@@ -124,11 +124,11 @@ class Trainer:
         return np.argmax(pred)
 
     def run_episode(self, random_action=False, no_sleep=False):
-        # if not random_action:  # decay lr over first 400 episodes
-        #     decay = (self.init_lr - self.final_lr) / 400.
-        #     for group in self.optimizer.param_groups:
-        #         group['lr'] = max(self.final_lr,
-        #                           group['lr'] - decay)
+        if not random_action and self.target_replace_times:  # decay lr over first 400 episodes
+            decay = (self.init_lr - self.final_lr) / 300.
+            for group in self.optimizer.param_groups:
+                group['lr'] = max(self.final_lr,
+                                  group['lr'] - decay)
         initial, _ = self.env.reset()
         stacked_obs = deque(
             (initial for _ in range(self.n_frames)),
@@ -166,7 +166,7 @@ class Trainer:
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
-            # print(t)
+            print(t)
         total_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, total_loss, self.optimizer.param_groups[0]['lr']
 

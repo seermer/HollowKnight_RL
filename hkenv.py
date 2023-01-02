@@ -51,7 +51,7 @@ class HKEnv(gym.Env):
         Attack.ATTACK: 'j',
     }
     HP_CKPT = [64, 99, 135, 171, 207, 242, 278, 314, 352]
-    ACTIONS = [Move, Jump, Attack]
+    ACTIONS = [Move, Jump, Attack, Dash]
 
     def __init__(self, obs_shape=(160, 160), w1=1., w2=1., w3=0.002):
         self.monitor = self._find_window()
@@ -120,6 +120,8 @@ class HKEnv(gym.Env):
         for act in actions:
             if not act.value:
                 continue
+            if act == Dash.DASH:
+                action_rew += 10
             key = self.KEYMAPS[act]
 
             if act.name.startswith('HOLD'):
@@ -212,7 +214,7 @@ class HKEnv(gym.Env):
 
         self.prev_knight_hp = knight_hp
         self.prev_enemy_hp = enemy_hp
-        reward = np.clip(reward, -10., 10.)
+        reward = np.clip(reward, -1.5, 1.5)
         return obs, reward, done, False, None
 
     def reset(self, seed=None, options=None):
