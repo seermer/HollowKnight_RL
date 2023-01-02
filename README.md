@@ -103,6 +103,7 @@ _______________________________
 - Use NAdam optimizer
 - remove non-cuda support to use cuda mix-precision
 - Add reset training
+- Add Proportional Prioritized experience replay
 
 
 _______________________________
@@ -133,6 +134,7 @@ _______________________________
 - [Bag of Tricks for Image Classification with Convolutional Neural Networks](https://arxiv.org/pdf/1812.01187.pdf)
 - [Noisy Networks for Exploration](https://arxiv.org/abs/1706.10295)
 - [The Primacy Bias in Deep Reinforcement Learning](https://arxiv.org/abs/2205.07802)
+- [Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
 
 - https://github.com/toshikwa/fqf-iqn-qrdqn.pytorch/blob/master/fqf_iqn_qrdqn/network.py
 - https://github.com/pytorch/vision/blob/main/torchvision/models/vgg.py

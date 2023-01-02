@@ -121,7 +121,7 @@ class HKEnv(gym.Env):
             if not act.value:
                 continue
             if act == Dash.DASH:
-                action_rew += 10
+                action_rew += 1
             key = self.KEYMAPS[act]
 
             if act.name.startswith('HOLD'):

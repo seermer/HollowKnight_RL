@@ -43,7 +43,7 @@ def main():
                           device=DEVICE,
                           is_double=True,
                           DrQ=True,
-                          reset=20000,
+                          reset=0,
                           no_save=True)
     evaluate(dqn)
 

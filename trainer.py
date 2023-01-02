@@ -43,6 +43,8 @@ class Trainer:
         self.criterion = criterion
         if hasattr(self.criterion, 'to'):
             self.criterion = self.criterion.to(device)
+        if hasattr(self.criterion, 'reduction'):
+            self.criterion.reduction = 'none'
         self.batch_size = batch_size
         assert device == 'cuda', 'this version of code only supports cuda, ' \
                                  'so that mixed precision GradScaler can be used'
@@ -166,7 +168,9 @@ class Trainer:
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
-            # print(t)
+            print(t)
+        if not random_action:
+            self.replay_buffer.step()
         total_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, total_loss, self.optimizer.param_groups[0]['lr']
 
@@ -200,7 +204,13 @@ class Trainer:
         return rewards
 
     def learn(self):  # update with a given batch
-        obs, act, rew, obs_next, done = self.replay_buffer.sample(self.batch_size)
+        if self.replay_buffer.prioritized:
+            (obs, act, rew, obs_next, done), indices = \
+                self.replay_buffer.prioritized_sample(self.batch_size)
+        else:
+            obs, act, rew, obs_next, done = \
+                self.replay_buffer.sample(self.batch_size)
+            indices = []
         obs = self._preprocess(obs)
         with torch.no_grad():
             self.model.reset_noise()
@@ -239,6 +249,15 @@ class Trainer:
                 q = (q[:self.batch_size] + q[self.batch_size:]) / 2.
             q = torch.gather(q, 1, act)
             loss = self.criterion(q, target)
+            if self.replay_buffer.prioritized:
+                error = q.detach() - target
+                error = error.cpu().numpy().flatten()
+                error = np.abs(error)
+                weights = self.replay_buffer.update_priority(error, indices)
+                weights = torch.tensor(weights, device=self.device)
+                # print(weights)
+                loss = loss * weights.reshape(loss.shape)
+                loss = loss.mean()
 
         self.scaler.scale(loss).backward()
         self.scaler.unscale_(self.optimizer)
