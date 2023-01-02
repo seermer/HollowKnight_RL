@@ -1,5 +1,3 @@
-import os
-import random
 import time
 import gym
 import torch
@@ -16,7 +14,7 @@ cudnn.benchmark = True
 
 
 def get_model(env: gym.Env, n_frames: int):
-    m = models.AttentionExtractor(env.observation_space.shape, n_frames)
+    m = models.SimpleExtractor(env.observation_space.shape, n_frames)
     m = models.DuelingMLP(m, env.action_space.n, True)
     return m.to(DEVICE)
 
@@ -27,9 +25,7 @@ def main():
     env = hkenv.HKEnv((192, 192), w1=1., w2=1., w3=0.)
     m = get_model(env, n_frames)
     m.eval()
-    fname = sorted(os.listdir('saved'))[-1]
-    print(f'evaluating {fname}')
-    m.load_state_dict(torch.load(f'saved/1672041706/bestmodel.pt'))  # replace this path with your weight file
+    m.load_state_dict(torch.load(YOUR_PATH))  # replace this path with your weight file
     m(torch.ones((1, n_frames) + env.observation_space.shape,
                  dtype=torch.float32, device=DEVICE))
     m.noise_mode(False)
