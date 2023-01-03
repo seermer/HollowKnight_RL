@@ -168,7 +168,7 @@ class Trainer:
             t = self.GAP - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
-            print(t)
+            # print(t)
         if not random_action:
             self.replay_buffer.step()
         total_loss = total_loss / learned_times if learned_times > 0 else 0

@@ -118,6 +118,7 @@ _______________________________
 - 12/25/2022: The agent now can defeat Hornet with a decent win rate (6 win out of 10 test episodes with bestmodel), this weight uses AttentionExtractor, model weight can be found [here](https://drive.google.com/drive/folders/1rUxppjU-QrSTvefhu8mclB1gvSWZh-mG?usp=sharing)
 - 12/26/2022: I modified the reward function, now the agent knows to chase the boss (at least sometimes), and got 5 win out of 10 test episodes.
 - 12/27/2022: tweaked several hyperparameters, the agent won 10/10 test episodes (note that this does not mean it will always win, but it does mean it got better). This weight uses SimpleExtractor, weight can be found [here](https://drive.google.com/drive/folders/1EOlSS6pknAID04wfB2AmB2XZCnuEHWxH?usp=sharing)
+- 1/1/2023: starting to train on Hive Knight
 
 _______________________________
 
