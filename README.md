@@ -53,7 +53,7 @@ ___________________________
   - [x] Add instructions to train
   - [ ] Add more docstrings and typehint in code
   - [x] Add a simple sanity check that runs gym cartpole
-- [ ] Train an agent that can defeat Hornet
+- [x] Train an agent that can defeat Hornet
 - [x] Add code for additional functionalities (like saving buffer, model...)
   - [x] Saving model periodically
   - [x] Tensorboard logging
@@ -73,6 +73,7 @@ ___________________________
   - [x] Noisy Network
   - [x] NAdam Optimizer
   - [x] Reset Training
+  - [x] Proportional Prioritized Experience Replay
 
 
 
