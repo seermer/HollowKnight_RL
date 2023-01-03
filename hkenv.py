@@ -131,7 +131,7 @@ class HKEnv(gym.Env):
                 action_rew += self._timed_hold(key, act.value * 0.2)
             else:
                 pyautogui.press(key)
-        return action_rew * -0.0001
+        return action_rew * -2e-5
 
     def _to_multi_discrete(self, num):
         num = int(num)
@@ -236,7 +236,7 @@ class HKEnv(gym.Env):
                 break
             else:
                 ready = is_loading
-        time.sleep(1.5)
+        time.sleep(2.25)
         self.prev_knight_hp, self.prev_enemy_hp = len(self.HP_CKPT), 1.
         self._episode_time = time.time()
         return self.observe()[0], None

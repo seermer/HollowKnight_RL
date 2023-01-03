@@ -19,14 +19,14 @@ def get_model(env: gym.Env, n_frames: int):
 
 def train(dqn):
     print('training started')
-    dqn.save_explorations(65)
+    dqn.save_explorations(45)
     dqn.load_explorations()
     # raise ValueError
     dqn.learn()  # warmup
 
     saved_rew = float('-inf')
     saved_train_rew = float('-inf')
-    for i in range(1, 501):
+    for i in range(1, 401):
         print('episode', i)
         rew, loss, lr = dqn.run_episode()
         if rew > saved_train_rew:
@@ -34,7 +34,6 @@ def train(dqn):
             saved_train_rew = rew
             dqn.save_models('besttrain')
         if i % 10 == 0:
-            dqn.run_episode(random_action=True)
             eval_rew = dqn.evaluate()
             if eval_rew > saved_rew:
                 print('new best eval model found')
@@ -50,19 +49,19 @@ def train(dqn):
 
 def main():
     n_frames = 5
-    env = hkenv.HKEnv((224, 224), w1=0.8, w2=0.8, w3=-0.0001)
+    env = hkenv.HKEnv((224, 224), w1=0.8, w2=0.79, w3=-0.0001)
     m = get_model(env, n_frames)
     replay_buffer = buffer.MultistepBuffer(100000, n=20, gamma=0.98,
                                            prioritized={
                                                'alpha': 0.6,
                                                'beta': 0.4,
-                                               'beta_anneal': 0.6 / 500
+                                               'beta_anneal': 0.6 / 400
                                            })
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.98, eps=0.,
                           eps_func=(lambda val, step: 0.),
                           target_steps=8000,
-                          learn_freq=4,
+                          learn_freq=2,
                           model=m,
                           lr=1e-4,
                           criterion=torch.nn.SmoothL1Loss(),

@@ -13,14 +13,13 @@ class SumTree:
                  beta_anneal: float = 0.):
         self.maxlen = maxlen
         self.leaves = [None for _ in range(maxlen)]
-        self.tree = np.zeros((maxlen * 2 - 1,), dtype=np.float32)
+        self.tree = np.zeros((maxlen * 2 - 1,), dtype=np.float64)
         self.alpha = alpha
         self.beta = beta
         self.beta_anneal = beta_anneal
         self.length = 0
         self.oldest = 0
         self.max_prio = 1. ** self.alpha
-
 
     def _get_idx(self, val: float):
         idx = 0
@@ -72,6 +71,11 @@ class SumTree:
         for i in range(k):
             val = random.uniform(i * segment, (i + 1) * segment)
             idx = self._get_idx(val)
+            while self.leaves[idx] is None:
+                # failsafe when the tree returns an invalid index
+                # because of float point error
+                val = random.uniform(i * segment, (i + 1) * segment)
+                idx = self._get_idx(val)
             indices.append(idx)
             elements.append(self.leaves[idx])
         return elements, indices
@@ -83,7 +87,7 @@ class SumTree:
         return self.length
 
     def __str__(self):
-        s = ['SumTree']
+        s = [f'SumTree:{self.length}']
         prev = 0
         idx = 1
         while True:
@@ -99,17 +103,14 @@ class SumTree:
 
 
 def test():
-    tree = SumTree(800)
-    for i in range(1000):
+    tree = SumTree(10)
+    for i in range(4):
         idx = tree.append((i,))
-        tree.update_prio(i / 1000, idx)
+        tree.update_prio(random.uniform(0, 1), idx)
 
-    print(len(tree.sample(32)[0]))
-    counts = {i: 0 for i in range(1000)}
-    for _ in range(sum(range(1000)) * 5):
-        counts[tree.sample(1)[0][0][0]] += 1
-    for k, v in counts.items():
-        print(k, v / 5)
+    while True:
+        tree.update_prio(random.uniform(0, 1), random.randint(0, 3))
+        sample, indices = tree.sample(3)
 
 
 if __name__ == '__main__':
