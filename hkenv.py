@@ -20,11 +20,11 @@ class Actions(enum.Enum):
 
 
 class Move(Actions):
-    # NO_OP = 0
+    NO_OP = 0
     HOLD_LEFT = 1
     HOLD_RIGHT = 2
-    LOOK_LEFT = 3
-    LOOK_RIGHT = 4
+    # LOOK_LEFT = 3
+    # LOOK_RIGHT = 4
 
 
 class Attack(Actions):
@@ -45,8 +45,8 @@ class HKEnv(gym.Env):
     KEYMAPS = {
         Move.HOLD_LEFT: 'a',
         Move.HOLD_RIGHT: 'd',
-        Move.LOOK_LEFT: 'a',
-        Move.LOOK_RIGHT: 'd',
+        # Move.LOOK_LEFT: 'a',
+        # Move.LOOK_RIGHT: 'd',
         JumpDash.TIMED_SHORT_JUMP: 'space',
         JumpDash.TIMED_LONG_JUMP: 'space',
         JumpDash.DASH: 'k',
@@ -254,7 +254,11 @@ class HKEnv(gym.Env):
             self._timer.join()
         self.holding = []
         for key in self.KEYMAPS.values():
-            pyautogui.keyUp(key)
+            if isinstance(key, tuple):
+                for k in key:
+                    pyautogui.keyUp(k)
+            else:
+                pyautogui.keyUp(key)
         self.prev_knight_hp = None
         self.prev_enemy_hp = None
         self.prev_action = -1

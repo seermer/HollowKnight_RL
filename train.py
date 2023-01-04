@@ -70,7 +70,7 @@ def main():
                           is_double=True,
                           DrQ=True,
                           reset=0,  # no reset
-                          no_save=True)
+                          no_save=False)
     train(dqn)
 
 
