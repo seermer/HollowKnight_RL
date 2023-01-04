@@ -19,14 +19,14 @@ def get_model(env: gym.Env, n_frames: int):
 
 def train(dqn):
     print('training started')
-    dqn.save_explorations(45)
+    dqn.save_explorations(30)
     dqn.load_explorations()
     # raise ValueError
     dqn.learn()  # warmup
 
     saved_rew = float('-inf')
     saved_train_rew = float('-inf')
-    for i in range(1, 401):
+    for i in range(1, 301):
         print('episode', i)
         rew, loss, lr = dqn.run_episode()
         if rew > saved_train_rew:
@@ -55,13 +55,13 @@ def main():
                                            prioritized={
                                                'alpha': 0.6,
                                                'beta': 0.4,
-                                               'beta_anneal': 0.6 / 400
+                                               'beta_anneal': 0.6 / 300
                                            })
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.98, eps=0.,
                           eps_func=(lambda val, step: 0.),
-                          target_steps=8000,
-                          learn_freq=2,
+                          target_steps=6000,
+                          learn_freq=1,
                           model=m,
                           lr=1e-4,
                           criterion=torch.nn.SmoothL1Loss(),
@@ -70,7 +70,7 @@ def main():
                           is_double=True,
                           DrQ=True,
                           reset=0,  # no reset
-                          no_save=False)
+                          no_save=True)
     train(dqn)
 
 

@@ -20,38 +20,42 @@ class Actions(enum.Enum):
 
 
 class Move(Actions):
-    NO_OP = 0
+    # NO_OP = 0
     HOLD_LEFT = 1
     HOLD_RIGHT = 2
-
-
-class Jump(Actions):
-    NO_OP = 0
-    TIMED_SHORT_JUMP = 1
-    TIMED_LONG_JUMP = 2
+    LOOK_LEFT = 3
+    LOOK_RIGHT = 4
 
 
 class Attack(Actions):
     NO_OP = 0
     ATTACK = 1
+    UP_ATTACK = 2
+    SPELL = 3
 
 
-class Dash(Actions):
+class JumpDash(Actions):
     NO_OP = 0
-    DASH = 1
+    TIMED_SHORT_JUMP = 1
+    TIMED_LONG_JUMP = 2
+    DASH = 3
 
 
 class HKEnv(gym.Env):
     KEYMAPS = {
         Move.HOLD_LEFT: 'a',
         Move.HOLD_RIGHT: 'd',
-        Jump.TIMED_SHORT_JUMP: 'space',
-        Jump.TIMED_LONG_JUMP: 'space',
-        Dash.DASH: 'k',
+        Move.LOOK_LEFT: 'a',
+        Move.LOOK_RIGHT: 'd',
+        JumpDash.TIMED_SHORT_JUMP: 'space',
+        JumpDash.TIMED_LONG_JUMP: 'space',
+        JumpDash.DASH: 'k',
         Attack.ATTACK: 'j',
+        Attack.UP_ATTACK: ('w', 'j'),
+        Attack.SPELL: 'q'
     }
     HP_CKPT = [64, 99, 135, 171, 207, 242, 278, 314, 352]
-    ACTIONS = [Move, Jump, Attack, Dash]
+    ACTIONS = [Move, Attack, JumpDash]
 
     def __init__(self, obs_shape=(160, 160), w1=1., w2=1., w3=0.002):
         self.monitor = self._find_window()
@@ -101,7 +105,7 @@ class HKEnv(gym.Env):
             pyautogui.keyDown(key)
             time.sleep(seconds)
             pyautogui.keyUp(key)
-            time.sleep(0.002)
+            time.sleep(0.001)
 
         if self._timer is None or not self._timer.is_alive():
             # timer available, do timed action
@@ -120,8 +124,6 @@ class HKEnv(gym.Env):
         for act in actions:
             if not act.value:
                 continue
-            if act == Dash.DASH:
-                action_rew += 1
             key = self.KEYMAPS[act]
 
             if act.name.startswith('HOLD'):
@@ -129,9 +131,12 @@ class HKEnv(gym.Env):
                 self.holding.append(key)
             elif act.name.startswith('TIMED'):
                 action_rew += self._timed_hold(key, act.value * 0.2)
+            elif isinstance(key, tuple):
+                with pyautogui.hold(key[0]):
+                    pyautogui.press(key[1])
             else:
                 pyautogui.press(key)
-        return action_rew * -2e-5
+        return action_rew * -1e-5
 
     def _to_multi_discrete(self, num):
         num = int(num)

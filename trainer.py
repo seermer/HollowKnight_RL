@@ -231,12 +231,10 @@ class Trainer:
                 target_q = self.target_model(obs_next).detach()
                 if self.is_double:
                     max_act = self.model(obs_next).detach()
-                    max_act = torch.argmax(max_act, dim=1)
-                    length = self.batch_size * 2 if self.transform else self.batch_size
-                    max_target_q = target_q[torch.arange(length), max_act]
-                    max_target_q = max_target_q.unsqueeze(-1)
+                    max_act = torch.argmax(max_act, dim=-1, keepdim=True)
+                    max_target_q = torch.gather(target_q, -1, max_act)
                 else:
-                    max_target_q, _ = target_q.max(dim=1, keepdims=True)
+                    max_target_q, _ = target_q.max(dim=-1, keepdims=True)
                 if self.transform:
                     max_target_q = max_target_q[:self.batch_size] + max_target_q[self.batch_size:]
                     max_target_q /= 2.
@@ -247,7 +245,7 @@ class Trainer:
             q = self.model(obs)
             if self.transform:
                 q = (q[:self.batch_size] + q[self.batch_size:]) / 2.
-            q = torch.gather(q, 1, act)
+            q = torch.gather(q, -1, act)
             loss = self.criterion(q, target)
             if self.replay_buffer.prioritized:
                 error = q.detach() - target
