@@ -11,6 +11,9 @@ for more stable recognition, the mod files can be found in Managed folder.
 
 **This branch will not change unless important changes are required (e.g, bug fix)**
 
+Trained agent evaluation performance: <br>
+https://youtu.be/yP6tUWmXCa4
+
 ________________________
 
 ## Platform and requirements
