@@ -19,6 +19,33 @@ class Trainer:
                  model, lr, criterion, batch_size, device,
                  is_double=True, DrQ=True, reset=0,
                  save_loc=None, no_save=False):
+        """
+        Initialize a DQN trainer
+
+        :param env: any gym environment (pixel based recommended but not required)
+        :param replay_buffer: a Buffer instance (or its subclass)
+        :param n_frames: number of consecutive frames to input into the model
+        :param gamma: discount factor
+        :param eps: epsilon for epsilon-greedy, 0 means no epsilon-greedy
+        :param eps_func: a function being called with eps, num_step,
+                where eps is previous epsilon, num_step is number of environment steps,
+                should return new epsilon (this function is for epsilon decay)
+        :param target_steps: number of steps that target model being replaced,
+                note that this step is based on number of learning steps not env steps
+        :param learn_freq: learning frequency (for example,
+                4 means update online network every 4 environment steps)
+        :param model: an instance of AbstractFullyConnected subclass
+        :param lr: learning rate
+        :param criterion: loss function that used should take online Q and target Q as input
+        :param batch_size: number of samples to learn for each update
+        :param device: device to put the model, only CUDA GPU is supported!!!!
+        :param is_double: True to use double DQN update
+        :param DrQ: True to use Data regularized Q
+        :param reset: number of environment steps between each model reset (0 for no reset)
+        :param save_loc: save location for
+                tensorboard logger and model checkpoints (None for default)
+        :param no_save: True if avoid saving logs and models
+        """
         self.env = env
         self.replay_buffer = replay_buffer
 
@@ -111,12 +138,19 @@ class Trainer:
 
     @torch.no_grad()
     def _warmup(self, model):
+        """
+        pytorch is very slow on first run,
+        warmup to reduce impact on actual training
+        """
         model(torch.rand((1, self.n_frames) + self.env.observation_space.shape,
                          dtype=torch.float32,
                          device=self.device)).detach().cpu().numpy()
 
     @torch.no_grad()
     def get_action(self, obs):
+        """
+        find the action with largest Q value output by online model
+        """
         obs = torch.as_tensor(obs, dtype=torch.float32,
                               device=self.device)
         with torch.amp.autocast(self.device):
@@ -126,6 +160,17 @@ class Trainer:
         return np.argmax(pred)
 
     def run_episode(self, random_action=False, no_sleep=False):
+        """
+        run an episode with policy, and learn between steps
+
+        :param random_action: whether to always do random actions
+                (for exploration, will not update network while this is True)
+        :param no_sleep: by default, model will sleep until predefined gap is reached,
+                so that the frame rate is more stable on real-time environment,
+                set to true to avoid sleeping
+        :return: total episode reward, per sample loss, and current learning rate
+        """
+
         if not random_action and self.target_replace_times:  # decay lr over first 400 episodes
             decay = (self.init_lr - self.final_lr) / 300.
             for group in self.optimizer.param_groups:
@@ -171,14 +216,17 @@ class Trainer:
             # print(t)
         if not random_action:
             self.replay_buffer.step()
-        total_loss = total_loss / learned_times if learned_times > 0 else 0
-        return total_rewards, total_loss, self.optimizer.param_groups[0]['lr']
+        avg_loss = total_loss / learned_times if learned_times > 0 else 0
+        return total_rewards, avg_loss, self.optimizer.param_groups[0]['lr']
 
     def run_episodes(self, n, **kwargs):
         for _ in range(n):
             self.run_episode(**kwargs)
 
     def evaluate(self, no_sleep=False):
+        """
+        evaluate the current policy greedily
+        """
         self.model.noise_mode(False)
         initial, _ = self.env.reset()
         stacked_obs = deque(
@@ -204,6 +252,11 @@ class Trainer:
         return rewards
 
     def learn(self):  # update with a given batch
+        """
+        sample a single batch and update current model
+
+        :return: per sample loss
+        """
         if self.replay_buffer.prioritized:
             (obs, act, rew, obs_next, done), indices = \
                 self.replay_buffer.prioritized_sample(self.batch_size)
@@ -277,6 +330,11 @@ class Trainer:
         return loss
 
     def load_explorations(self, save_loc='./explorations/'):
+        """
+        load all explorations from given environment into the replay buffer
+
+        :param save_loc: directory where the explorations can be found
+        """
         assert not save_loc.endswith('\\')
         stats_imgs = []
         save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
@@ -308,6 +366,18 @@ class Trainer:
         print('loaded data with mean/std', self.stats)
 
     def save_explorations(self, n_episodes, save_loc='./explorations/'):
+        """
+        interact with environment n episodes with random agent, save locally
+        please note that explorations are only effective
+        when the environment is exactly the same
+        (other settings, including replay buffer can change)
+
+        this function will automatically skip any existing explorations,
+        manually delete any explorations you do not want to keep
+
+        :param n_episodes: number of explorations to be saved
+        :param save_loc: directory used to save
+        """
         assert not save_loc.endswith('\\')
         save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
         for i in range(n_episodes):
@@ -344,12 +414,23 @@ class Trainer:
             print(f'saved exploration at {os.path.abspath(fname)}')
 
     def save_models(self, prefix=''):
+        """
+        save online model, target model, and optimizer checkpoint
+
+        :param prefix: prefix for the model file you want to save
+        """
         if not self.no_save:
             torch.save(self.model.state_dict(), self.save_loc + prefix + 'model.pt')
             torch.save(self.target_model.state_dict(), self.save_loc + prefix + 'target_model.pt')
             torch.save(self.optimizer.state_dict(), self.save_loc + prefix + 'optimizer.pt')
 
     def log(self, info, log_step):
+        """
+        log given dictionary info to tensorboard
+
+        :param info: a dictionary of tag (key) and scaler (value) pairs
+        :param log_step: the step to be logged on tensorboard
+        """
         if not self.no_save:
             for k, v in info.items():
                 self.writer.add_scalar(k, v, log_step)

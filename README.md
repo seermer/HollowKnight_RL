@@ -48,10 +48,10 @@ While running, do not click on other windows, stay focused on the Hollow Knight 
 ___________________________
 
 ## Project Tentative Plan:
-- [ ] Update Project Structure
+- [x] Update Project Structure
   - [x] Add requirements.txt, mod files
   - [x] Add instructions to train
-  - [ ] Add more docstrings and typehint in code
+  - [x] Add more docstrings (currently done for important ones, may add more in future)
   - [x] Add a simple sanity check that runs gym cartpole
 - [x] Train an agent that can defeat Hornet
   - You can see how the agent trained with hornet branch perform during evaluation at https://youtu.be/yP6tUWmXCa4

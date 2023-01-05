@@ -31,7 +31,7 @@ class Attack(Actions):
     NO_OP = 0
     ATTACK = 1
     UP_ATTACK = 2
-    SPELL = 3
+    # SPELL = 3
 
 
 class JumpDash(Actions):
@@ -42,7 +42,12 @@ class JumpDash(Actions):
 
 
 class HKEnv(gym.Env):
-    KEYMAPS = {
+    """
+    environment that interacts with Hollow knight game,
+    implementation follows the gym custom environment API
+    """
+
+    KEYMAPS = {  # map each action to its corresponding key to press
         Move.HOLD_LEFT: 'a',
         Move.HOLD_RIGHT: 'd',
         # Move.LOOK_LEFT: 'a',
@@ -52,12 +57,21 @@ class HKEnv(gym.Env):
         JumpDash.DASH: 'k',
         Attack.ATTACK: 'j',
         Attack.UP_ATTACK: ('w', 'j'),
-        Attack.SPELL: 'q'
+        # Attack.SPELL: 'q'
     }
     HP_CKPT = [64, 99, 135, 171, 207, 242, 278, 314, 352]
     ACTIONS = [Move, Attack, JumpDash]
 
-    def __init__(self, obs_shape=(160, 160), w1=1., w2=1., w3=0.002):
+    def __init__(self, obs_shape=(160, 160), w1=1., w2=1., w3=-0.0001):
+        """
+        :param obs_shape: the shape of observation returned by step and reset
+        :param w1: the weight of negative reward when being hit
+                (for example, w1=1. means give -1 reward when being hit)
+        :param w2: the weight of positive reward when hitting enemy
+                (for example, w2=1. means give +1 reward when hitting enemy)
+        :param w3: the weight of positive reward when not hitting nor being hit
+                (for example, w3=-0.0001 means give -0.0001 reward when neither happens
+        """
         self.monitor = self._find_window()
         self.holding = []
         self.prev_knight_hp = None
@@ -77,6 +91,11 @@ class HKEnv(gym.Env):
 
     @staticmethod
     def _find_window():
+        """
+        find the location of Hollow Knight window
+
+        :return: return the monitor location for screenshot
+        """
         window = pyautogui.getWindowsWithTitle('Hollow Knight')
         assert len(window) == 1, f'found {len(window)} windows called Hollow Knight {window}'
         window = window[0]
@@ -101,6 +120,15 @@ class HKEnv(gym.Env):
         return loc
 
     def _timed_hold(self, key, seconds):
+        """
+        use a separate thread to hold a key for given seconds
+        if the key is already holding, do nothing and return 1,
+
+        :param key: the key to be pressed
+        :param seconds: time to hold the key
+        :return: 1 if already holding, 0 when success
+        """
+
         def timer_thread():
             pyautogui.keyDown(key)
             time.sleep(seconds)
@@ -117,6 +145,13 @@ class HKEnv(gym.Env):
             return 1
 
     def _step_actions(self, actions):
+        """
+        release all non-timed holding keys,
+        press keys corresponding to given actions
+
+        :param actions: a list of actions
+        :return: reward for doing given actions
+        """
         for key in self.holding:
             pyautogui.keyUp(key)
         self.holding = []
@@ -139,6 +174,12 @@ class HKEnv(gym.Env):
         return action_rew * -1e-5
 
     def _to_multi_discrete(self, num):
+        """
+        interpret the single number to a list of actions
+
+        :param num: the number representing an action combination
+        :return: list of action enums
+        """
         num = int(num)
         chosen = []
         for Act in self.ACTIONS:
@@ -147,6 +188,12 @@ class HKEnv(gym.Env):
         return chosen
 
     def _find_menu(self):
+        """
+        locate the menu badge,
+        when the badge is found, the correct game is ready to be started
+
+        :return: the location of menu badge
+        """
         monitor = self.monitor
         monitor = (monitor['left'] + monitor['width'] // 2,
                    monitor['top'],
@@ -157,6 +204,12 @@ class HKEnv(gym.Env):
                                         confidence=0.85)
 
     def observe(self, knight_only=False):
+        """
+        take a screenshot and identify enemy and knight's HP
+
+        :param knight_only: True to only return knight HP, False otherwise
+        :return: observation (a resized screenshot), knight HP, and enemy HP
+        """
         with mss() as sct:
             frame = np.asarray(sct.grab(self.monitor), dtype=np.uint8)[:, :, :3]
         # print(frame.shape)
@@ -250,6 +303,11 @@ class HKEnv(gym.Env):
         self.cleanup()
 
     def cleanup(self):
+        """
+        do any necessary cleanup on the interaction
+        should only be called before or after an episode
+        """
+
         if self._timer is not None:
             self._timer.join()
         self.holding = []

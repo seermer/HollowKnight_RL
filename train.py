@@ -19,7 +19,7 @@ def get_model(env: gym.Env, n_frames: int):
 
 def train(dqn):
     print('training started')
-    dqn.save_explorations(30)
+    dqn.save_explorations(20)
     dqn.load_explorations()
     # raise ValueError
     dqn.learn()  # warmup
@@ -49,7 +49,7 @@ def train(dqn):
 
 def main():
     n_frames = 5
-    env = hkenv.HKEnv((224, 224), w1=0.8, w2=0.79, w3=-0.0001)
+    env = hkenv.HKEnv((224, 224), w1=0.8, w2=0.78, w3=1e-6)
     m = get_model(env, n_frames)
     replay_buffer = buffer.MultistepBuffer(100000, n=20, gamma=0.98,
                                            prioritized={
