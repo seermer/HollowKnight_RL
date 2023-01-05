@@ -17,12 +17,12 @@ ________________________
 
 ## Platform and requirements
 
-Python 3 (tested with Python 3.10) <br>
-Windows 10 or 11 <br>
-Screen with at least width/height of (1280, 720) resolution (note that this can be modified to smaller resolution in hkenv.py, but then you need to rewrite quite a bit of recognition codes) <br>
-CUDA GPU <br>
-The newest version of Hollow Knight Game (tested with Steam version) <br>
-packages listed in requirements.txt <br>
+- Python 3 (tested with Python 3.10)
+- Windows 10 or 11 (testsed on 11)
+- Screen with at least width/height of (1280, 720) resolution (note that this can be modified to smaller resolution in hkenv.py, but then you need to rewrite quite a bit of recognition codes)
+- CUDA GPU (CPU is way too slow for real time game, and I used some GPU only features)
+- The newest version of Hollow Knight Game (tested with Steam version)
+- packages listed in requirements.txt (recommended to install in virtual environment)
 
 
 _________________________
