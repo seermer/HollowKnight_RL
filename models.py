@@ -241,7 +241,7 @@ class AbstractFullyConnected(nn.Module):
         for layer in self.noisy:
             layer.noise_mode(mode)
 
-    def reset_linear(self):
+    def reset_params(self):
         n = 0
         for layer in self.resetable:
             n += 1
@@ -266,7 +266,7 @@ class SinglePathMLP(AbstractFullyConnected):
             self.out
         ])
 
-        self.reset_linear()
+        self.reset_params()
 
     def forward(self, x, **kwargs):
         x = self.extractor(x)
@@ -298,7 +298,7 @@ class DuelingMLP(AbstractFullyConnected):
             self.adv
         ])
 
-        self.reset_linear()
+        self.reset_params()
 
     def forward(self, x, adv_only=False, **kwargs):
         x = self.extractor(x)

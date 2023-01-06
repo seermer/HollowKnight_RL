@@ -1,15 +1,14 @@
 # Playing Hollow Knight with Reinforcement Learning
 
-The project uses Deep Q-Network to learn how to play boss fight in Hollow Knight.
+The repo uses Deep Q-Network to learn how to play boss fight in Hollow Knight.
 
-I am currently primarily trying to train the agent with Hornet boss fight, 
 but it should be able to run on most Hall of Gods Boss with only one boss health bar.
 
 You need to install the Satchel and EnemyHPBar Mod to correctly run (so it can recognize boss HP), 
 I have made some modifications (custom HP bar color) 
 for more stable recognition, the mod files can be found in Managed folder.
 
-**Note: I am still updating the project, so any file or structure of the repo may change**
+**Note: I am still updating the repo, so any file or structure of the repo may change**
 
 **Note: the "master" branch contains files and algorithms working in progress, "hornet" branch contains a version that was able to train an agent that can defeat hornet most of the time, that branch will no longer be modified unless important updates (e.g. bug fix) is needed**
 
@@ -18,7 +17,7 @@ ________________________
 ## Platform and requirements
 
 - Python 3 (tested with Python 3.10)
-- Windows 10 or 11 (testsed on 11)
+- Windows 10 or 11 (tested on 11)
 - Screen with at least width/height of (1280, 720) resolution (note that this can be modified to smaller resolution in hkenv.py, but then you need to rewrite quite a bit of recognition codes)
 - CUDA GPU (CPU is way too slow for real time game, and I used some GPU only features)
 - The newest version of Hollow Knight Game (tested with Steam version)
@@ -47,8 +46,8 @@ While running, do not click on other windows, stay focused on the Hollow Knight 
 
 ___________________________
 
-## Project Tentative Plan:
-- [x] Update Project Structure
+## Tentative Plan:
+- [x] Update Structure
   - [x] Add requirements.txt, mod files
   - [x] Add instructions to train
   - [x] Add more docstrings (currently done for important ones, may add more in future)
@@ -78,7 +77,7 @@ ___________________________
 
 
 
-Project inspired by https://github.com/ailec0623/DQN_HollowKnight <br>
+Inspired by https://github.com/ailec0623/DQN_HollowKnight <br>
 It is a very interesting project, and the author has already defeated Hornet with a trained agent. However, that project uses CE and Windows API heavily, which I am less familiar with, and I also want to practice with extensions on dqn, so I decided to write one from scratch on my own.
 
 _______________________________

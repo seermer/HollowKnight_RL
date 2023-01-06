@@ -62,7 +62,7 @@ class HKEnv(gym.Env):
     HP_CKPT = [64, 99, 135, 171, 207, 242, 278, 314, 352]
     ACTIONS = [Move, Attack, JumpDash]
 
-    def __init__(self, obs_shape=(160, 160), w1=1., w2=1., w3=-0.0001):
+    def __init__(self, obs_shape=(160, 160), rgb=False, w1=1., w2=1., w3=-0.0001):
         """
         :param obs_shape: the shape of observation returned by step and reset
         :param w1: the weight of negative reward when being hit
@@ -78,9 +78,12 @@ class HKEnv(gym.Env):
         self.prev_enemy_hp = None
         self.prev_action = -1
         total_actions = np.prod([len(Act) for Act in self.ACTIONS])
+        if rgb:
+            obs_shape = obs_shape + (3,)
         self.observation_space = gym.spaces.Box(low=0, high=255,
                                                 dtype=np.uint8, shape=obs_shape)
         self.action_space = gym.spaces.Discrete(int(total_actions))
+        self.rgb = rgb
 
         self.w1 = w1
         self.w2 = w2
@@ -211,7 +214,7 @@ class HKEnv(gym.Env):
         :return: observation (a resized screenshot), knight HP, and enemy HP
         """
         with mss() as sct:
-            frame = np.asarray(sct.grab(self.monitor), dtype=np.uint8)[:, :, :3]
+            frame = np.array(sct.grab(self.monitor), dtype=np.uint8)
         # print(frame.shape)
         if knight_only:
             enemy_hp = None
@@ -229,11 +232,14 @@ class HKEnv(gym.Env):
         if knight_only:
             obs = None
         else:
-            obs = frame[:608, ...]
+            obs = cv2.cvtColor(frame[:608, ...],
+                               (cv2.COLOR_BGRA2RGB if self.rgb
+                                else cv2.COLOR_BGRA2GRAY))
             obs = cv2.resize(obs,
-                             dsize=self.observation_space.shape,
+                             dsize=self.observation_space.shape[:2],
                              interpolation=cv2.INTER_AREA)
-            obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
+            # make channel first
+            obs = np.rollaxis(obs, -1) if self.rgb else obs[np.newaxis, ...]
         return obs, knight_hp, enemy_hp
 
     def step(self, actions):

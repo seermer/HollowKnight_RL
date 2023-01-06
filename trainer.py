@@ -116,7 +116,7 @@ class Trainer:
         obs /= self.stats[1]
         return obs
 
-    def _preprocess(self, obs):
+    def _preprocess_train(self, obs):
         if len(obs.shape) < 4:  # not image
             return torch.as_tensor(obs, dtype=torch.float32,
                                    device=self.device)
@@ -199,7 +199,7 @@ class Trainer:
             self.replay_buffer.add(obs_tuple, action, rew, done)
             if self.reset and self.steps % self.reset == 0:
                 print('model reset')
-                self.model.reset_linear()
+                self.model.reset_params()
                 self._update_target()
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.steps)
@@ -264,7 +264,7 @@ class Trainer:
             obs, act, rew, obs_next, done = \
                 self.replay_buffer.sample(self.batch_size)
             indices = []
-        obs = self._preprocess(obs)
+        obs = self._preprocess_train(obs)
         with torch.no_grad():
             self.model.reset_noise()
             self.target_model.reset_noise()
@@ -274,7 +274,7 @@ class Trainer:
             rew = torch.as_tensor(rew,
                                   dtype=torch.float32,
                                   device=self.device)
-            obs_next = self._preprocess(obs_next)
+            obs_next = self._preprocess_train(obs_next)
             done = torch.as_tensor(done,
                                    dtype=torch.float32,
                                    device=self.device)
@@ -308,7 +308,7 @@ class Trainer:
                 weights = torch.tensor(weights, device=self.device)
                 # print(weights)
                 loss = loss * weights.reshape(loss.shape)
-                loss = loss.mean()
+            loss = loss.mean()
 
         self.scaler.scale(loss).backward()
         self.scaler.unscale_(self.optimizer)

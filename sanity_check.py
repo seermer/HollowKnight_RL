@@ -29,7 +29,8 @@ class Net(models.AbstractFullyConnected):
         self.act = nn.ReLU(inplace=True)
 
     def forward(self, x, **kwargs):
-        x = torch.flatten(x, 1)
+        # x = torch.flatten(x, 1)
+        # print(x.shape)
         x = self.linear1(x)
         x = self.act(x)
         x = self.linear2(x)
@@ -60,7 +61,7 @@ def main():
     replay_buffer = buffer.MultistepBuffer(500000, n=12, gamma=0.99)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.99, eps=0.,
-                          eps_func=(lambda val, episode, step:
+                          eps_func=(lambda val, step:
                                     0.),
                           target_steps=2000,
                           learn_freq=1,

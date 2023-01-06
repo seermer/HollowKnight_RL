@@ -20,10 +20,10 @@ class Buffer:
     def _to_numpy(batch):
         obs, act, rew, obs_next, done = [], [], [], [], []
         for o, a, r, o_, d in batch:
-            obs.append(o)
+            obs.append(np.concatenate(o))
             act.append(a)
             rew.append(r)
-            obs_next.append(o_)
+            obs_next.append(np.concatenate(o_))
             done.append(d)
 
         return (np.array(obs, copy=True, dtype=np.float32),
