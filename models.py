@@ -99,7 +99,7 @@ class BasicBlock(nn.Module):
 
 
 class AbstractExtractor(nn.Module):
-    def __init__(self, obs_shape: tuple, n_frames: int):
+    def __init__(self, obs_shape: tuple, in_channels: int):
         super(AbstractExtractor, self).__init__()
 
     def forward(self, x):
@@ -107,13 +107,13 @@ class AbstractExtractor(nn.Module):
 
 
 class ResidualExtractor(AbstractExtractor):
-    def __init__(self, obs_shape: tuple, n_frames: int):
-        super(ResidualExtractor, self).__init__(obs_shape, n_frames)
+    def __init__(self, obs_shape: tuple, in_channels: int):
+        super(ResidualExtractor, self).__init__(obs_shape, in_channels)
         act = nn.ReLU(inplace=True)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape //= 32
         self.convs = nn.Sequential(
-            nn.Conv2d(n_frames, 48, 4, 4),
+            nn.Conv2d(in_channels, 48, 4, 4),
             act,
             BasicBlock(48, 48),
             BasicBlock(48, 96, 2),
@@ -136,13 +136,13 @@ class ResidualExtractor(AbstractExtractor):
 
 
 class SimpleExtractor(AbstractExtractor):
-    def __init__(self, obs_shape: tuple, n_frames: int):
-        super(SimpleExtractor, self).__init__(obs_shape, n_frames)
+    def __init__(self, obs_shape: tuple, in_channels: int):
+        super(SimpleExtractor, self).__init__(obs_shape, in_channels)
         act = nn.ReLU(inplace=True)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape //= 32
         self.convs = nn.Sequential(
-            nn.Conv2d(n_frames, 32, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(in_channels, 32, kernel_size=3, stride=2, padding=1),
             act,
             nn.Conv2d(32, 48, kernel_size=3, stride=2, padding=1),
             act,
@@ -165,13 +165,13 @@ class SimpleExtractor(AbstractExtractor):
 
 
 class TinyExtractor(AbstractExtractor):
-    def __init__(self, obs_shape: tuple, n_frames: int):
-        super(TinyExtractor, self).__init__(obs_shape, n_frames)
+    def __init__(self, obs_shape: tuple, in_channels: int):
+        super(TinyExtractor, self).__init__(obs_shape, in_channels)
         act = nn.ReLU(inplace=True)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape = out_shape // 32
         self.convs = nn.Sequential(
-            nn.Conv2d(n_frames, 32, kernel_size=7, stride=4, padding=3),
+            nn.Conv2d(in_channels, 32, kernel_size=7, stride=4, padding=3),
             act,
             nn.Conv2d(32, 64, kernel_size=7, stride=4, padding=3),
             act,
@@ -192,13 +192,13 @@ class TinyExtractor(AbstractExtractor):
 
 
 class AttentionExtractor(AbstractExtractor):
-    def __init__(self, obs_shape: tuple, n_frames: int):
-        super(AttentionExtractor, self).__init__(obs_shape, n_frames)
+    def __init__(self, obs_shape: tuple, in_channels: int):
+        super(AttentionExtractor, self).__init__(obs_shape, in_channels)
         act = nn.ReLU(inplace=True)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape //= 32
         self.convs = nn.Sequential(
-            nn.Conv2d(n_frames, 32, kernel_size=5, stride=2, padding=2),
+            nn.Conv2d(in_channels, 32, kernel_size=5, stride=2, padding=2),
             act,
             nn.Conv2d(32, 48, kernel_size=3, stride=2, padding=1),
             act,

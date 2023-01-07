@@ -12,7 +12,8 @@ cudnn.benchmark = True
 
 
 def get_model(env: gym.Env, n_frames: int):
-    m = models.SimpleExtractor(env.observation_space.shape, n_frames)
+    c, *shape = env.observation_space.shape
+    m = models.SimpleExtractor(shape, n_frames * c)
     m = models.DuelingMLP(m, env.action_space.n, noisy=True)
     m = m.to(DEVICE)
     # modify below path to the weight file you have

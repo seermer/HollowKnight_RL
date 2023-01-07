@@ -30,7 +30,7 @@ class Buffer:
                 np.array(act, copy=True, dtype=np.int64)[:, np.newaxis],
                 np.array(rew, copy=True, dtype=np.float32)[:, np.newaxis],
                 np.array(obs_next, copy=True, dtype=np.float32),
-                np.array(done, copy=True, dtype=bool)[:, np.newaxis])
+                np.array(done, copy=True, dtype=np.float32)[:, np.newaxis])
 
     @property
     def is_full(self):

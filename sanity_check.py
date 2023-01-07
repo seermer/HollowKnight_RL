@@ -58,7 +58,12 @@ def main():
     n_frames = 1
     env = gym.make('CartPole-v0')
     m = get_model(env)
-    replay_buffer = buffer.MultistepBuffer(500000, n=12, gamma=0.99)
+    replay_buffer = buffer.MultistepBuffer(500000, n=12, gamma=0.99,
+                                           prioritized={
+                                               'alpha': 0.6,
+                                               'beta': 0.4,
+                                               'beta_anneal': 0.6 / 300
+                                           })
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.99, eps=0.,
                           eps_func=(lambda val, step:
@@ -71,7 +76,7 @@ def main():
                           batch_size=32,
                           device=DEVICE,
                           is_double=True,
-                          DrQ=False,
+                          DrQ=True,
                           no_save=True)
     train(dqn)
 

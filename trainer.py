@@ -79,7 +79,7 @@ class Trainer:
         self.scaler = torch.cuda.amp.grad_scaler.GradScaler()
 
         self.is_double = is_double
-        self.transform = K.RandomCrop(size=self.env.observation_space.shape,
+        self.transform = K.RandomCrop(size=self.env.observation_space.shape[1:],
                                       padding=(8, 8),
                                       padding_mode='replicate').to(device) if DrQ else None
         self.reset = reset
@@ -94,7 +94,7 @@ class Trainer:
         if not no_save:
             save_loc = ('./saved/'
                         + str(int(time.time()))
-                        + 'HiveKnight') if save_loc is None else save_loc
+                        + 'Hornet') if save_loc is None else save_loc
             assert not save_loc.endswith('\\')
             save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
             print('save files at', save_loc)
@@ -117,15 +117,15 @@ class Trainer:
         return obs
 
     def _preprocess_train(self, obs):
-        if len(obs.shape) < 4:  # not image
-            return torch.as_tensor(obs, dtype=torch.float32,
+        if len(obs.shape) != 4:  # not image
+            return torch.as_tensor(obs,
                                    device=self.device)
-        obs = torch.as_tensor(obs, dtype=torch.float32,
+        obs = torch.as_tensor(obs,
                               device=self.device)
         self._standardize(obs)
         if self.transform:
             scale = torch.randn((self.batch_size, 1, 1, 1),
-                                dtype=torch.float32, device=self.device)
+                                device=self.device)
             scale = torch.clip(scale, -2, 2) * 0.03 + 1.
             return torch.vstack((obs * scale, self.transform(obs)))
         else:
@@ -142,9 +142,33 @@ class Trainer:
         pytorch is very slow on first run,
         warmup to reduce impact on actual training
         """
-        model(torch.rand((1, self.n_frames) + self.env.observation_space.shape,
+        c, *shape = self.env.observation_space.shape
+        model(torch.rand((1, self.n_frames * c) + tuple(shape),
                          dtype=torch.float32,
                          device=self.device)).detach().cpu().numpy()
+
+    @torch.no_grad()
+    def _compute_target(self, obs_next, rew, done):
+        rew = torch.as_tensor(rew,
+                              dtype=torch.float32,
+                              device=self.device)
+        obs_next = self._preprocess_train(obs_next)
+        done = torch.as_tensor(done,
+                               dtype=torch.float32,
+                               device=self.device)
+        target_q = self.target_model(obs_next).detach()
+        with torch.amp.autocast(self.device):
+            if self.is_double:
+                max_act = self.model(obs_next).detach()
+                max_act = torch.argmax(max_act, dim=-1, keepdim=True)
+                max_target_q = torch.gather(target_q, -1, max_act)
+            else:
+                max_target_q, _ = target_q.max(dim=-1, keepdims=True)
+            if self.transform:
+                max_target_q = max_target_q[:self.batch_size] + max_target_q[self.batch_size:]
+                max_target_q /= 2.
+            target = rew + self.gamma * max_target_q * (1. - done)
+        return target
 
     @torch.no_grad()
     def get_action(self, obs):
@@ -264,37 +288,18 @@ class Trainer:
             obs, act, rew, obs_next, done = \
                 self.replay_buffer.sample(self.batch_size)
             indices = []
+        self.model.reset_noise()
+        self.target_model.reset_noise()
+
         obs = self._preprocess_train(obs)
-        with torch.no_grad():
-            self.model.reset_noise()
-            self.target_model.reset_noise()
-            act = torch.as_tensor(act,
-                                  dtype=torch.int64,
-                                  device=self.device)
-            rew = torch.as_tensor(rew,
-                                  dtype=torch.float32,
-                                  device=self.device)
-            obs_next = self._preprocess_train(obs_next)
-            done = torch.as_tensor(done,
-                                   dtype=torch.float32,
-                                   device=self.device)
-
+        target = self._compute_target(obs_next, rew, done)
+        act = torch.as_tensor(act,
+                              dtype=torch.int64,
+                              device=self.device)
+        self.model.train()
         with torch.amp.autocast(self.device):
-            with torch.no_grad():
-                target_q = self.target_model(obs_next).detach()
-                if self.is_double:
-                    max_act = self.model(obs_next).detach()
-                    max_act = torch.argmax(max_act, dim=-1, keepdim=True)
-                    max_target_q = torch.gather(target_q, -1, max_act)
-                else:
-                    max_target_q, _ = target_q.max(dim=-1, keepdims=True)
-                if self.transform:
-                    max_target_q = max_target_q[:self.batch_size] + max_target_q[self.batch_size:]
-                    max_target_q /= 2.
-                target = rew + self.gamma * max_target_q * (1. - done)
-
-            self.model.train()
             self.optimizer.zero_grad(set_to_none=True)
+            # obs.requires_grad = True
             q = self.model(obs)
             if self.transform:
                 q = (q[:self.batch_size] + q[self.batch_size:]) / 2.
@@ -305,7 +310,7 @@ class Trainer:
                 error = error.cpu().numpy().flatten()
                 error = np.abs(error)
                 weights = self.replay_buffer.update_priority(error, indices)
-                weights = torch.tensor(weights, device=self.device)
+                weights = torch.as_tensor(weights, device=self.device)
                 # print(weights)
                 loss = loss * weights.reshape(loss.shape)
             loss = loss.mean()

@@ -79,7 +79,9 @@ class HKEnv(gym.Env):
         self.prev_action = -1
         total_actions = np.prod([len(Act) for Act in self.ACTIONS])
         if rgb:
-            obs_shape = obs_shape + (3,)
+            obs_shape = (3,) + obs_shape
+        else:
+            obs_shape = (1,) + obs_shape
         self.observation_space = gym.spaces.Box(low=0, high=255,
                                                 dtype=np.uint8, shape=obs_shape)
         self.action_space = gym.spaces.Discrete(int(total_actions))
@@ -206,40 +208,35 @@ class HKEnv(gym.Env):
                                         region=monitor,
                                         confidence=0.85)
 
-    def observe(self, knight_only=False):
+    def observe(self, force_gray=False):
         """
         take a screenshot and identify enemy and knight's HP
 
-        :param knight_only: True to only return knight HP, False otherwise
+        :param force_gray: override self.rgb to force return gray obs
         :return: observation (a resized screenshot), knight HP, and enemy HP
         """
         with mss() as sct:
             frame = np.array(sct.grab(self.monitor), dtype=np.uint8)
         # print(frame.shape)
-        if knight_only:
-            enemy_hp = None
-        else:
-            enemy_hp_bar = frame[625, 191:769, :3]
-            enemy_hp_bar_red = enemy_hp_bar[..., 2]
-            enemy_hp = (((enemy_hp_bar_red - enemy_hp_bar[..., 0]) == 201)
-                        & ((enemy_hp_bar_red - enemy_hp_bar[..., 1]) == 209))
-            enemy_hp = enemy_hp.sum()
-            if enemy_hp == 0:
-                enemy_hp = len(enemy_hp_bar)
-            enemy_hp /= len(enemy_hp_bar)
+        enemy_hp_bar = frame[625, 191:769, :3]
+        enemy_hp_bar_red = enemy_hp_bar[..., 2]
+        enemy_hp = (((enemy_hp_bar_red - enemy_hp_bar[..., 0]) == 201)
+                    & ((enemy_hp_bar_red - enemy_hp_bar[..., 1]) == 209))
+        enemy_hp = enemy_hp.sum()
+        if enemy_hp == 0:
+            enemy_hp = len(enemy_hp_bar)
+        enemy_hp /= len(enemy_hp_bar)
         knight_hp_bar = frame[45, :353, 0]
         knight_hp = (knight_hp_bar[self.HP_CKPT] > 180).sum()
-        if knight_only:
-            obs = None
-        else:
-            obs = cv2.cvtColor(frame[:608, ...],
-                               (cv2.COLOR_BGRA2RGB if self.rgb
-                                else cv2.COLOR_BGRA2GRAY))
-            obs = cv2.resize(obs,
-                             dsize=self.observation_space.shape[:2],
-                             interpolation=cv2.INTER_AREA)
-            # make channel first
-            obs = np.rollaxis(obs, -1) if self.rgb else obs[np.newaxis, ...]
+        rgb = not force_gray and self.rgb
+        obs = cv2.cvtColor(frame[:608, ...],
+                           (cv2.COLOR_BGRA2RGB if rgb
+                            else cv2.COLOR_BGRA2GRAY))
+        obs = cv2.resize(obs,
+                         dsize=self.observation_space.shape[1:],
+                         interpolation=cv2.INTER_AREA)
+        # make channel first
+        obs = np.rollaxis(obs, -1) if rgb else obs[np.newaxis, ...]
         return obs, knight_hp, enemy_hp
 
     def step(self, actions):
@@ -294,7 +291,7 @@ class HKEnv(gym.Env):
         # wait for loading screen
         ready = False
         while True:
-            obs, _, _ = self.observe()
+            obs, _, _ = self.observe(force_gray=True)
             is_loading = (obs < 20).sum() < 10
             if ready and not is_loading:
                 break
