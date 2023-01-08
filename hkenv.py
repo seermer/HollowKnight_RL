@@ -59,7 +59,7 @@ class HKEnv(gym.Env):
         Attack.UP_ATTACK: ('w', 'j'),
         # Attack.SPELL: 'q'
     }
-    HP_CKPT = [64, 99, 135, 171, 207, 242, 278, 314, 352]
+    HP_CKPT = np.array([52, 91, 129, 169, 207, 246, 286, 324, 363], dtype=int)
     ACTIONS = [Move, Attack, JumpDash]
 
     def __init__(self, obs_shape=(160, 160), rgb=False, w1=1., w2=1., w3=-0.0001):
@@ -110,17 +110,20 @@ class HKEnv(gym.Env):
             window.minimize()
             window.maximize()
             window.restore()
-        window.resizeTo(1280, 720)
         window.moveTo(0, 0)
+
         geo = None
+        conf = 0.9995
         while geo is None:
-            geo = pyautogui.locateOnScreen('./locator/geo.png', confidence=0.9)
-            time.sleep(0.2)
+            geo = pyautogui.locateOnScreen('./locator/geo.png',
+                                           confidence=conf)
+            conf = max(0.92, conf * 0.999)
+            time.sleep(0.1)
         loc = {
-            'left': geo.left - 48,
-            'top': geo.top - 78,
-            'width': 986,
-            'height': 640
+            'left': geo.left - 36,
+            'top': geo.top - 97,
+            'width': 1020,
+            'height': 692
         }
         return loc
 
@@ -201,12 +204,12 @@ class HKEnv(gym.Env):
         """
         monitor = self.monitor
         monitor = (monitor['left'] + monitor['width'] // 2,
-                   monitor['top'],
+                   monitor['top'] + monitor['height'] // 4,
                    monitor['width'] // 2,
                    monitor['height'] // 2)
         return pyautogui.locateOnScreen(f'locator/menu_badge.png',
                                         region=monitor,
-                                        confidence=0.85)
+                                        confidence=0.925)
 
     def observe(self, force_gray=False):
         """
@@ -216,20 +219,20 @@ class HKEnv(gym.Env):
         :return: observation (a resized screenshot), knight HP, and enemy HP
         """
         with mss() as sct:
-            frame = np.array(sct.grab(self.monitor), dtype=np.uint8)
-        # print(frame.shape)
-        enemy_hp_bar = frame[625, 191:769, :3]
-        enemy_hp_bar_red = enemy_hp_bar[..., 2]
-        enemy_hp = (((enemy_hp_bar_red - enemy_hp_bar[..., 0]) == 201)
-                    & ((enemy_hp_bar_red - enemy_hp_bar[..., 1]) == 209))
-        enemy_hp = enemy_hp.sum()
-        if enemy_hp == 0:
-            enemy_hp = len(enemy_hp_bar)
-        enemy_hp /= len(enemy_hp_bar)
-        knight_hp_bar = frame[45, :353, 0]
-        knight_hp = (knight_hp_bar[self.HP_CKPT] > 180).sum()
+            frame = np.asarray(sct.grab(self.monitor), dtype=np.uint8)
+        enemy_hp_bar = frame[-1, 187:826, :]
+        if (np.all(enemy_hp_bar[..., 0] == enemy_hp_bar[..., 1]) and
+                np.all(enemy_hp_bar[..., 1] == enemy_hp_bar[..., 2])):
+            # hp bar found
+            enemy_hp = (enemy_hp_bar[..., 0] < 3).sum() / len(enemy_hp_bar)
+        else:
+            enemy_hp = 1.
+        knight_hp_bar = frame[64, :, 0]
+        checkpoint1 = knight_hp_bar[self.HP_CKPT]
+        checkpoint2 = knight_hp_bar[self.HP_CKPT - 1]
+        knight_hp = ((checkpoint1 > 200) | (checkpoint2 > 200)).sum()
         rgb = not force_gray and self.rgb
-        obs = cv2.cvtColor(frame[:608, ...],
+        obs = cv2.cvtColor(frame[:672, ...],
                            (cv2.COLOR_BGRA2RGB if rgb
                             else cv2.COLOR_BGRA2GRAY))
         obs = cv2.resize(obs,

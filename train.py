@@ -13,7 +13,7 @@ cudnn.benchmark = True
 
 def get_model(env: gym.Env, n_frames: int):
     c, *shape = env.observation_space.shape
-    m = models.SimpleExtractor(shape, n_frames * c)
+    m = models.TinyExtractor(shape, n_frames * c)
     m = models.DuelingMLP(m, env.action_space.n, noisy=False)
     return m.to(DEVICE)
 
@@ -27,7 +27,7 @@ def train(dqn):
 
     saved_rew = float('-inf')
     saved_train_rew = float('-inf')
-    for i in range(1, 301):
+    for i in range(1, 351):
         print('episode', i)
         rew, loss, lr = dqn.run_episode()
         if rew > saved_train_rew:
@@ -50,18 +50,18 @@ def train(dqn):
 
 def main():
     n_frames = 4
-    env = hkenv.HKEnv((160, 160), rgb=True, w1=0.8, w2=0.78, w3=-0.0001)
+    env = hkenv.HKEnv((160, 160), rgb=False, w1=0.8, w2=0.78, w3=-0.0001)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.MultistepBuffer(100000, n=20, gamma=0.98,
+    replay_buffer = buffer.MultistepBuffer(100000, n=10, gamma=0.98,
                                            prioritized={
                                                'alpha': 0.6,
                                                'beta': 0.4,
-                                               'beta_anneal': 0.6 / 300
+                                               'beta_anneal': 0.6 / 350
                                            })
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.98, eps=1.,
                           eps_func=(lambda val, step: max(0.1, val - 5e-5)),
-                          target_steps=8000,
+                          target_steps=20000,
                           learn_freq=1,
                           model=m,
                           lr=1e-4,
@@ -71,7 +71,7 @@ def main():
                           is_double=True,
                           DrQ=True,
                           reset=0,  # no reset
-                          no_save=True)
+                          no_save=False)
     train(dqn)
 
 

@@ -29,13 +29,14 @@ _________________________
 ## Usage
 run Hollow knight in window mode, make sure use the following keymap settings:
 ![Keyboard settings](resources/keymaps.png) <br>
-Currently, only up, down, left, right, jump, attack are used, so others doesn't matter at this time.
 
-charms I used:
+charms I used (you have to use these if you use my pretrained weight, but you can train from scratch with any charm you like):
 ![Charms used](resources/charms.png)
 
+change game "full screen" to OFF, change resolution to 1280x720
+
 Then, manually walk to one of the Hall of Gods statues, until you see the 'Challenge' prompt, 
-run the following from terminal with virtual environment and all required packages installed:
+run the following from terminal in a virtual environment with all required packages installed:
 
 ```
 python train.py

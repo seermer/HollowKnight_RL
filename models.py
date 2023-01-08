@@ -171,13 +171,11 @@ class TinyExtractor(AbstractExtractor):
         out_shape = np.array(obs_shape, dtype=int)
         out_shape = out_shape // 32
         self.convs = nn.Sequential(
-            nn.Conv2d(in_channels, 32, kernel_size=7, stride=4, padding=3),
+            nn.Conv2d(in_channels, 32, kernel_size=4, stride=4),
             act,
-            nn.Conv2d(32, 64, kernel_size=7, stride=4, padding=3),
+            nn.Conv2d(32, 64, kernel_size=4, stride=4),
             act,
-            nn.Conv2d(64, 128, kernel_size=5, stride=2, padding=2),
-            act,
-            nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(64, 128, kernel_size=2, stride=2),
             act,
             nn.Flatten()
         )

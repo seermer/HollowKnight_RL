@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 class Trainer:
-    GAP = 0.16
+    GAP = 0.175
     DEFAULT_STATS = (92.54949702814011,
                      57.94090462506912)
 
@@ -143,9 +143,10 @@ class Trainer:
         warmup to reduce impact on actual training
         """
         c, *shape = self.env.observation_space.shape
-        model(torch.rand((1, self.n_frames * c) + tuple(shape),
-                         dtype=torch.float32,
-                         device=self.device)).detach().cpu().numpy()
+        with torch.amp.autocast(self.device):
+            model(torch.rand((1, self.n_frames * c) + tuple(shape),
+                             dtype=torch.float32,
+                             device=self.device)).detach().cpu().numpy()
 
     @torch.no_grad()
     def _compute_target(self, obs_next, rew, done):
@@ -156,10 +157,11 @@ class Trainer:
         done = torch.as_tensor(done,
                                dtype=torch.float32,
                                device=self.device)
-        target_q = self.target_model(obs_next).detach()
+
         with torch.amp.autocast(self.device):
+            target_q = self.target_model(obs_next).detach()
             if self.is_double:
-                max_act = self.model(obs_next).detach()
+                max_act = self.model(obs_next, adv_only=True).detach()
                 max_act = torch.argmax(max_act, dim=-1, keepdim=True)
                 max_target_q = torch.gather(target_q, -1, max_act)
             else:
@@ -176,9 +178,9 @@ class Trainer:
         find the action with largest Q value output by online model
         """
         obs = torch.as_tensor(obs, dtype=torch.float32,
-                              device=self.device)
+                              device=self.device).unsqueeze(0)
         with torch.amp.autocast(self.device):
-            if len(obs.shape) >= 4:
+            if len(obs.shape) == 4:
                 self._standardize(obs)
             pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
         return np.argmax(pred)
@@ -214,7 +216,7 @@ class Trainer:
             if random_action or self.eps > random.uniform(0, 1):
                 action = self.env.action_space.sample()
             else:
-                model_input = np.array([obs_tuple], dtype=np.float32)
+                model_input = np.concatenate(obs_tuple, dtype=np.float32)
                 action = self.get_action(model_input)
             obs_next, rew, done, _, _ = self.env.step(action)
             total_rewards += rew
@@ -261,7 +263,7 @@ class Trainer:
         while True:
             t = time.time()
             obs_tuple = tuple(stacked_obs)
-            model_input = np.array([obs_tuple], dtype=np.float32)
+            model_input = np.concatenate(obs_tuple, dtype=np.float32)
             action = self.get_action(model_input)
             obs_next, rew, done, _, _ = self.env.step(action)
             rewards += rew
