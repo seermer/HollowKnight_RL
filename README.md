@@ -1,27 +1,34 @@
 # Playing Hollow Knight with Reinforcement Learning
 
-The repo uses Deep Q-Network to learn how to play boss fight in Hollow Knight.
+The project uses Deep Q-Network to learn how to play boss fight in Hollow Knight.
 
+I am currently primarily trying to train the agent with Hornet boss fight, 
 but it should be able to run on most Hall of Gods Boss with only one boss health bar.
 
 You need to install the Satchel and EnemyHPBar Mod to correctly run (so it can recognize boss HP), 
 I have made some modifications (custom HP bar color) 
 for more stable recognition, the mod files can be found in Managed folder.
 
-**Note: I am still updating the repo, so any file or structure of the repo may change**
+**This branch will not change unless important changes are required (e.g, bug fix)**
 
-**Note: the "master" branch contains files and algorithms working in progress, "hornet" branch contains a version that was able to train an agent that can defeat hornet most of the time, that branch will no longer be modified unless important updates (e.g. bug fix) is needed**
+Trained agent evaluation performance: <br>
+https://youtu.be/yP6tUWmXCa4
+
+Trained agent weight: <br>
+https://drive.google.com/drive/folders/1aWE-kmamOMp1d05tTl_DLiTgYCaT-aD6?usp=sharing
 
 ________________________
 
 ## Platform and requirements
 
-- Python 3 (tested with Python 3.10)
-- Windows 10 or 11 (tested on 11)
-- Screen with at least width/height of (1280, 720) resolution (note that this can be modified to smaller resolution in hkenv.py, but then you need to rewrite quite a bit of recognition codes)
-- CUDA GPU (CPU is way too slow for real time game, and I used some GPU only features)
-- The newest version of Hollow Knight Game (tested with Steam version)
-- packages listed in requirements.txt (recommended to install in virtual environment)
+Python 3 (tested with Python 3.10) <br>
+Windows 10 or 11 <br>
+Screen with at least (1280, 720) resolution <br>
+CUDA GPU (You can also try CPU, the code will still work, 
+but then you need to install the libraries on your own, 
+because requirements.txt contains CUDA related packages) <br>
+The newest version of Hollow Knight Game (tested with Steam version) <br>
+packages listed in requirements.txt <br>
 
 
 _________________________
@@ -30,13 +37,12 @@ _________________________
 run Hollow knight in window mode, make sure use the following keymap settings:
 ![Keyboard settings](resources/keymaps.png) <br>
 
-charms I used (you have to use these if you use my pretrained weight, but you can train from scratch with any charm you like):
+charms I used:
 ![Charms used](resources/charms.png)
 
 change game "full screen" to OFF, change resolution to 1280x720
 
-Then, manually walk to one of the Hall of Gods statues, until you see the 'Challenge' prompt, 
-run the following from terminal in a virtual environment with all required packages installed:
+Then, manually walk to one of the Hall of Gods statues, until you see the 'Challenge' prompt, run the following from terminal in a virtual environment with all required packages installed:
 
 ```
 python train.py
@@ -47,20 +53,18 @@ While running, do not click on other windows, stay focused on the Hollow Knight 
 
 ___________________________
 
-## Tentative Plan:
-- [x] Update Structure
+## Project Tentative Plan:
+- [x] Update Project Structure
   - [x] Add requirements.txt, mod files
   - [x] Add instructions to train
-  - [x] Add more docstrings (currently done for important ones, may add more in future)
   - [x] Add a simple sanity check that runs gym cartpole
 - [x] Train an agent that can defeat Hornet
-  - You can see how the agent trained with hornet branch perform during evaluation at https://youtu.be/yP6tUWmXCa4
 - [x] Add code for additional functionalities (like saving buffer, model...)
   - [x] Saving model periodically
   - [x] Tensorboard logging
   - [x] Save/load random agent experiences
   - [x] Add evaluate in trainer
-- [ ] Improve the algorithm/model/implementation
+- [x] Improve the algorithm/model/implementation
   - [x] Frame Stacking
   - [x] Spectral Normalization
   - [x] Huber Loss
@@ -73,12 +77,10 @@ ___________________________
   - [x] Squeeze and Excitation based model
   - [x] Noisy Network
   - [x] NAdam Optimizer
-  - [x] Reset Training
-  - [x] Proportional Prioritized Experience Replay
 
 
 
-Inspired by https://github.com/ailec0623/DQN_HollowKnight <br>
+Project inspired by https://github.com/ailec0623/DQN_HollowKnight <br>
 It is a very interesting project, and the author has already defeated Hornet with a trained agent. However, that project uses CE and Windows API heavily, which I am less familiar with, and I also want to practice with extensions on dqn, so I decided to write one from scratch on my own.
 
 _______________________________
@@ -103,9 +105,6 @@ _______________________________
 - Use Kornia for augmentation (significantly faster than numpy/torchvision)
 - Add Intensity augmentation
 - Use NAdam optimizer
-- remove non-cuda support to use cuda mix-precision
-- Add reset training
-- Add Proportional Prioritized experience replay
 
 
 _______________________________
@@ -120,11 +119,10 @@ _______________________________
 - 12/25/2022: The agent now can defeat Hornet with a decent win rate (6 win out of 10 test episodes with bestmodel), this weight uses AttentionExtractor, model weight can be found [here](https://drive.google.com/drive/folders/1rUxppjU-QrSTvefhu8mclB1gvSWZh-mG?usp=sharing)
 - 12/26/2022: I modified the reward function, now the agent knows to chase the boss (at least sometimes), and got 5 win out of 10 test episodes.
 - 12/27/2022: tweaked several hyperparameters, the agent won 10/10 test episodes (note that this does not mean it will always win, but it does mean it got better). This weight uses SimpleExtractor, weight can be found [here](https://drive.google.com/drive/folders/1EOlSS6pknAID04wfB2AmB2XZCnuEHWxH?usp=sharing)
-- 1/1/2023: starting to train on Hive Knight
 
 _______________________________
 
-## References  (order based on my implementation order)
+## References
 - [Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
 - [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461)
 - [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)
@@ -136,8 +134,6 @@ _______________________________
 - [A ConvNet for the 2020s](https://arxiv.org/abs/2201.03545)
 - [Bag of Tricks for Image Classification with Convolutional Neural Networks](https://arxiv.org/pdf/1812.01187.pdf)
 - [Noisy Networks for Exploration](https://arxiv.org/abs/1706.10295)
-- [The Primacy Bias in Deep Reinforcement Learning](https://arxiv.org/abs/2205.07802)
-- [Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
 
 - https://github.com/toshikwa/fqf-iqn-qrdqn.pytorch/blob/master/fqf_iqn_qrdqn/network.py
 - https://github.com/pytorch/vision/blob/main/torchvision/models/vgg.py

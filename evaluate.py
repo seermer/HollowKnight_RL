@@ -17,7 +17,7 @@ def get_model(env: gym.Env, n_frames: int):
     m = models.DuelingMLP(m, env.action_space.n, noisy=True)
     m = m.to(DEVICE)
     # modify below path to the weight file you have
-    m.load_state_dict(torch.load('saved/1673414303Hornet/bestmodel.pt'))
+    m.load_state_dict(torch.load('saved/1673414303Hornet/latestmodel.pt'))
     return m
 
 
