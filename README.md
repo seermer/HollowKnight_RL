@@ -1,5 +1,7 @@
 # Playing Hollow Knight with Reinforcement Learning
 
+**Avoid using this branch since this branch does not contain a major bug fix on env. hornet_new contains a new version that can train an agent that can defeat hornet, and contains tha bug fix**
+
 The project uses Deep Q-Network to learn how to play boss fight in Hollow Knight.
 
 I am currently primarily trying to train the agent with Hornet boss fight, 
