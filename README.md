@@ -10,7 +10,7 @@ for more stable recognition, the mod files can be found in Managed folder.
 
 **Note: I am still updating the repo, so any file or structure of the repo may change**
 
-**Note: the "master" branch contains files and algorithms working in progress, "hornet" branch contains a version that was able to train an agent that can defeat hornet most of the time, that branch will no longer be modified unless important updates (e.g. bug fix) is needed**
+**Note: the "master" branch contains files and algorithms working in progress, "hornet_new" branch contains a version that was able to train an agent that can defeat hornet most of the time, that branch will no longer be modified unless important updates (e.g. bug fix) is needed**
 
 ________________________
 
@@ -54,7 +54,7 @@ ___________________________
   - [x] Add more docstrings (currently done for important ones, may add more in future)
   - [x] Add a simple sanity check that runs gym cartpole
 - [x] Train an agent that can defeat Hornet
-  - You can see how the agent trained with hornet branch perform during evaluation at https://youtu.be/yP6tUWmXCa4
+  - You can see how the agent trained with hornet_new branch perform during evaluation at https://youtu.be/yP6tUWmXCa4
 - [x] Add code for additional functionalities (like saving buffer, model...)
   - [x] Saving model periodically
   - [x] Tensorboard logging
