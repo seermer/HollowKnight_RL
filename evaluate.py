@@ -17,7 +17,7 @@ def get_model(env: gym.Env, n_frames: int):
     m = models.DuelingMLP(m, env.action_space.n, noisy=True)
     m = m.to(DEVICE)
     # modify below path to the weight file you have
-    m.load_state_dict(torch.load('saved/1673325997Hornet/bestmodel.pt'))
+    m.load_state_dict(torch.load('saved/1673414303Hornet/bestmodel.pt'))
     return m
 
 
@@ -28,20 +28,21 @@ def evaluate(dqn):
 
 def main():
     n_frames = 4
-    env = hkenv.HKEnv((192, 192), w1=0.8, w2=0.8, w3=-0.0001)
+    env = hkenv.HKEnv((160, 160), w1=1, w2=1, w3=0)
     m = get_model(env, n_frames)
     replay_buffer = buffer.MultistepBuffer(100000, n=10, gamma=0.99)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.99, eps=0.,
                           eps_func=(lambda val, step: 0.),
                           target_steps=6000,
-                          learn_freq=0.33,
+                          learn_freq=1,
                           model=m,
                           lr=9e-5,
                           lr_decay=False,
                           criterion=torch.nn.MSELoss(),
                           batch_size=32,
                           device=DEVICE,
+                          gap=0.16,
                           is_double=True,
                           DrQ=True,
                           reset=0,

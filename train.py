@@ -34,13 +34,15 @@ def train(dqn):
             print('new best train model found')
             saved_train_rew = rew
             dqn.save_models('besttrain')
-        if i > 100 and i % 10 == 0:
-            eval_rew = dqn.evaluate()
+        if i % 10 == 0:
             dqn.run_episode(random_action=True)
-            if eval_rew > saved_rew:
-                print('new best eval model found')
-                saved_rew = eval_rew
-                dqn.save_models('best')
+            if i >= 100:
+                eval_rew = dqn.evaluate()
+
+                if eval_rew > saved_rew:
+                    print('new best eval model found')
+                    saved_rew = eval_rew
+                    dqn.save_models('best')
         dqn.save_models('latest')
 
         dqn.log({'reward': rew, 'loss': loss}, i)
@@ -53,7 +55,7 @@ def main():
     n_frames = 4
     env = hkenv.HKEnv((160, 160), rgb=False, w1=0.8, w2=0.8, w3=-0.0001)
     m = get_model(env, n_frames)
-    replay_buffer = buffer.MultistepBuffer(150000, n=15, gamma=0.99,
+    replay_buffer = buffer.MultistepBuffer(150000, n=10, gamma=0.99,
                                            prioritized=None)
     dqn = trainer.Trainer(env=env, replay_buffer=replay_buffer,
                           n_frames=n_frames, gamma=0.99, eps=0.,
@@ -61,12 +63,12 @@ def main():
                           target_steps=8000,
                           learn_freq=4,
                           model=m,
-                          lr=9e-5,
+                          lr=8e-5,
                           lr_decay=False,
                           criterion=torch.nn.MSELoss(),
                           batch_size=32,
                           device=DEVICE,
-                          gap=0.16,
+                          gap=0.165,
                           is_double=True,
                           DrQ=True,
                           reset=0,  # no reset

@@ -246,9 +246,6 @@ class Trainer:
                 # print(t)
         if not random_action:
             self.replay_buffer.step()
-        if num_timeouts > 60 / self.learn_freq:
-            print('WARNING: too many timeouts happened, '
-                  'consider reducing model size and batch size')
         avg_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, avg_loss, self.optimizer.param_groups[0]['lr']
 

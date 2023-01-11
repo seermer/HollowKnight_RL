@@ -25,7 +25,7 @@ class NoisyLinear(nn.Module):
     https://github.com/toshikwa/fqf-iqn-qrdqn.pytorch/blob/master/fqf_iqn_qrdqn/network.py
     """
 
-    def __init__(self, in_features, out_features, sigma=0.4):
+    def __init__(self, in_features, out_features, sigma=0.5):
         super(NoisyLinear, self).__init__()
 
         # Learnable parameters.
