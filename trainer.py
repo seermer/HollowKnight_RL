@@ -13,7 +13,7 @@ class Trainer:
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps, learn_freq,
                  model, lr, lr_decay, criterion, batch_size, device,
-                 gap=0.165, is_double=True, DrQ=True, reset=0,
+                 is_double=True, DrQ=True, reset=0,
                  save_loc=None, no_save=False):
         """
         Initialize a DQN trainer
@@ -77,7 +77,6 @@ class Trainer:
         self.device = device
         self.scaler = torch.cuda.amp.grad_scaler.GradScaler()
 
-        self.gap = gap
         self.is_double = is_double
         self.transform = K.RandomCrop(size=self.env.observation_space.shape[1:],
                                       padding=(8, 8),
@@ -184,19 +183,15 @@ class Trainer:
             pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
         return np.argmax(pred)
 
-    def run_episode(self, random_action=False, no_sleep=False):
+    def run_episode(self, random_action=False):
         """
         run an episode with policy, and learn between steps
 
         :param random_action: whether to always do random actions
                 (for exploration, will not update network while this is True)
-        :param no_sleep: by default, model will sleep until predefined gap is reached,
-                so that the frame rate is more stable on real-time environment,
-                set to true to avoid sleeping
         :return: total episode reward, per sample loss, and current learning rate
         """
 
-        num_timeouts = 0
         if self.lr_decay and not random_action and self.target_replace_times:
             # decay lr over first 300 episodes
             decay = (self.init_lr - self.final_lr) / 300.
@@ -212,7 +207,6 @@ class Trainer:
         total_loss = 0
         learned_times = 0
         while True:
-            t = time.time()
             obs_tuple = self._process_frames(stacked_obs)
             if random_action or self.eps > random.uniform(0, 1):
                 action = self.env.action_space.sample()
@@ -237,13 +231,6 @@ class Trainer:
                         learned_times += 1
             if done:
                 break
-            if not no_sleep:
-                t = self.gap - (time.time() - t)
-                if t > 0:
-                    time.sleep(t)
-                else:
-                    num_timeouts += 1
-                # print(t)
         if not random_action:
             self.replay_buffer.step()
         avg_loss = total_loss / learned_times if learned_times > 0 else 0
@@ -253,7 +240,7 @@ class Trainer:
         for _ in range(n):
             self.run_episode(**kwargs)
 
-    def evaluate(self, no_sleep=False):
+    def evaluate(self):
         """
         evaluate the current policy greedily
         """
@@ -274,9 +261,6 @@ class Trainer:
             stacked_obs.append(obs_next)
             if done:
                 break
-            t = self.gap - (time.time() - t)
-            if t > 0 and not no_sleep:
-                time.sleep(t)
         self.model.noise_mode(True)
         print('eval reward', rewards)
         return rewards
@@ -407,9 +391,6 @@ class Trainer:
                 action_lst.append(action)
                 rew_lst.append(rew)
                 done_lst.append(done)
-                t = time.time() - t
-                if t < self.gap:
-                    time.sleep(self.gap - t)
                 if done:
                     break
             obs_lst = np.array(obs_lst, dtype=obs.dtype)

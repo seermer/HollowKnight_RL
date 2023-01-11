@@ -74,7 +74,8 @@ class HKEnv(gym.Env):
     HP_CKPT = np.array([52, 91, 129, 169, 207, 246, 286, 324, 363], dtype=int)
     ACTIONS = [Move, Attack, Displacement]
 
-    def __init__(self, obs_shape=(160, 160), rgb=False, w1=1., w2=1., w3=-0.0001):
+    def __init__(self, obs_shape=(160, 160), rgb=False, gap=0.165,
+                 w1=1., w2=1., w3=-0.0001):
         """
         :param obs_shape: the shape of observation returned by step and reset
         :param w1: the weight of negative reward when being hit
@@ -98,6 +99,8 @@ class HKEnv(gym.Env):
                                                 dtype=np.uint8, shape=obs_shape)
         self.action_space = gym.spaces.Discrete(int(total_actions))
         self.rgb = rgb
+        self.gap = gap
+        self._prev_time = None
 
         self.w1 = w1
         self.w2 = w2
@@ -256,6 +259,10 @@ class HKEnv(gym.Env):
         return obs, knight_hp, enemy_hp
 
     def step(self, actions):
+        t = self.gap - (time.time() - self._prev_time)
+        if t > 0:
+            time.sleep(t)
+        self._prev_time = time.time()
         action_rew = 0
         if actions == self.prev_action:
             action_rew -= 2e-5
@@ -316,6 +323,7 @@ class HKEnv(gym.Env):
         time.sleep(2.25)
         self.prev_knight_hp, self.prev_enemy_hp = len(self.HP_CKPT), 1.
         self._episode_time = time.time()
+        self._prev_time = time.time()
         return self.observe()[0], None
 
     def close(self):
@@ -341,4 +349,5 @@ class HKEnv(gym.Env):
         self.prev_action = -1
         self._timer = None
         self._episode_time = None
+        self._prev_time = None
         gc.collect()
