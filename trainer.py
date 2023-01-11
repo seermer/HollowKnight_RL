@@ -10,14 +10,10 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 class Trainer:
-    GAP = 0.175
-    DEFAULT_STATS = (92.54949702814011,
-                     57.94090462506912)
-
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps, learn_freq,
-                 model, lr, criterion, batch_size, device,
-                 is_double=True, DrQ=True, reset=0,
+                 model, lr, lr_decay, criterion, batch_size, device,
+                 gap=0.165, is_double=True, DrQ=True, reset=0,
                  save_loc=None, no_save=False):
         """
         Initialize a DQN trainer
@@ -36,9 +32,11 @@ class Trainer:
                 4 means update online network every 4 environment steps)
         :param model: an instance of AbstractFullyConnected subclass
         :param lr: learning rate
+        :param lr_decay: True if lr decays over time after first target replce
         :param criterion: loss function that used should take online Q and target Q as input
         :param batch_size: number of samples to learn for each update
         :param device: device to put the model, only CUDA GPU is supported!!!!
+        :param gap: time gap between two actions
         :param is_double: True to use double DQN update
         :param DrQ: True to use Data regularized Q
         :param reset: number of environment steps between each model reset (0 for no reset)
@@ -61,7 +59,8 @@ class Trainer:
         self.model = model.to(device)
         self.target_model = copy.deepcopy(self.model)
         self.init_lr = lr
-        self.final_lr = lr * 0.5
+        self.final_lr = lr * 0.625
+        self.lr_decay = lr_decay
         self.optimizer = torch.optim.NAdam(self.model.parameters(), lr=lr, eps=1.5e-4)
         self.model.eval()
         self.target_model.eval()
@@ -78,12 +77,12 @@ class Trainer:
         self.device = device
         self.scaler = torch.cuda.amp.grad_scaler.GradScaler()
 
+        self.gap = gap
         self.is_double = is_double
         self.transform = K.RandomCrop(size=self.env.observation_space.shape[1:],
                                       padding=(8, 8),
                                       padding_mode='replicate').to(device) if DrQ else None
         self.reset = reset
-        self.stats = list(self.DEFAULT_STATS)
 
         self.steps = 0
         self.learn_steps = 0
@@ -110,10 +109,10 @@ class Trainer:
     def _process_frames(frames):
         return tuple(frames)
 
-    def _standardize(self, obs):
-        # values found from empirical data
-        obs -= self.stats[0]
-        obs /= self.stats[1]
+    @staticmethod
+    def _rescale(obs):
+        obs /= 127.5
+        obs -= 1.
         return obs
 
     def _preprocess_train(self, obs):
@@ -122,11 +121,11 @@ class Trainer:
                                    device=self.device)
         obs = torch.as_tensor(obs,
                               device=self.device)
-        self._standardize(obs)
+        self._rescale(obs)
         if self.transform:
             scale = torch.randn((self.batch_size, 1, 1, 1),
                                 device=self.device)
-            scale = torch.clip(scale, -2, 2) * 0.03 + 1.
+            scale = torch.clip(scale, -2, 2) * 0.04 + 1.
             return torch.vstack((obs * scale, self.transform(obs)))
         else:
             return obs
@@ -181,7 +180,7 @@ class Trainer:
                               device=self.device).unsqueeze(0)
         with torch.amp.autocast(self.device):
             if len(obs.shape) == 4:
-                self._standardize(obs)
+                self._rescale(obs)
             pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
         return np.argmax(pred)
 
@@ -197,7 +196,9 @@ class Trainer:
         :return: total episode reward, per sample loss, and current learning rate
         """
 
-        if not random_action and self.target_replace_times:  # decay lr over first 400 episodes
+        num_timeouts = 0
+        if self.lr_decay and not random_action and self.target_replace_times:
+            # decay lr over first 300 episodes
             decay = (self.init_lr - self.final_lr) / 300.
             for group in self.optimizer.param_groups:
                 group['lr'] = max(self.final_lr,
@@ -236,12 +237,18 @@ class Trainer:
                         learned_times += 1
             if done:
                 break
-            t = self.GAP - (time.time() - t)
-            if t > 0 and not no_sleep:
-                time.sleep(t)
-            # print(t)
+            if not no_sleep:
+                t = self.gap - (time.time() - t)
+                if t > 0:
+                    time.sleep(t)
+                else:
+                    num_timeouts += 1
+                # print(t)
         if not random_action:
             self.replay_buffer.step()
+        if num_timeouts > 60 / self.learn_freq:
+            print('WARNING: too many timeouts happened, '
+                  'consider reducing model size and batch size')
         avg_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, avg_loss, self.optimizer.param_groups[0]['lr']
 
@@ -270,7 +277,7 @@ class Trainer:
             stacked_obs.append(obs_next)
             if done:
                 break
-            t = self.GAP - (time.time() - t)
+            t = self.gap - (time.time() - t)
             if t > 0 and not no_sleep:
                 time.sleep(t)
         self.model.noise_mode(True)
@@ -368,15 +375,13 @@ class Trainer:
                 stacked_obs.append(o)
                 self.replay_buffer.add(obs_tuple, a, r, d)
         stats_imgs = np.concatenate(stats_imgs)
-        self.stats = [np.mean(stats_imgs), np.std(stats_imgs)]
         print('loading complete, with buffer length', len(self.replay_buffer))
-        print('loaded data with mean/std', self.stats)
 
     def save_explorations(self, n_episodes, save_loc='./explorations/'):
         """
         interact with environment n episodes with random agent, save locally
         please note that explorations are only effective
-        when the environment is exactly the same
+        when the environment and gap is exactly the same
         (other settings, including replay buffer can change)
 
         this function will automatically skip any existing explorations,
@@ -406,8 +411,8 @@ class Trainer:
                 rew_lst.append(rew)
                 done_lst.append(done)
                 t = time.time() - t
-                if t < self.GAP:
-                    time.sleep(self.GAP - t)
+                if t < self.gap:
+                    time.sleep(self.gap - t)
                 if done:
                     break
             obs_lst = np.array(obs_lst, dtype=obs.dtype)

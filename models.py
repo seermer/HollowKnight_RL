@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from torch import nn
+from torch.nn.utils.parametrizations import spectral_norm
 from torch.nn import functional as F
 from torchvision.ops.misc import SqueezeExcitation as SE
 
@@ -12,6 +13,7 @@ def param_init(m):  # code adapted from torchvision VGG class
             nn.init.constant_(m.bias, 0)
     elif isinstance(m, NoisyLinear):
         m.reset_param()
+        m.reset_noise()
     elif isinstance(m, nn.Linear):
         nn.init.normal_(m.weight, 0, 0.01)
         nn.init.constant_(m.bias, 0)
@@ -23,7 +25,7 @@ class NoisyLinear(nn.Module):
     https://github.com/toshikwa/fqf-iqn-qrdqn.pytorch/blob/master/fqf_iqn_qrdqn/network.py
     """
 
-    def __init__(self, in_features, out_features, sigma=0.5):
+    def __init__(self, in_features, out_features, sigma=0.4):
         super(NoisyLinear, self).__init__()
 
         # Learnable parameters.
@@ -113,19 +115,22 @@ class ResidualExtractor(AbstractExtractor):
         out_shape = np.array(obs_shape, dtype=int)
         out_shape //= 32
         self.convs = nn.Sequential(
-            nn.Conv2d(in_channels, 48, 4, 4),
+            nn.Conv2d(in_channels, 32, 3, 2, 1),
+            act,
+            nn.Conv2d(32, 48, 3, 2, 1),
             act,
             BasicBlock(48, 48),
-            BasicBlock(48, 96, 2),
-            BasicBlock(96, 160, 2),
-            BasicBlock(160, 160),
-            BasicBlock(160, 256, 2),
-            BasicBlock(256, 256),
-            nn.Conv2d(256, 1024, 1),
+            nn.Conv2d(48, 96, 3, 2, 1),
             act,
-            nn.AvgPool2d(tuple(out_shape))
+            nn.Conv2d(96, 160, 3, 2, 1),
+            act,
+            BasicBlock(160, 160),
+            nn.Conv2d(160, 256, 3, 2, 1),
+            act,
+            BasicBlock(256, 256),
+            nn.Flatten(),
         )
-        self.units = 1024
+        self.units = 256 * np.prod(out_shape)
 
         for m in self.modules():
             param_init(m)
@@ -223,7 +228,9 @@ class AttentionExtractor(AbstractExtractor):
 
 
 class AbstractFullyConnected(nn.Module):
-    def __init__(self, extractor: nn.Module, n_out: int, noisy=False):
+    def __init__(self, extractor: nn.Module, n_out: int, noisy=False, sn=False):
+        if noisy:
+            assert not sn, 'spectral norm cannot be used with noisy net'
         super(AbstractFullyConnected, self).__init__()
         self.noisy = nn.ModuleList()
         self.resetable = nn.ModuleList()
@@ -251,10 +258,12 @@ class AbstractFullyConnected(nn.Module):
 
 
 class SinglePathMLP(AbstractFullyConnected):
-    def __init__(self, extractor: nn.Module, n_out: int, noisy=False):
-        super(SinglePathMLP, self).__init__(extractor, n_out, noisy)
+    def __init__(self, extractor: nn.Module, n_out: int, noisy=False, sn=False):
+        super(SinglePathMLP, self).__init__(extractor, n_out, noisy, sn)
         self.linear = self.linear_cls(extractor.units, 512)
         self.out = self.linear_cls(512, n_out)
+        if sn:
+            self.linear = spectral_norm(self.linear)
         if noisy:
             self.noisy.append(self.linear)
             self.noisy.append(self.out)
@@ -276,12 +285,16 @@ class SinglePathMLP(AbstractFullyConnected):
 
 
 class DuelingMLP(AbstractFullyConnected):
-    def __init__(self, extractor: nn.Module, n_out: int, noisy=False):
-        super(DuelingMLP, self).__init__(extractor, n_out, noisy)
+    def __init__(self, extractor: nn.Module, n_out: int, noisy=False, sn=False):
+        super(DuelingMLP, self).__init__(extractor, n_out, noisy, sn)
         self.linear_val = self.linear_cls(extractor.units, 512)
         self.linear_adv = self.linear_cls(extractor.units, 512)
         self.val = self.linear_cls(512, 1)
         self.adv = self.linear_cls(512, n_out)
+
+        if sn:
+            self.linear_val = spectral_norm(self.linear_val)
+            self.linear_adv = spectral_norm(self.linear_adv)
 
         if noisy:
             self.noisy.append(self.linear_val)
