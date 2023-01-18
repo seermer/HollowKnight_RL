@@ -13,8 +13,8 @@ class Trainer:
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps, learn_freq,
                  model, lr, lr_decay, criterion, batch_size, device,
-                 is_double=True, DrQ=True, reset=0,
-                 save_loc=None, no_save=False):
+                 is_double=True, drq=True, svea=True, reset=0,
+                 save_suffix='', no_save=False):
         """
         Initialize a DQN trainer
 
@@ -36,12 +36,11 @@ class Trainer:
         :param criterion: loss function that used should take online Q and target Q as input
         :param batch_size: number of samples to learn for each update
         :param device: device to put the model, only CUDA GPU is supported!!!!
-        :param gap: time gap between two actions
         :param is_double: True to use double DQN update
-        :param DrQ: True to use Data regularized Q
+        :param drq: True to use Data regularized Q
+        :param svea: True to use svea, only work with drq enabled
         :param reset: number of environment steps between each model reset (0 for no reset)
-        :param save_loc: save location for
-                tensorboard logger and model checkpoints (None for default)
+        :param save_suffix: suffix for save location
         :param no_save: True if avoid saving logs and models
         """
         self.env = env
@@ -61,7 +60,8 @@ class Trainer:
         self.init_lr = lr
         self.final_lr = lr * 0.625
         self.lr_decay = lr_decay
-        self.optimizer = torch.optim.NAdam(self.model.parameters(), lr=lr, eps=1.5e-4)
+        self.optimizer = torch.optim.NAdam(self.model.parameters(),
+                                           lr=lr, eps=0.005 / batch_size)
         self.model.eval()
         self.target_model.eval()
         for param in self.target_model.parameters():
@@ -78,10 +78,16 @@ class Trainer:
         self.scaler = torch.cuda.amp.grad_scaler.GradScaler()
 
         self.is_double = is_double
+        if drq:
+            assert len(self.env.observation_space.shape) == 3
+        pad = tuple(np.array(self.env.observation_space.shape[1:], dtype=int) // 20)
         self.transform = K.RandomCrop(size=self.env.observation_space.shape[1:],
-                                      padding=(8, 8),
-                                      padding_mode='replicate').to(device) if DrQ else None
+                                      padding=pad,
+                                      padding_mode='replicate').to(device) if drq else None
+        self.svea = svea
         self.reset = reset
+        if svea:
+            assert drq, 'svea can only work with drq enabled'
 
         self.steps = 0
         self.learn_steps = 0
@@ -89,20 +95,20 @@ class Trainer:
         self._learn_since_replace = 0
 
         self.no_save = no_save
+        save_loc = ('./saved/'
+                    + str(int(time.time()))
+                    + save_suffix)
+        assert not save_loc.endswith('\\')
+        self.save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
         if not no_save:
-            save_loc = ('./saved/'
-                        + str(int(time.time()))
-                        + 'Hornet') if save_loc is None else save_loc
-            assert not save_loc.endswith('\\')
-            save_loc = save_loc if save_loc.endswith('/') else f'{save_loc}/'
-            print('save files at', save_loc)
-            self.save_loc = save_loc
+            print('save files at', self.save_loc)
             if not os.path.exists(self.save_loc):
                 os.makedirs(self.save_loc)
             self.writer = SummaryWriter(self.save_loc + 'log/')
 
-        self._warmup(self.model)
-        self._warmup(self.target_model)
+        for _ in range(3):
+            self._warmup(self.model)
+            self._warmup(self.target_model)
 
     @staticmethod
     def _process_frames(frames):
@@ -114,18 +120,37 @@ class Trainer:
         obs -= 1.
         return obs
 
-    def _preprocess_train(self, obs):
-        if len(obs.shape) != 4:  # not image
-            return torch.as_tensor(obs,
-                                   device=self.device)
+    @staticmethod
+    def _save_transitions(obs_lst, action_lst, rew_lst, done_lst, fname):
+        assert len(obs_lst) - 1 == len(action_lst) == len(rew_lst) == len(done_lst)
+        assert isinstance(obs_lst[0], np.ndarray)
+        assert not os.path.exists(fname)
+        obs_lst = np.array(obs_lst, dtype=obs_lst[0].dtype)
+        if max(action_lst) < 256:
+            action_lst = np.array(action_lst, dtype=np.uint8)
+        else:
+            action_lst = np.array(action_lst, dtype=np.uint64)
+        rew_lst = np.array(rew_lst, dtype=np.float32)
+        done_lst = np.array(done_lst, dtype=np.bool8)
+        np.savez_compressed(fname, o=obs_lst, a=action_lst, r=rew_lst, d=done_lst)
+
+    @torch.no_grad()
+    def _preprocess_train(self, obs, no_transform=False, cat_orig=False):
         obs = torch.as_tensor(obs,
                               device=self.device)
-        self._rescale(obs)
-        if self.transform:
-            scale = torch.randn((self.batch_size, 1, 1, 1),
+        if len(obs.shape) != 4:  # not image
+            return obs
+
+        obs = self._rescale(obs)
+        if self.transform and not no_transform:
+            scale = torch.randn((self.batch_size * 2, 1, 1, 1),
                                 device=self.device)
-            scale = torch.clip(scale, -2, 2) * 0.04 + 1.
-            return torch.vstack((obs * scale, self.transform(obs)))
+            scale = torch.clip_(scale, -2, 2) * 0.04 + 1.
+            augmented = torch.vstack((obs, self.transform(obs))) * scale
+            augmented = torch.clip_(augmented, -1, 1)
+            if cat_orig:
+                augmented = torch.vstack((augmented, obs))
+            return augmented
         else:
             return obs
 
@@ -134,7 +159,6 @@ class Trainer:
         self.target_model.eval()
         self._learn_since_replace = 0
 
-    @torch.no_grad()
     def _warmup(self, model):
         """
         pytorch is very slow on first run,
@@ -151,7 +175,9 @@ class Trainer:
         rew = torch.as_tensor(rew,
                               dtype=torch.float32,
                               device=self.device)
-        obs_next = self._preprocess_train(obs_next)
+        obs_next = self._preprocess_train(obs_next,
+                                          no_transform=self.svea,
+                                          cat_orig=False)
         done = torch.as_tensor(done,
                                dtype=torch.float32,
                                device=self.device)
@@ -159,18 +185,19 @@ class Trainer:
         with torch.amp.autocast(self.device):
             target_q = self.target_model(obs_next).detach()
             if self.is_double:
-                max_act = self.model(obs_next, adv_only=True).detach()
-                max_act = torch.argmax(max_act, dim=-1, keepdim=True)
+                with torch.inference_mode():
+                    max_act = self.model(obs_next, adv_only=True).detach()
+                    max_act = torch.argmax(max_act, dim=-1, keepdim=True)
                 max_target_q = torch.gather(target_q, -1, max_act)
             else:
                 max_target_q, _ = target_q.max(dim=-1, keepdims=True)
-            if self.transform:
+            if self.transform and not self.svea:
                 max_target_q = max_target_q[:self.batch_size] + max_target_q[self.batch_size:]
                 max_target_q /= 2.
             target = rew + self.gamma * max_target_q * (1. - done)
         return target
 
-    @torch.no_grad()
+    @torch.inference_mode()
     def get_action(self, obs):
         """
         find the action with largest Q value output by online model
@@ -183,14 +210,26 @@ class Trainer:
             pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
         return np.argmax(pred)
 
-    def run_episode(self, random_action=False):
+    def run_episode(self, random_action=False, cache=False):
         """
         run an episode with policy, and learn between steps
 
         :param random_action: whether to always do random actions
                 (for exploration, will not update network while this is True)
+        :param cache: whether to save the transitions locally to disk
         :return: total episode reward, per sample loss, and current learning rate
         """
+        save_loc = self.save_loc + 'transitions/'
+        if cache:
+            if not os.path.exists(save_loc):
+                os.makedirs(save_loc)
+            fname = f'{int(time.time())}.npz'
+            i = 0
+            while os.path.exists(save_loc + fname):
+                fname = f'{int(time.time())}_{i}.npz'
+                i += 1
+            save_loc += fname
+            print('caching episode transitions to\n', os.path.abspath(save_loc))
 
         if self.lr_decay and not random_action and self.target_replace_times:
             # decay lr over first 300 episodes
@@ -203,6 +242,10 @@ class Trainer:
             (initial for _ in range(self.n_frames)),
             maxlen=self.n_frames
         )
+
+        obs_lst = [initial]
+        action_lst, rew_lst, done_lst = [], [], []
+
         total_rewards = 0
         total_loss = 0
         learned_times = 0
@@ -216,6 +259,11 @@ class Trainer:
             obs_next, rew, done, _, _ = self.env.step(action)
             total_rewards += rew
             self.steps += 1
+            if cache:
+                obs_lst.append(obs_next)
+                action_lst.append(action)
+                rew_lst.append(rew)
+                done_lst.append(done)
             stacked_obs.append(obs_next)
             self.replay_buffer.add(obs_tuple, action, rew, done)
             if self.reset and self.steps % self.reset == 0:
@@ -233,6 +281,8 @@ class Trainer:
                 break
         if not random_action:
             self.replay_buffer.step()
+        if cache:
+            self._save_transitions(obs_lst, action_lst, rew_lst, done_lst, save_loc)
         avg_loss = total_loss / learned_times if learned_times > 0 else 0
         return total_rewards, avg_loss, self.optimizer.param_groups[0]['lr']
 
@@ -252,7 +302,6 @@ class Trainer:
         )
         rewards = 0
         while True:
-            t = time.time()
             obs_tuple = tuple(stacked_obs)
             model_input = np.concatenate(obs_tuple, dtype=np.float32)
             action = self.get_action(model_input)
@@ -281,7 +330,9 @@ class Trainer:
         self.model.reset_noise()
         self.target_model.reset_noise()
 
-        obs = self._preprocess_train(obs)
+        obs = self._preprocess_train(obs,
+                                     no_transform=False, cat_orig=self.svea)
+        obs.requires_grad = True
         target = self._compute_target(obs_next, rew, done)
         act = torch.as_tensor(act,
                               dtype=torch.int64,
@@ -289,10 +340,16 @@ class Trainer:
         self.model.train()
         with torch.amp.autocast(self.device):
             self.optimizer.zero_grad(set_to_none=True)
-            # obs.requires_grad = True
             q = self.model(obs)
             if self.transform:
-                q = (q[:self.batch_size] + q[self.batch_size:]) / 2.
+                if self.svea:
+                    q = (q[:self.batch_size] +
+                         q[self.batch_size:self.batch_size * 2] +
+                         q[self.batch_size * 2:])
+                    q /= 3.
+                else:
+                    q = (q[:self.batch_size] + q[self.batch_size:])
+                    q /= 2.
             q = torch.gather(q, -1, act)
             loss = self.criterion(q, target)
             if self.replay_buffer.prioritized:
@@ -301,7 +358,6 @@ class Trainer:
                 error = np.abs(error)
                 weights = self.replay_buffer.update_priority(error, indices)
                 weights = torch.as_tensor(weights, device=self.device)
-                # print(weights)
                 loss = loss * weights.reshape(loss.shape)
             loss = loss.mean()
 
@@ -355,14 +411,13 @@ class Trainer:
                 obs_tuple = self._process_frames(stacked_obs)
                 stacked_obs.append(o)
                 self.replay_buffer.add(obs_tuple, a, r, d)
-        stats_imgs = np.concatenate(stats_imgs)
         print('loading complete, with buffer length', len(self.replay_buffer))
 
     def save_explorations(self, n_episodes, save_loc='./explorations/'):
         """
         interact with environment n episodes with random agent, save locally
         please note that explorations are only effective
-        when the environment and gap is exactly the same
+        when the environment is exactly the same
         (other settings, including replay buffer can change)
 
         this function will automatically skip any existing explorations,
@@ -382,10 +437,7 @@ class Trainer:
             obs_lst = [obs]
             action_lst, rew_lst, done_lst = [], [], []
             while True:
-                t = time.time()
                 action = self.env.action_space.sample()
-                # predict with model to simulate the time taken in real episode
-                self._warmup(self.model)
                 obs_next, rew, done, _, _ = self.env.step(action)
                 obs_lst.append(obs_next)
                 action_lst.append(action)
@@ -393,14 +445,7 @@ class Trainer:
                 done_lst.append(done)
                 if done:
                     break
-            obs_lst = np.array(obs_lst, dtype=obs.dtype)
-            if max(action_lst) < 256:
-                action_lst = np.array(action_lst, dtype=np.uint8)
-            else:
-                action_lst = np.array(action_lst, dtype=np.uint64)
-            rew_lst = np.array(rew_lst, dtype=np.float32)
-            done_lst = np.array(done_lst, dtype=np.bool8)
-            np.savez_compressed(fname, o=obs_lst, a=action_lst, r=rew_lst, d=done_lst)
+            self._save_transitions(obs_lst, action_lst, rew_lst, done_lst, fname)
             print(f'saved exploration at {os.path.abspath(fname)}')
 
     def save_models(self, prefix=''):

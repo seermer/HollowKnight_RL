@@ -75,6 +75,7 @@ ___________________________
   - [x] NAdam Optimizer
   - [x] Reset Training
   - [x] Proportional Prioritized Experience Replay
+  - [x] SVEA
 
 
 
@@ -106,6 +107,7 @@ _______________________________
 - remove non-cuda support to use cuda mix-precision
 - Add reset training
 - Add Proportional Prioritized experience replay
+- Add SVEA
 
 
 _______________________________
@@ -138,6 +140,7 @@ _______________________________
 - [Noisy Networks for Exploration](https://arxiv.org/abs/1706.10295)
 - [The Primacy Bias in Deep Reinforcement Learning](https://arxiv.org/abs/2205.07802)
 - [Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
+- [Stabilizing Deep Q-Learning with ConvNets and Vision Transformers under Data Augmentation](https://arxiv.org/abs/2107.00644)
 
 - https://github.com/toshikwa/fqf-iqn-qrdqn.pytorch/blob/master/fqf_iqn_qrdqn/network.py
 - https://github.com/pytorch/vision/blob/main/torchvision/models/vgg.py

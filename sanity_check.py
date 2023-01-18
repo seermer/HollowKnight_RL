@@ -72,11 +72,12 @@ def main():
                           learn_freq=1,
                           model=m,
                           lr=1e-3,
+                          lr_decay=False,
                           criterion=torch.nn.MSELoss(),
                           batch_size=32,
                           device=DEVICE,
                           is_double=True,
-                          DrQ=True,
+                          drq=False,
                           no_save=True)
     train(dqn)
 

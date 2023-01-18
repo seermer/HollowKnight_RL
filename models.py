@@ -3,12 +3,13 @@ import numpy as np
 from torch import nn
 from torch.nn.utils.parametrizations import spectral_norm
 from torch.nn import functional as F
-from torchvision.ops.misc import SqueezeExcitation as SE
 
 
-def param_init(m):  # code adapted from torchvision VGG class
+def param_init(m, nonlinearity='relu'):  # code adapted from torchvision VGG class
     if isinstance(m, nn.Conv2d):
-        nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity='relu')
+        nn.init.kaiming_normal_(m.weight,
+                                a=1e-2,
+                                mode="fan_out", nonlinearity=nonlinearity)
         if m.bias is not None:
             nn.init.constant_(m.bias, 0)
     elif isinstance(m, NoisyLinear):
@@ -54,6 +55,8 @@ class NoisyLinear(nn.Module):
         return x.normal_().sign().mul(x.abs().sqrt())
 
     def reset_param(self):
+        # nn.init.normal_(self.mu_W, 0, 0.01)
+        # nn.init.constant_(self.mu_bias, 0)
         bound = 1 / np.sqrt(self.in_features)
         self.mu_W.data.uniform_(-bound, bound)
         self.mu_bias.data.uniform_(-bound, bound)
@@ -79,12 +82,13 @@ class NoisyLinear(nn.Module):
 
 
 class BasicBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, stride: int = 1):
+    def __init__(self, in_channels: int, out_channels: int, stride: int = 1, 
+                 act=nn.ReLU(inplace=True)):
         super(BasicBlock, self).__init__()
-        self.act = nn.ReLU(inplace=True)
         self.convs = nn.Sequential(
+            act,
             nn.Conv2d(in_channels, out_channels, 3, stride, 1),
-            self.act,
+            act,
             nn.Conv2d(out_channels, out_channels, 3, 1, 1)
         )
         self.shortcut = nn.Sequential(
@@ -96,38 +100,50 @@ class BasicBlock(nn.Module):
         feat_map = self.convs(x)
         shortcut = self.shortcut(x)
         x = feat_map + shortcut
-        x = self.act(x)
         return x
 
 
 class AbstractExtractor(nn.Module):
-    def __init__(self, obs_shape: tuple, in_channels: int):
+    def __init__(self, obs_shape: tuple, in_channels: int,
+                 activation='relu', sn=False):
         super(AbstractExtractor, self).__init__()
+        self.activation_name = activation
 
     def forward(self, x):
         raise NotImplementedError
 
 
 class ResidualExtractor(AbstractExtractor):
-    def __init__(self, obs_shape: tuple, in_channels: int):
-        super(ResidualExtractor, self).__init__(obs_shape, in_channels)
-        act = nn.ReLU(inplace=True)
+    def __init__(self, obs_shape: tuple, in_channels: int, activation='relu', sn=False):
+        super(ResidualExtractor, self).__init__(obs_shape, in_channels, activation, sn)
+        if self.activation_name == 'relu':
+            act = nn.ReLU(inplace=True)
+        elif self.activation_name == 'leaky_relu':
+            act = nn.LeakyReLU(inplace=True)
+        else:
+            raise NotImplementedError(activation)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape //= 32
+        final = nn.Conv2d(256, 256, kernel_size=1, stride=1)
+        if sn:
+            final = spectral_norm(final)
         self.convs = nn.Sequential(
-            nn.Conv2d(in_channels, 32, 3, 2, 1),
+            nn.Conv2d(in_channels, 32, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(32, 48, 3, 2, 1),
-            act,
-            BasicBlock(48, 48),
-            nn.Conv2d(48, 96, 3, 2, 1),
-            act,
-            nn.Conv2d(96, 160, 3, 2, 1),
-            act,
-            BasicBlock(160, 160),
-            nn.Conv2d(160, 256, 3, 2, 1),
-            act,
-            BasicBlock(256, 256),
+            nn.Conv2d(32, 48, kernel_size=3, stride=1, padding=1),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+            BasicBlock(48, 48, act=act),
+            nn.Conv2d(48, 96, kernel_size=1, stride=1),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+            BasicBlock(96, 96, act=act),
+            nn.Conv2d(96, 160, kernel_size=1, stride=1),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+            BasicBlock(160, 160, act=act),
+            BasicBlock(160, 160, act=act),
+            nn.Conv2d(160, 256, kernel_size=1, stride=1),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+            BasicBlock(256, 256, act=act),
+            final,
             nn.Flatten(),
         )
         self.units = 256 * np.prod(out_shape)
@@ -141,11 +157,19 @@ class ResidualExtractor(AbstractExtractor):
 
 
 class SimpleExtractor(AbstractExtractor):
-    def __init__(self, obs_shape: tuple, in_channels: int):
-        super(SimpleExtractor, self).__init__(obs_shape, in_channels)
-        act = nn.ReLU(inplace=True)
+    def __init__(self, obs_shape: tuple, in_channels: int, activation='relu', sn=False):
+        super(SimpleExtractor, self).__init__(obs_shape, in_channels, activation, sn)
+        if self.activation_name == 'relu':
+            act = nn.ReLU(inplace=True)
+        elif self.activation_name == 'leaky_relu':
+            act = nn.LeakyReLU(inplace=True)
+        else:
+            raise NotImplementedError(activation)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape //= 32
+        final = nn.Conv2d(160, 320, kernel_size=3, stride=2, padding=1)
+        if sn:
+            final = spectral_norm(final)
         self.convs = nn.Sequential(
             nn.Conv2d(in_channels, 32, kernel_size=3, stride=2, padding=1),
             act,
@@ -155,7 +179,7 @@ class SimpleExtractor(AbstractExtractor):
             act,
             nn.Conv2d(96, 160, kernel_size=3, stride=2, padding=1),
             act,
-            nn.Conv2d(160, 320, kernel_size=3, stride=2, padding=1),
+            final,
             act,
             nn.Flatten(),
         )
@@ -170,17 +194,25 @@ class SimpleExtractor(AbstractExtractor):
 
 
 class TinyExtractor(AbstractExtractor):
-    def __init__(self, obs_shape: tuple, in_channels: int):
-        super(TinyExtractor, self).__init__(obs_shape, in_channels)
-        act = nn.ReLU(inplace=True)
+    def __init__(self, obs_shape: tuple, in_channels: int, activation='relu', sn=False):
+        super(TinyExtractor, self).__init__(obs_shape, in_channels, activation, sn)
+        if self.activation_name == 'relu':
+            act = nn.ReLU(inplace=True)
+        elif self.activation_name == 'leaky_relu':
+            act = nn.LeakyReLU(inplace=True)
+        else:
+            raise NotImplementedError(activation)
         out_shape = np.array(obs_shape, dtype=int)
         out_shape = out_shape // 32
+        final = nn.Conv2d(64, 128, kernel_size=2, stride=2)
+        if sn:
+            final = spectral_norm(final)
         self.convs = nn.Sequential(
             nn.Conv2d(in_channels, 32, kernel_size=4, stride=4),
             act,
             nn.Conv2d(32, 64, kernel_size=4, stride=4),
             act,
-            nn.Conv2d(64, 128, kernel_size=2, stride=2),
+            final,
             act,
             nn.Flatten()
         )
@@ -194,41 +226,9 @@ class TinyExtractor(AbstractExtractor):
         return x
 
 
-class AttentionExtractor(AbstractExtractor):
-    def __init__(self, obs_shape: tuple, in_channels: int):
-        super(AttentionExtractor, self).__init__(obs_shape, in_channels)
-        act = nn.ReLU(inplace=True)
-        out_shape = np.array(obs_shape, dtype=int)
-        out_shape //= 32
-        self.convs = nn.Sequential(
-            nn.Conv2d(in_channels, 32, kernel_size=5, stride=2, padding=2),
-            act,
-            nn.Conv2d(32, 48, kernel_size=3, stride=2, padding=1),
-            act,
-            nn.Conv2d(48, 96, kernel_size=3, stride=2, padding=1),
-            act,
-            SE(96, 12, activation=lambda: act),
-            nn.Conv2d(96, 160, kernel_size=3, stride=2, padding=1),
-            act,
-            SE(160, 16, activation=lambda: act),
-            nn.Conv2d(160, 256, kernel_size=3, stride=2, padding=1),
-            act,
-            nn.Conv2d(256, 960, kernel_size=1),
-            act,
-            nn.AvgPool2d(tuple(out_shape)),
-        )
-        self.units = 960
-
-        for m in self.modules():
-            param_init(m)
-
-    def forward(self, x):
-        x = self.convs(x)
-        return x
-
-
 class AbstractFullyConnected(nn.Module):
-    def __init__(self, extractor: nn.Module, n_out: int, noisy=False, sn=False):
+    def __init__(self, extractor: AbstractExtractor, n_out: int,
+                 activation='relu', noisy=False, sn=False):
         if noisy:
             assert not sn, 'spectral norm cannot be used with noisy net'
         super(AbstractFullyConnected, self).__init__()
@@ -236,7 +236,12 @@ class AbstractFullyConnected(nn.Module):
         self.resetable = nn.ModuleList()
         self.linear_cls = NoisyLinear if noisy else nn.Linear
         self.extractor = extractor
-        self.act = nn.ReLU(inplace=True)
+        if activation.lower() == 'relu':
+            self.act = nn.ReLU(inplace=True)
+        elif activation.lower() == 'leaky_relu':
+            self.act = nn.LeakyReLU(inplace=True)
+        else:
+            raise NotImplementedError(activation)
 
     def reset_noise(self):
         for layer in self.noisy:
@@ -250,7 +255,7 @@ class AbstractFullyConnected(nn.Module):
         n = 0
         for layer in self.resetable:
             n += 1
-            param_init(layer)
+            param_init(layer, nonlinearity=self.extractor.activation_name)
         print(f'{n} linear layers parameter reset successfully')
 
     def forward(self, x, **kwargs):
@@ -258,10 +263,11 @@ class AbstractFullyConnected(nn.Module):
 
 
 class SinglePathMLP(AbstractFullyConnected):
-    def __init__(self, extractor: nn.Module, n_out: int, noisy=False, sn=False):
-        super(SinglePathMLP, self).__init__(extractor, n_out, noisy, sn)
-        self.linear = self.linear_cls(extractor.units, 512)
-        self.out = self.linear_cls(512, n_out)
+    def __init__(self, extractor: AbstractExtractor, n_out: int,
+                 activation='relu', noisy=False, sn=False):
+        super(SinglePathMLP, self).__init__(extractor, n_out, activation, noisy, sn)
+        self.linear = self.linear_cls(extractor.units, 800)
+        self.out = self.linear_cls(800, n_out)
         if sn:
             self.linear = spectral_norm(self.linear)
         if noisy:
@@ -285,8 +291,9 @@ class SinglePathMLP(AbstractFullyConnected):
 
 
 class DuelingMLP(AbstractFullyConnected):
-    def __init__(self, extractor: nn.Module, n_out: int, noisy=False, sn=False):
-        super(DuelingMLP, self).__init__(extractor, n_out, noisy, sn)
+    def __init__(self, extractor: AbstractExtractor, n_out: int,
+                 activation='relu', noisy=False, sn=False):
+        super(DuelingMLP, self).__init__(extractor, n_out, activation, noisy, sn)
         self.linear_val = self.linear_cls(extractor.units, 512)
         self.linear_adv = self.linear_cls(extractor.units, 512)
         self.val = self.linear_cls(512, 1)

@@ -223,7 +223,7 @@ class HKEnv(gym.Env):
                    monitor['top'] + monitor['height'] // 4,
                    monitor['width'] // 2,
                    monitor['height'] // 2)
-        return pyautogui.locateOnScreen(f'locator/menu_badge.png',
+        return pyautogui.locateOnScreen(f'locator/attuned.png',
                                         region=monitor,
                                         confidence=0.925)
 
@@ -262,6 +262,7 @@ class HKEnv(gym.Env):
         t = self.gap - (time.time() - self._prev_time)
         if t > 0:
             time.sleep(t)
+        # print(t)
         self._prev_time = time.time()
         action_rew = 0
         if actions == self.prev_action:
@@ -351,3 +352,28 @@ class HKEnv(gym.Env):
         self._episode_time = None
         self._prev_time = None
         gc.collect()
+
+
+class HKEnvSurvive(HKEnv):
+    ACTIONS = [Move, Displacement]
+
+    def step(self, actions):
+        t = self.gap - (time.time() - self._prev_time)
+        if t > 0:
+            time.sleep(t)
+        # print(t)
+        self._prev_time = time.time()
+        actions = self._to_multi_discrete(actions)
+        self._step_actions(actions)
+        obs, knight_hp, enemy_hp = self.observe()
+
+        win = self.prev_enemy_hp < enemy_hp
+        lose = knight_hp == 0
+        done = win or lose
+
+        hurt = knight_hp < self.prev_knight_hp
+        self.prev_knight_hp = knight_hp
+
+        rew = (-self.w1) if hurt else (knight_hp / 18. + 0.4)
+        rew = np.clip(rew, -1.5, 1.5)
+        return obs, rew, done, False, None
