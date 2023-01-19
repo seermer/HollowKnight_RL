@@ -76,6 +76,7 @@ ___________________________
   - [x] Reset Training
   - [x] Proportional Prioritized Experience Replay
   - [x] SVEA
+  - [x] Averaged-DQN
 
 
 
@@ -108,6 +109,7 @@ _______________________________
 - Add reset training
 - Add Proportional Prioritized experience replay
 - Add SVEA
+- Add Averaged-DQN
 
 
 _______________________________
@@ -141,6 +143,7 @@ _______________________________
 - [The Primacy Bias in Deep Reinforcement Learning](https://arxiv.org/abs/2205.07802)
 - [Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
 - [Stabilizing Deep Q-Learning with ConvNets and Vision Transformers under Data Augmentation](https://arxiv.org/abs/2107.00644)
+- [Averaged-DQN: Variance Reduction and Stabilization for Deep Reinforcement Learning](https://arxiv.org/abs/1611.01929)
 
 - https://github.com/toshikwa/fqf-iqn-qrdqn.pytorch/blob/master/fqf_iqn_qrdqn/network.py
 - https://github.com/pytorch/vision/blob/main/torchvision/models/vgg.py

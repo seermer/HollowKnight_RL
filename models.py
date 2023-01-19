@@ -243,14 +243,17 @@ class AbstractFullyConnected(nn.Module):
         else:
             raise NotImplementedError(activation)
 
+    @torch.no_grad()
     def reset_noise(self):
         for layer in self.noisy:
             layer.reset_noise()
 
+    @torch.no_grad()
     def noise_mode(self, mode):
         for layer in self.noisy:
             layer.noise_mode(mode)
 
+    @torch.no_grad()
     def reset_params(self):
         n = 0
         for layer in self.resetable:

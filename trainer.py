@@ -13,7 +13,7 @@ class Trainer:
     def __init__(self, env, replay_buffer,
                  n_frames, gamma, eps, eps_func, target_steps, learn_freq,
                  model, lr, lr_decay, criterion, batch_size, device,
-                 is_double=True, drq=True, svea=True, reset=0,
+                 is_double=True, drq=True, svea=True, reset=0, n_targets=1,
                  save_suffix='', no_save=False):
         """
         Initialize a DQN trainer
@@ -40,6 +40,7 @@ class Trainer:
         :param drq: True to use Data regularized Q
         :param svea: True to use svea, only work with drq enabled
         :param reset: number of environment steps between each model reset (0 for no reset)
+        :param n_targets: number of targets to use for Averaged-DQN, 1 for no averaged
         :param save_suffix: suffix for save location
         :param no_save: True if avoid saving logs and models
         """
@@ -55,17 +56,19 @@ class Trainer:
         self.learn_freq = max(1, int(learn_freq))
         self.num_batches = max(1, int(1. / learn_freq))
 
+        assert n_targets > 0, 'only positive number of targets supported'
         self.model = model.to(device)
-        self.target_model = copy.deepcopy(self.model)
+        self.target_models = [copy.deepcopy(self.model) for _ in range(n_targets)]
         self.init_lr = lr
         self.final_lr = lr * 0.625
         self.lr_decay = lr_decay
         self.optimizer = torch.optim.NAdam(self.model.parameters(),
                                            lr=lr, eps=0.005 / batch_size)
         self.model.eval()
-        self.target_model.eval()
-        for param in self.target_model.parameters():
-            param.requires_grad = False
+        for target in self.target_models:
+            target.eval()
+            for param in target.parameters():
+                param.requires_grad = False
         self.criterion = criterion
         if hasattr(self.criterion, 'to'):
             self.criterion = self.criterion.to(device)
@@ -108,7 +111,8 @@ class Trainer:
 
         for _ in range(3):
             self._warmup(self.model)
-            self._warmup(self.target_model)
+            for target in self.target_models:
+                self._warmup(target)
 
     @staticmethod
     def _process_frames(frames):
@@ -135,7 +139,7 @@ class Trainer:
         np.savez_compressed(fname, o=obs_lst, a=action_lst, r=rew_lst, d=done_lst)
 
     @torch.no_grad()
-    def _preprocess_train(self, obs, no_transform=False, cat_orig=False):
+    def _preprocess_train_obs(self, obs, no_transform=False, cat_orig=False):
         obs = torch.as_tensor(obs,
                               device=self.device)
         if len(obs.shape) != 4:  # not image
@@ -154,10 +158,15 @@ class Trainer:
         else:
             return obs
 
-    def _update_target(self):
-        self.target_model.load_state_dict(self.model.state_dict())
-        self.target_model.eval()
-        self._learn_since_replace = 0
+    def _update_target(self, i: int):
+        if i < len(self.target_models):
+            self.target_models[i].load_state_dict(self.model.state_dict())
+            self.target_models[i].eval()
+            if i == 0:
+                self.target_replace_times += 1
+                self._learn_since_replace = 0
+                if self.target_steps > 500:
+                    print(f'target replaced {self.target_replace_times} times')
 
     def _warmup(self, model):
         """
@@ -167,23 +176,22 @@ class Trainer:
         c, *shape = self.env.observation_space.shape
         with torch.amp.autocast(self.device):
             model(torch.rand((1, self.n_frames * c) + tuple(shape),
-                             dtype=torch.float32,
                              device=self.device)).detach().cpu().numpy()
 
     @torch.no_grad()
     def _compute_target(self, obs_next, rew, done):
-        rew = torch.as_tensor(rew,
-                              dtype=torch.float32,
-                              device=self.device)
-        obs_next = self._preprocess_train(obs_next,
-                                          no_transform=self.svea,
-                                          cat_orig=False)
-        done = torch.as_tensor(done,
-                               dtype=torch.float32,
-                               device=self.device)
-
         with torch.amp.autocast(self.device):
-            target_q = self.target_model(obs_next).detach()
+            obs_next = self._preprocess_train_obs(obs_next,
+                                                  no_transform=self.svea,
+                                                  cat_orig=False)
+            rew = torch.as_tensor(rew,
+                                  device=self.device)
+            done = torch.as_tensor(done,
+                                   device=self.device)
+            target_q = self.target_models[0](obs_next)
+            for target in self.target_models[1:]:
+                target_q += target(obs_next)
+            target_q = target_q.detach() / len(self.target_models)
             if self.is_double:
                 with torch.inference_mode():
                     max_act = self.model(obs_next, adv_only=True).detach()
@@ -202,9 +210,9 @@ class Trainer:
         """
         find the action with largest Q value output by online model
         """
-        obs = torch.as_tensor(obs, dtype=torch.float32,
-                              device=self.device).unsqueeze(0)
         with torch.amp.autocast(self.device):
+            obs = torch.as_tensor(obs,
+                                  device=self.device).unsqueeze(0)
             if len(obs.shape) == 4:
                 self._rescale(obs)
             pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
@@ -269,7 +277,8 @@ class Trainer:
             if self.reset and self.steps % self.reset == 0:
                 print('model reset')
                 self.model.reset_params()
-                self._update_target()
+                for i in range(len(self.target_models)):
+                    self._update_target(i)
             if not random_action:
                 self.eps = self.eps_func(self.eps, self.steps)
                 if len(self.replay_buffer) > self.batch_size and self.steps % self.learn_freq == 0:
@@ -328,17 +337,19 @@ class Trainer:
                 self.replay_buffer.sample(self.batch_size)
             indices = []
         self.model.reset_noise()
-        self.target_model.reset_noise()
+        for target in self.target_models:
+            target.reset_noise()
 
-        obs = self._preprocess_train(obs,
-                                     no_transform=False, cat_orig=self.svea)
-        obs.requires_grad = True
         target = self._compute_target(obs_next, rew, done)
         act = torch.as_tensor(act,
                               dtype=torch.int64,
                               device=self.device)
         self.model.train()
         with torch.amp.autocast(self.device):
+            obs = self._preprocess_train_obs(obs,
+                                             no_transform=False,
+                                             cat_orig=self.svea)
+            obs.requires_grad = True
             self.optimizer.zero_grad(set_to_none=True)
             q = self.model(obs)
             if self.transform:
@@ -370,14 +381,9 @@ class Trainer:
 
         with torch.no_grad():
             loss = float(loss.detach().cpu().numpy())
-            if self._learn_since_replace == self.target_steps:
-                self._update_target()
-                self.target_replace_times += 1
-                self._learn_since_replace = 0
-                if self.target_steps > 500:  # prevent frequent printing
-                    print(f'target replaced {self.target_replace_times} times')
-            self.learn_steps += 1
             self._learn_since_replace += 1
+            self.learn_steps += 1
+            self._update_target(self._learn_since_replace % self.target_steps)
         return loss
 
     def load_explorations(self, save_loc='./explorations/'):
@@ -448,15 +454,19 @@ class Trainer:
             self._save_transitions(obs_lst, action_lst, rew_lst, done_lst, fname)
             print(f'saved exploration at {os.path.abspath(fname)}')
 
-    def save_models(self, prefix=''):
+    def save_models(self, prefix='', online_only=False):
         """
-        save online model, target model, and optimizer checkpoint
+        save online model, target models, and optimizer checkpoint
 
         :param prefix: prefix for the model file you want to save
+        :param online_only: True if only save online
         """
         if not self.no_save:
-            torch.save(self.model.state_dict(), self.save_loc + prefix + 'model.pt')
-            torch.save(self.target_model.state_dict(), self.save_loc + prefix + 'target_model.pt')
+            torch.save(self.model.state_dict(), self.save_loc + prefix + 'online.pt')
+            if online_only:
+                return
+            for i, target in enumerate(self.target_models):
+                torch.save(target.state_dict(), self.save_loc + prefix + f'target{i}.pt')
             torch.save(self.optimizer.state_dict(), self.save_loc + prefix + 'optimizer.pt')
 
     def log(self, info, log_step):
