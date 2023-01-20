@@ -191,10 +191,11 @@ class Trainer:
             target_q = self.target_models[0](obs_next)
             for target in self.target_models[1:]:
                 target_q += target(obs_next)
-            target_q = target_q.detach() / len(self.target_models)
+            if len(self.target_models) > 1:
+                target_q /= len(self.target_models)
             if self.is_double:
                 with torch.inference_mode():
-                    max_act = self.model(obs_next, adv_only=True).detach()
+                    max_act = self.model(obs_next, adv_only=True)
                     max_act = torch.argmax(max_act, dim=-1, keepdim=True)
                 max_target_q = torch.gather(target_q, -1, max_act)
             else:
@@ -215,7 +216,7 @@ class Trainer:
                                   device=self.device).unsqueeze(0)
             if len(obs.shape) == 4:
                 self._rescale(obs)
-            pred = self.model(obs, adv_only=True).detach().cpu().numpy()[0]
+            pred = self.model(obs, adv_only=True).cpu().numpy()[0]
         return np.argmax(pred)
 
     def run_episode(self, random_action=False, cache=False):

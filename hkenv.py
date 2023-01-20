@@ -297,8 +297,11 @@ class HKEnv(gym.Env):
         # print('reward', reward)
         # print()
 
-        self.prev_knight_hp = knight_hp
-        self.prev_enemy_hp = enemy_hp
+        if done:
+            self.cleanup()
+        else:
+            self.prev_knight_hp = knight_hp
+            self.prev_enemy_hp = enemy_hp
         reward = np.clip(reward, -1.5, 1.5)
         return obs, reward, done, False, None
 
