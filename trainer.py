@@ -133,7 +133,7 @@ class Trainer:
         if max(action_lst) < 256:
             action_lst = np.array(action_lst, dtype=np.uint8)
         else:
-            action_lst = np.array(action_lst, dtype=np.uint64)
+            action_lst = np.array(action_lst, dtype=np.uint32)
         rew_lst = np.array(rew_lst, dtype=np.float32)
         done_lst = np.array(done_lst, dtype=np.bool8)
         np.savez_compressed(fname, o=obs_lst, a=action_lst, r=rew_lst, d=done_lst)
@@ -147,10 +147,10 @@ class Trainer:
 
         obs = self._rescale(obs)
         if self.transform and not no_transform:
-            scale = torch.randn((self.batch_size * 2, 1, 1, 1),
+            scale = torch.randn((self.batch_size, 1, 1, 1),
                                 device=self.device)
-            scale = torch.clip_(scale, -2, 2) * 0.04 + 1.
-            augmented = torch.vstack((obs, self.transform(obs))) * scale
+            scale = torch.clip_(scale, -2, 2) * 0.05 + 1.
+            augmented = torch.vstack((obs * scale, self.transform(obs)))
             augmented = torch.clip_(augmented, -1, 1)
             if cat_orig:
                 augmented = torch.vstack((augmented, obs))
@@ -175,7 +175,7 @@ class Trainer:
         """
         c, *shape = self.env.observation_space.shape
         with torch.amp.autocast(self.device):
-            model(torch.rand((1, self.n_frames * c) + tuple(shape),
+            model(torch.rand((self.batch_size, self.n_frames * c) + tuple(shape),
                              device=self.device)).detach().cpu().numpy()
 
     @torch.no_grad()
@@ -336,7 +336,7 @@ class Trainer:
         else:
             obs, act, rew, obs_next, done = \
                 self.replay_buffer.sample(self.batch_size)
-            indices = []
+            indices = None
         self.model.reset_noise()
         for target in self.target_models:
             target.reset_noise()
@@ -365,12 +365,13 @@ class Trainer:
             q = torch.gather(q, -1, act)
             loss = self.criterion(q, target)
             if self.replay_buffer.prioritized:
-                error = q.detach() - target
-                error = error.cpu().numpy().flatten()
-                error = np.abs(error)
-                weights = self.replay_buffer.update_priority(error, indices)
+                with torch.no_grad():
+                    error = q.detach() - target
+                    error = error.cpu().numpy().flatten()
+                    error = np.abs(error)
+                    weights = self.replay_buffer.update_priority(error, indices)
                 weights = torch.as_tensor(weights, device=self.device)
-                loss = loss * weights.reshape(loss.shape)
+                loss *= weights.reshape(loss.shape)
             loss = loss.mean()
 
         self.scaler.scale(loss).backward()

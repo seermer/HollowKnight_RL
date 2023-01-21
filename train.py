@@ -40,7 +40,6 @@ def train(dqn):
             dqn.save_models('besttrain', online_only=True)
         if i % 10 == 0:
             dqn.run_episode(random_action=True)
-            dqn.learn()
 
             if i >= 100:
                 eval_rew = dqn.evaluate()
@@ -65,7 +64,7 @@ def main():
     m = get_model(env, n_frames)
     replay_buffer = buffer.MultistepBuffer(180000, n=10, gamma=0.99,
                                            prioritized={
-                                               'alpha': 0.6,
+                                               'alpha': 0.5,
                                                'beta': 0.4,
                                                'beta_anneal': 0.6 / 550.
                                            })
@@ -85,7 +84,7 @@ def main():
                           svea=False,
                           reset=0,  # no reset
                           n_targets=1,
-                          save_suffix='HornetPER',
+                          save_suffix='Hornet',
                           no_save=False)
     train(dqn)
 
