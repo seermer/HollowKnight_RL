@@ -82,7 +82,7 @@ class NoisyLinear(nn.Module):
 
 
 class BasicBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, stride: int = 1, 
+    def __init__(self, in_channels: int, out_channels: int, stride: int = 1,
                  act=nn.ReLU(inplace=True)):
         super(BasicBlock, self).__init__()
         self.convs = nn.Sequential(
@@ -243,17 +243,14 @@ class AbstractFullyConnected(nn.Module):
         else:
             raise NotImplementedError(activation)
 
-    @torch.no_grad()
     def reset_noise(self):
         for layer in self.noisy:
             layer.reset_noise()
 
-    @torch.no_grad()
     def noise_mode(self, mode):
         for layer in self.noisy:
             layer.noise_mode(mode)
 
-    @torch.no_grad()
     def reset_params(self):
         n = 0
         for layer in self.resetable:

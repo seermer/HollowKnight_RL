@@ -204,7 +204,7 @@ class Trainer:
                 max_target_q = max_target_q[:self.batch_size] + max_target_q[self.batch_size:]
                 max_target_q /= 2.
             target = rew + self.gamma * max_target_q * (1. - done)
-        return target
+        return target.detach()
 
     @torch.inference_mode()
     def get_action(self, obs):
@@ -455,6 +455,7 @@ class Trainer:
                     break
             self._save_transitions(obs_lst, action_lst, rew_lst, done_lst, fname)
             print(f'saved exploration at {os.path.abspath(fname)}')
+            print(f'total reward {np.sum(rew_lst)}')
 
     def save_models(self, prefix='', online_only=False):
         """

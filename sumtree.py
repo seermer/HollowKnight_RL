@@ -38,9 +38,9 @@ class SumTree:
         return idx + 1 - self.maxlen
 
     def update_prio(self, prio: float, idx: int, return_w: bool = True):
-        prio = (prio + 1e-7) ** self.alpha
         if prio > self.max_prio:
             self.max_prio = prio
+        prio = (prio + 1e-7) ** self.alpha
 
         idx = self.maxlen - 1 + idx
         old_prio = self.tree[idx]

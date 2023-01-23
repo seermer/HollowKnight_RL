@@ -75,7 +75,7 @@ class HKEnv(gym.Env):
     ACTIONS = [Move, Attack, Displacement]
 
     def __init__(self, obs_shape=(160, 160), rgb=False, gap=0.165,
-                 w1=1., w2=1., w3=-0.0001):
+                 w1=.8, w2=.8, w3=-0.0001):
         """
         :param obs_shape: the shape of observation returned by step and reset
         :param w1: the weight of negative reward when being hit
@@ -106,6 +106,8 @@ class HKEnv(gym.Env):
         self.w2 = w2
         self.w3 = w3
 
+        self._hold_time = 0.2
+        self._fail_hold_rew = -1e-4
         self._timer = None
         self._episode_time = None
 
@@ -156,7 +158,7 @@ class HKEnv(gym.Env):
             pyautogui.keyDown(key)
             time.sleep(seconds)
             pyautogui.keyUp(key)
-            time.sleep(0.001)
+            time.sleep(0.0005)
 
         if self._timer is None or not self._timer.is_alive():
             # timer available, do timed action
@@ -175,6 +177,12 @@ class HKEnv(gym.Env):
         :param actions: a list of actions
         :return: reward for doing given actions
         """
+        t = self.gap - (time.time() - self._prev_time)
+        if t > 0:
+            time.sleep(t)
+        # print(t)
+        self._prev_time = time.time()
+
         for key in self.holding:
             pyautogui.keyUp(key)
         self.holding = []
@@ -189,7 +197,8 @@ class HKEnv(gym.Env):
                 pyautogui.keyDown(key)
                 self.holding.append(key)
             elif act.name.startswith('TIMED'):
-                action_rew -= 1e-4 * self._timed_hold(key, act.value * 0.2)
+                action_rew += (self._fail_hold_rew *
+                               self._timed_hold(key, act.value * self._hold_time))
             elif isinstance(key, tuple):
                 with pyautogui.hold(key[0]):
                     pyautogui.press(key[1])
@@ -259,11 +268,6 @@ class HKEnv(gym.Env):
         return obs, knight_hp, enemy_hp
 
     def step(self, actions):
-        t = self.gap - (time.time() - self._prev_time)
-        if t > 0:
-            time.sleep(t)
-        # print(t)
-        self._prev_time = time.time()
         action_rew = 0
         if actions == self.prev_action:
             action_rew -= 2e-5
@@ -325,10 +329,13 @@ class HKEnv(gym.Env):
             else:
                 ready = is_loading
         time.sleep(2.25)
+        self.prepare()
+        return self.observe()[0], None
+
+    def prepare(self):
         self.prev_knight_hp, self.prev_enemy_hp = len(self.HP_CKPT), 1.
         self._episode_time = time.time()
         self._prev_time = time.time()
-        return self.observe()[0], None
 
     def close(self):
         self.cleanup()
@@ -355,6 +362,68 @@ class HKEnv(gym.Env):
         self._episode_time = None
         self._prev_time = None
         gc.collect()
+
+
+class HKEnvV2(HKEnv):
+    REWMAPS = {  # map each action to its corresponding reward
+        Move.HOLD_LEFT: 0,
+        Move.HOLD_RIGHT: 0,
+        # Move.LOOK_LEFT: 0,
+        # Move.LOOK_RIGHT: 0,
+        Displacement.TIMED_SHORT_JUMP: 0,
+        Displacement.TIMED_LONG_JUMP: 0,
+        # Displacement.DASH: -1e-5,
+        Attack.ATTACK: -2e-6,
+        # Attack.UP_ATTACK: 0,
+        # Attack.SPELL: 0
+    }
+
+    def __init__(self, obs_shape=(192, 192), rgb=False, gap=0.17,
+                 w1=0.8, w2=0.5, w3=-8e-5):
+        super().__init__(obs_shape, rgb, gap, w1, w2, w3)
+        self._hold_time = self.gap * 0.97
+        self._fail_hold_rew = -1e-5
+
+    def step(self, actions):
+        action_rew = 0
+        if actions == self.prev_action:
+            action_rew -= 2e-5
+        self.prev_action = actions
+        actions = self._to_multi_discrete(actions)
+        action_rew += self._step_actions(actions)
+        obs, knight_hp, enemy_hp = self.observe()
+
+        win = self.prev_enemy_hp < enemy_hp
+        lose = knight_hp == 0
+        done = win or lose
+
+        if win:
+            # lose = False
+            enemy_hp = 0.
+        hurt = knight_hp < self.prev_knight_hp
+        hit = enemy_hp < self.prev_enemy_hp
+
+        reward = (
+                - self.w1 * hurt
+                + self.w2 * hit
+                + action_rew
+        )
+        if not (hurt or hit):
+            reward += self.w3
+        # if win:  # extra reward for winning based on conditions
+        #     reward += knight_hp / 45.
+        # elif lose:
+        #     reward -= enemy_hp / 20.
+        # print('reward', reward)
+        # print()
+
+        if done:
+            self.cleanup()
+        else:
+            self.prev_knight_hp = knight_hp
+            self.prev_enemy_hp = enemy_hp
+        reward = np.clip(reward, -1.5, 1.5)
+        return obs, reward, done, False, None
 
 
 class HKEnvSurvive(HKEnv):
