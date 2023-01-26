@@ -44,13 +44,13 @@ def get_model(env: gym.Env):
 
 def train(dqn):
     print('training started')
-    dqn.run_episodes(n=100, random_action=True, no_sleep=True)
+    dqn.run_episodes(n=100, random_action=True)
 
     for i in range(1000):
-        dqn.run_episode(no_sleep=True)
+        dqn.run_episode()
         if i % 10 == 0:
             print('episode', i)
-            dqn.evaluate(no_sleep=True)
+            dqn.evaluate()
             print()
 
 
@@ -78,6 +78,7 @@ def main():
                           device=DEVICE,
                           is_double=True,
                           drq=False,
+                          svea=False,
                           no_save=True)
     train(dqn)
 

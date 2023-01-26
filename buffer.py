@@ -36,13 +36,13 @@ class Buffer:
     def is_full(self):
         return len(self.buffer) == self.maxlen
 
-    def add(self, obs, act, rew, done):
+    def add(self, obs, act, rew, done, obs_next):
         self._temp_buffer.append((obs, act, rew, done))
         if len(self._temp_buffer) == 2:
-            obs_, act_, rew_, done_ = self._temp_buffer.pop(0)
-            self.buffer.append((obs_, act_, rew_, obs, done_))
+            prev_obs, prev_act, prev_rew, prev_done = self._temp_buffer.pop(0)
+            self.buffer.append((prev_obs, prev_act, prev_rew, obs, prev_done))
             if done:
-                self.buffer.append((obs, act, rew, obs, done))
+                self.buffer.append((obs, act, rew, obs_next, done))
                 self._temp_buffer = []
 
     def sample(self, batch_size):
@@ -81,16 +81,18 @@ class MultistepBuffer(Buffer):
         self.gamma = gamma
 
     def _add_nstep(self, obs_next, done):
-        record = self._temp_buffer.pop(0)
-        obs, act, rew, _ = record
-        for i, rec in enumerate(self._temp_buffer, 1):
-            rew += (self.gamma ** i) * rec[2]
+        obs, act, rew, _ = self._temp_buffer.pop(0)
+        gamma = self.gamma
+        for rec in self._temp_buffer:
+            rew += gamma * rec[2]
+            gamma *= self.gamma
         self.buffer.append((obs, act, rew, obs_next, done))
 
-    def add(self, obs, act, rew, done):
+    def add(self, obs, act, rew, done, obs_next):
         self._temp_buffer.append((obs, act, rew, done))
-        if len(self._temp_buffer) > self.n:
-            self._add_nstep(obs, done)
         if done:
+            self._add_nstep(obs, False)
             while len(self._temp_buffer) > 0:
-                self._add_nstep(obs, done)
+                self._add_nstep(obs_next, done)
+        elif len(self._temp_buffer) > self.n:
+            self._add_nstep(obs, done)

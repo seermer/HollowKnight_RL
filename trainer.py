@@ -258,8 +258,9 @@ class Trainer:
         total_rewards = 0
         total_loss = 0
         learned_times = 0
+        obs_next_tuple = self._process_frames(stacked_obs)
         while True:
-            obs_tuple = self._process_frames(stacked_obs)
+            obs_tuple = obs_next_tuple
             if random_action or self.eps > random.uniform(0, 1):
                 action = self.env.action_space.sample()
             else:
@@ -274,7 +275,8 @@ class Trainer:
                 rew_lst.append(rew)
                 done_lst.append(done)
             stacked_obs.append(obs_next)
-            self.replay_buffer.add(obs_tuple, action, rew, done)
+            obs_next_tuple = self._process_frames(stacked_obs)
+            self.replay_buffer.add(obs_tuple, action, rew, done, obs_next_tuple)
             if self.reset and self.steps % self.reset == 0:
                 print('model reset')
                 self.model.reset_params()
@@ -415,10 +417,12 @@ class Trainer:
                 (obs_lst[0] for _ in range(self.n_frames)),
                 maxlen=self.n_frames
             )
+            obs_next_tuple = self._process_frames(stacked_obs)
             for o, a, r, d in zip(obs_lst[1:], action_lst, rew_lst, done_lst):
-                obs_tuple = self._process_frames(stacked_obs)
+                obs_tuple = obs_next_tuple
                 stacked_obs.append(o)
-                self.replay_buffer.add(obs_tuple, a, r, d)
+                obs_next_tuple = self._process_frames(stacked_obs)
+                self.replay_buffer.add(obs_tuple, a, r, d, obs_next_tuple)
         print('loading complete, with buffer length', len(self.replay_buffer))
 
     def save_explorations(self, n_episodes, save_loc='./explorations/'):
